@@ -8,7 +8,9 @@
     "start": "node dist/index.mjs",
     "build": "node --experimental-strip-types esbuild/esbuild.config.ts",
     "check:ts": "tsc --noEmit -p tsconfig.json",
-    "dev": "node --watch --import tsx src/index.ts",
+    "dev": "concurrently npm:dev:*",
+    "dev:build": "node --experimental-strip-types esbuild/esbuild.config.ts --watch",
+    "dev:start": "node --watch dist/index.mjs",
     "repopulate-db": "node --import tsx src/dev/populate-db/runPopulateDB.ts",
     "test-db:up": "docker compose -f docker-compose.test-db.yml up -d",
     "test-db:down": "docker compose -f docker-compose.test-db.yml down",
@@ -49,7 +51,6 @@
     "sql-template-tag": "^5.2.1",
     "swagger-ui-express": "^5.0.0",
     "tslib": "^2.8.1",
-    "tsx": "^4.20.0",
     "typescript": "^5.8.3",
     "zod": "^3.25.34"
   },
