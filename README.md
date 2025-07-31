@@ -2,7 +2,7 @@
 
 > Node.js REST service for the BadgeHub
 
-## - Development -
+## Development
 ## Install
 
 Make sure [Docker](https://www.docker.com/get-started/) is installed and running.
