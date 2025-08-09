@@ -169,6 +169,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                 className="flex-grow bg-transparent border-none text-slate-200 font-mono focus:ring-0"
               />
               <button
+                type="button"
                 onClick={() => setShowToken(!showToken)}
                 className="text-slate-400 hover:text-white"
                 title={showToken ? "Hide token" : "Show token"}
@@ -176,6 +177,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                 {showToken ? <EyeOffIcon /> : <EyeIcon />}
               </button>
               <button
+                type="button"
                 onClick={handleCopyToken}
                 className="text-slate-400 hover:text-white relative"
                 title="Copy to clipboard"
@@ -219,6 +221,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                   <code>{curlCommand}</code>
                 </pre>
                 <button
+                  type="button"
                   onClick={handleCopyCommand}
                   className="text-slate-400 hover:text-white relative"
                   title="Copy command"
@@ -234,6 +237,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
             </div>
             <div className="flex gap-4 items-center">
               <button
+                type="button"
                 onClick={handleRevokeToken}
                 disabled={isOperating}
                 className="bg-red-600 text-white rounded px-4 py-2 flex items-center gap-2 hover:bg-red-700 disabled:opacity-50"
@@ -242,6 +246,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                 Revoke Token
               </button>
               <button
+                type="button"
                 onClick={handleGenerateToken}
                 disabled={isOperating}
                 className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 disabled:opacity-50"
@@ -254,6 +259,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
           <div>
             <p className="text-slate-300">No active API token.</p>
             <button
+              type="button"
               onClick={handleGenerateToken}
               disabled={isOperating}
               className="mt-4 bg-emerald-600 text-white rounded px-4 py-2 hover:bg-emerald-700 disabled:opacity-50"

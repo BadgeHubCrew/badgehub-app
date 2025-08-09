@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import AppCodePreview from "./AppCodePreview";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
@@ -159,7 +159,10 @@ describe("AppCodePreview", () => {
     expect(await screen.findByText("Image file (100×50)")).toBeInTheDocument();
     const img = screen.getByAltText("image.png");
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "http://example.com/image.png");
+    // Wait for the async useEffect in ImagePreview to set the src attribute
+    await waitFor(() => {
+      expect(img).toHaveAttribute("src", "http://example.com/image.png");
+    });
   });
 
   it("shows JSON preview with pretty print functionality", async () => {
