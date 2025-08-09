@@ -66,7 +66,9 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
         pageStart,
         pageLength,
         badge,
+        badges,
         category,
+        categories,
         search,
         slugs: projectSlugsString,
         userId,
@@ -74,13 +76,18 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
       },
     }) => {
       const projectSlugs = projectSlugsString?.split(",") || [];
+      
+      // Support both single and array parameters for backward compatibility
+      const finalBadges = badges || (badge ? [badge] : undefined);
+      const finalCategories = categories || (category ? [category] : undefined);
+      
       const data = await badgeHubData.getProjectSummaries(
         {
           slugs: projectSlugs,
           pageStart,
           pageLength,
-          badge,
-          category,
+          badges: finalBadges,
+          categories: finalCategories,
           search,
           userId,
           orderBy: orderBy ?? "published_at",

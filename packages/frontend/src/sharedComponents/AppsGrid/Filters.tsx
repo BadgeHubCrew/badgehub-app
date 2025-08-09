@@ -8,21 +8,21 @@ import { CategoryName } from "@shared/domain/readModels/project/Category.ts";
 export type SortOption = "mostInstalled" | undefined;
 
 interface FiltersProps {
-  badge: BadgeSlug | undefined;
-  category: CategoryName | undefined;
+  badges: BadgeSlug[];
+  categories: CategoryName[];
   sortBy: SortOption;
-  onBadgeChange: (value: BadgeSlug | undefined) => void;
-  onCategoryChange: (value: CategoryName | undefined) => void;
+  onBadgesChange: (values: BadgeSlug[]) => void;
+  onCategoriesChange: (values: CategoryName[]) => void;
   onSortByChange: (value: SortOption) => void;
   onResetFilters: () => void;
 }
 
 const Filters: React.FC<FiltersProps> = ({
-  badge,
-  category,
+  badges,
+  categories,
   sortBy,
-  onBadgeChange,
-  onCategoryChange,
+  onBadgesChange,
+  onCategoriesChange,
   onSortByChange,
   onResetFilters,
 }) => {
@@ -33,14 +33,18 @@ const Filters: React.FC<FiltersProps> = ({
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <BadgeSelector
+          multiSelect={true}
+          compact={true}
           noValueSetName={"All"}
-          badge={badge}
-          onBadgeChange={onBadgeChange}
+          badges={badges}
+          onBadgesChange={onBadgesChange}
         />
         <CategorySelector
+          multiSelect={true}
+          compact={true}
           noValueSetName={"All"}
-          category={category}
-          onCategoryChange={onCategoryChange}
+          categories={categories}
+          onCategoriesChange={onCategoriesChange}
         />
         <OptionSelectorWithTitle
           title={"Sort By"}

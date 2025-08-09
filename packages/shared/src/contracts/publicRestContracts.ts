@@ -13,8 +13,10 @@ const errorResponseSchema = z.object({ reason: z.string() });
 export const getProjectsQuerySchema = z.object({
   pageStart: z.coerce.number().optional(),
   pageLength: z.coerce.number().optional(),
-  badge: badgeSlugSchema.optional(),
-  category: categoryNameSchema.optional(),
+  badge: badgeSlugSchema.optional(), // Keep for backward compatibility
+  badges: z.array(badgeSlugSchema).optional(),
+  category: categoryNameSchema.optional(), // Keep for backward compatibility  
+  categories: z.array(categoryNameSchema).optional(),
   slugs: z
     .string()
     .describe("optional comma separated list of project slugs to filter on")

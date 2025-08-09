@@ -29,8 +29,8 @@ export const AppGridWithFilterAndPagination = ({
   const [error, setError] = useState<string | null>(null);
 
   // Filter state
-  const [badge, setBadgeFilter] = useState<BadgeSlug | undefined>();
-  const [category, setCategoryFilter] = useState<CategoryName | undefined>();
+  const [badges, setBadgesFilter] = useState<BadgeSlug[]>([]);
+  const [categories, setCategoriesFilter] = useState<CategoryName[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>();
   // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -40,7 +40,7 @@ export const AppGridWithFilterAndPagination = ({
   useEffect(() => {
     setLoading(true);
 
-    appFetcher({ badge, category })
+    appFetcher({ badges, categories })
       .then((res) => {
         if (typeof res === "object") {
           const body = res;
@@ -55,7 +55,7 @@ export const AppGridWithFilterAndPagination = ({
         setError(e.message || "Failed to fetch projects");
       })
       .finally(() => setLoading(false));
-  }, [badge, category, appFetcher]);
+  }, [badges, categories, appFetcher]);
 
   // Filter apps by search query before pagination
   const filteredSortedApps = useMemo(() => {
@@ -78,24 +78,24 @@ export const AppGridWithFilterAndPagination = ({
   }, [filteredSortedApps, currentPage]);
 
   // Handlers for Filters component
-  const handleBadgeChange = (value: BadgeSlug | undefined) =>
-    setBadgeFilter(value);
-  const handleCategoryChange = (value: CategoryName | undefined) =>
-    setCategoryFilter(value);
+  const handleBadgesChange = (values: BadgeSlug[]) =>
+    setBadgesFilter(values);
+  const handleCategoriesChange = (values: CategoryName[]) =>
+    setCategoriesFilter(values);
   const handleResetFilters = () => {
-    setBadgeFilter(undefined);
-    setCategoryFilter(undefined);
+    setBadgesFilter([]);
+    setCategoriesFilter([]);
   };
 
   return (
     <>
       {!editable && (
         <Filters
-          badge={badge}
-          category={category}
+          badges={badges}
+          categories={categories}
           sortBy={sortBy}
-          onBadgeChange={handleBadgeChange}
-          onCategoryChange={handleCategoryChange}
+          onBadgesChange={handleBadgesChange}
+          onCategoriesChange={handleCategoriesChange}
           onSortByChange={setSortBy}
           onResetFilters={handleResetFilters}
         />

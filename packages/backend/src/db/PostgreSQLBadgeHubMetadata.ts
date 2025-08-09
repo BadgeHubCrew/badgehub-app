@@ -424,8 +424,10 @@ export class PostgreSQLBadgeHubMetadata {
       slugs?: ProjectSlug[];
       pageStart?: number;
       pageLength?: number;
-      badge?: BadgeSlug;
-      category?: CategoryName;
+      badge?: BadgeSlug; // Keep for backward compatibility
+      badges?: BadgeSlug[];
+      category?: CategoryName; // Keep for backward compatibility
+      categories?: CategoryName[];
       search?: string;
       userId?: User["idp_user_id"];
       orderBy: OrderByOption;
@@ -436,18 +438,34 @@ export class PostgreSQLBadgeHubMetadata {
     query = sql`${query}
     where p.deleted_at is null`;
 
-    if (filter.category) {
-      const categoryJsonBMatcher = `["${filter.category}"]`;
-      query = sql`${query}
+    // Handle category filtering (support both single and array)
+    const categoriesToFilter = filter.categories || (filter.category ? [filter.category] : undefined);
+    if (categoriesToFilter && categoriesToFilter.length > 0) {
+      if (categoriesToFilter.length === 1) {
+        const categoryJsonBMatcher = `["${categoriesToFilter[0]}"]`;
+        query = sql`${query}
 and v.app_metadata->'categories' @>
-      ${categoryJsonBMatcher}`;
+        ${categoryJsonBMatcher}`;
+      } else {
+        // For multiple categories, use JSON array overlap operator (?|)
+        query = sql`${query}
+and v.app_metadata->'categories' ?| ${categoriesToFilter}`;
+      }
     }
 
-    if (filter.badge) {
-      const badgesJsonBMatcher = `["${filter.badge}"]`;
-      query = sql`${query}
+    // Handle badge filtering (support both single and array)
+    const badgesToFilter = filter.badges || (filter.badge ? [filter.badge] : undefined);
+    if (badgesToFilter && badgesToFilter.length > 0) {
+      if (badgesToFilter.length === 1) {
+        const badgesJsonBMatcher = `["${badgesToFilter[0]}"]`;
+        query = sql`${query}
 and v.app_metadata->'badges' @>
-      ${badgesJsonBMatcher}`;
+        ${badgesJsonBMatcher}`;
+      } else {
+        // For multiple badges, use JSON array overlap operator (?|)
+        query = sql`${query}
+and v.app_metadata->'badges' ?| ${badgesToFilter}`;
+      }
     }
 
     if (revision !== "draft") {

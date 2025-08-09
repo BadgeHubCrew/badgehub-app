@@ -256,8 +256,10 @@ export class BadgeHubData {
     query: {
       pageStart?: number;
       pageLength?: number;
-      badge?: BadgeSlug;
-      category?: CategoryName;
+      badge?: BadgeSlug; // Keep for backward compatibility
+      badges?: BadgeSlug[];
+      category?: CategoryName; // Keep for backward compatibility
+      categories?: CategoryName[];
       search?: string;
       slugs?: ProjectSlug[];
       userId?: User["idp_user_id"];
