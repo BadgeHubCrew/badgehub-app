@@ -2,6 +2,7 @@ import { ERROR_ICON_URL, FALLBACK_ICON_URL } from "@config.ts";
 import { DownloadIcon } from "@sharedComponents/AppsGrid/DownloadIcon.tsx";
 import GitLink from "@sharedComponents/GitLink.tsx";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
+import MarkdownText from "@sharedComponents/MarkdownText.tsx";
 import { MLink } from "@sharedComponents/MLink.tsx";
 import type React from "react";
 import { useEffect, useState } from "react";
@@ -129,9 +130,14 @@ const AppCard: React.FC<
         </div>
 
         {/* Description with line clamp */}
-        <p className="text-sm opacity-70 leading-relaxed line-clamp-2">
-          {description}
-        </p>
+        {description && (
+          <MarkdownText
+            plainText
+            className="text-sm opacity-70 leading-relaxed line-clamp-2"
+          >
+            {description}
+          </MarkdownText>
+        )}
 
         {/* Tags section pushed to bottom */}
         <div className="mt-auto mb-3">
