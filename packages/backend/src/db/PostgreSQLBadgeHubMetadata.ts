@@ -228,8 +228,25 @@ export class PostgreSQLBadgeHubMetadata {
           WHERE deleted_at IS NULL`
     );
     const badgesP = this.pool.query(
-      sql`SELECT COUNT(*)
-          FROM registered_badges where id like '%-v1'`
+      sql`select
+            count(id)
+          from
+            registered_badges r1
+          where id like '%-v1' and (
+            -- condition a: the record itself matches the criteria
+            (r1.mac like '30:ed%' and r1.created_at < '2025-08-11 19:30:00 cest')
+              or
+              -- condition b: another record with the same mac exists and meets the date criteria
+            exists (
+              select 1
+              from registered_badges r2
+              where
+                r2.mac = r1.mac
+                and
+                r2.id <> r1.id
+                and
+                r2.created_at < '2025-08-10 23:00:00 cest'
+            ));`
     );
 
     const [projectInstalls, projects, projectAuthors, badges] =
