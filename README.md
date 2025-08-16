@@ -3,9 +3,11 @@
 # BadgeHub API and Frontend
 
 > Monorepo with both Node.js REST API and React frontend
+## Authentication
+BadgeHub supports authentication via JWT. This is used with Keycloak. To setup Keycloak for either production or local development and related clients, please refer to [badgehub-infra GitHub repo](https://github.com/BadgeHubCrew/badgehub-infra/tree/main/docs)
 
 ## - Development -
-## Install
+### Install
 
 Make sure [Docker](https://www.docker.com/get-started/) is installed and running.
 
@@ -17,46 +19,15 @@ cp .env.example .env
 
 and fill out the details.
 
-## Run
-
-Then start the Docker containers by typing
-
-```bash
-docker compose up --detach
-```
-
-Then visit [http://localhost:8001/](http://localhost:8001/) for the development BadgeHub homepage.
-
-Visit [http://localhost:8002/](http://localhost:8002/) for the pgAdmin interface.
-Use password `badgehub` to connect to the BadgeHub database server.
-
-Use the [OpenAPI (Swagger) documentation](/openapi) to interact with the REST API.
-
-## Authentication
-
-BadgeHub supports authentication via JWT. This is used with Keycloak. To setup Keycloak for either production or local development and related clients, please refer to [badgehub-infra GitHub repo](https://github.com/BadgeHubCrew/badgehub-infra/tree/main/docs)
-
-## Development
-
-After setting up the development container, you can start it with
-
-```bash
-docker compose up --detach
-```
-
-The API should now be accessible through `localhost:8001`.
-
-And to stop BadgeHub
-
-```bash
-docker compose down
-```
-
-Or, to stop BadgeHub and delete all volumes (to start fresh)
-
-```bash
-docker compose down --volumes
-```
+### Running locally
+The most convenient way to run BadgeHub locally is this way:
+- configure the `.env` file to use the dev keycloak server, like it is done in the `.env.example` file.
+- start the test database with docker: `npm run test-db:up`
+- if this is your first time running BadgeHub, or the populate db script was updated, you should also do:
+  ```bash
+  npm run --workspace=packages/backend repopulate-db
+  ```
+- start the frontend and backend with this command: `npm run dev`
 
 ### Database Migrations
 
@@ -68,7 +39,7 @@ To create a new migration, follow the steps below.
 #### Create a new migration
 
 ```bash
-npm run db-migrate:create -- <migration-name>
+npm run --workspace=packages/backend db-migrate:create -- <migration-name>
 ```
 
 This will create a new migration file in the `migrations` directory with the name `<timestamp>-<migration-name>.js` as well as 2 sql files, one for the up migration and one for the down migration.
@@ -80,28 +51,18 @@ These sql commands should take care of changing the database schema as well as m
 #### Run the migration to test it.
 
 ```bash
-npm run db-migrate:up
+npm run --workspace=packages/backend db-migrate:up
 ```
 
 #### Run the down migration to test it.
 
 ```bash
-npm run db-migrate:down
+npm run --workspace=packages/backend db-migrate:down
 ```
 
 #### Commit the migration files to git.
 
 When the code is deployed, the up migrations will be run automatically before starting the server.
-
-### Applying commands to only 1 container from the compose file
-
-Container commands like `stop`, `start`, `restart` and `logs` can also be sent to one of the containers from the compose file. For example
-
-```bash
-docker compose restart node
-```
-
-will restart the node container only.
 
 ### Testing
 The unit test require the test database to be up and filled in.
@@ -139,6 +100,9 @@ To wind down:
 ```bash
 docker compose --file docker-compose.production.yml down
 ```
+### Infra repo
+The docker compose files used for running BadgeHub in production are maintained in the [badgehub-infra GitHub repo](https://github.com/badgehubcrew/badgehub-infra)
+
 
 ## Tools used
 
