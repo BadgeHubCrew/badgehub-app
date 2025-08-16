@@ -231,7 +231,7 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
 
 // Image Preview Component
 const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({ file, imageBlob }) => {
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>(file.url || "");
 
   useEffect(() => {
     if (imageBlob) {
@@ -254,12 +254,14 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({ file
         </span>
       </div>
       <div className="flex justify-center">
-        <img
-          src={imageUrl}
-          alt={file.full_path}
-          className="max-w-full max-h-96 rounded border border-slate-600"
-          style={{ maxHeight: "400px" }}
-        />
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt={file.full_path}
+            className="max-w-full max-h-96 rounded border border-slate-600"
+            style={{ maxHeight: "400px" }}
+          />
+        )}
       </div>
     </div>
   );

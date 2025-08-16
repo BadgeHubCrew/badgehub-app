@@ -20,5 +20,5 @@ export const TEXT_FILE_EXTENSIONS = [
  * File extensions that should be treated as image files for preview purposes
  */
 export const IMAGE_FILE_EXTENSIONS = [
-  "png", "jpg", "jpeg", "gif", "svg", "webp"
+  "png", "jpg", "jpeg", "gif", "svg", "webp", "bmp", "tiff", "tif", "avif"
 ] as const;

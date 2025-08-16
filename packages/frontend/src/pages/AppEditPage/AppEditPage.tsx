@@ -36,6 +36,7 @@ const AppEditPage: React.FC<{
 }> = ({ slug }) => {
   const [project, setProject] = useState<PossiblyStaleProject | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const { user, keycloak } = useSession();
   const navigate = useNavigate();
@@ -72,17 +73,41 @@ const AppEditPage: React.FC<{
     if (project && !project.stale) return;
     let mounted = true;
     setLoading(true);
+    setError(null);
     (async () => {
-      const res = await (
-        await getFreshAuthorizedTsRestClient(keycloak)
-      ).getDraftProject({
-        params: { slug },
-      });
-      if (mounted && res.status === 200) {
-        const project = res.body;
-        setProject(project);
+      try {
+        const res = await (
+          await getFreshAuthorizedTsRestClient(keycloak)
+        ).getDraftProject({
+          params: { slug },
+        });
+        if (mounted) {
+          if (res.status === 200) {
+            const project = res.body;
+            setProject(project);
+          } else if (res.status === 401 || res.status === 403) {
+            setError("authentication");
+          } else if (res.status === 404) {
+            setError("not_found");
+          } else {
+            setError("unknown");
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch draft project:", error);
+        if (mounted) {
+          // Check if user is authenticated
+          if (!keycloak.authenticated) {
+            setError("authentication");
+          } else {
+            setError("unknown");
+          }
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
     })();
     return () => {
       mounted = false;
@@ -248,12 +273,35 @@ const AppEditPage: React.FC<{
     >
       <Header />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        {!loading && (!project || !appMetadata) ? (
+        {!loading && (!project || !appMetadata || error) ? (
           <div
             data-testid="app-edit-error"
-            className="flex justify-center items-center h-64 text-red-400 bg-gray-900"
+            className="flex flex-col justify-center items-center h-64 text-center bg-gray-900"
           >
-            App not found.
+            {error === "authentication" ? (
+              <>
+                <div className="text-yellow-400 text-xl mb-4">
+                  Authentication Required
+                </div>
+                <div className="text-slate-400 mb-4">
+                  You need to log in to edit this project.
+                </div>
+                <button
+                  onClick={() => keycloak?.login()}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
+                >
+                  Log In
+                </button>
+              </>
+            ) : error === "not_found" ? (
+              <div className="text-red-400">App not found.</div>
+            ) : error === "unknown" ? (
+              <div className="text-red-400">
+                Failed to load project. Please try again.
+              </div>
+            ) : (
+              <div className="text-red-400">App not found.</div>
+            )}
           </div>
         ) : loading ? (
           <div className="flex justify-center items-center h-64 text-slate-400 bg-gray-900">

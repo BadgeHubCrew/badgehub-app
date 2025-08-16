@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import type { AppCardProps } from "../types.ts";
 import { MLink } from "@sharedComponents/MLink.tsx";
 import { ERROR_ICON_URL, FALLBACK_ICON_URL } from "@config.ts";
 import { DownloadIcon } from "@sharedComponents/AppsGrid/DownloadIcon.tsx";
 import GitLink from "@sharedComponents/GitLink.tsx";
+import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 
 const AppCard: React.FC<
   AppCardProps & {
@@ -24,6 +25,68 @@ const AppCard: React.FC<
 }) => {
   const icon = icon_map?.["64x64"];
   const iconSrc = icon ? icon.url : FALLBACK_ICON_URL;
+  const { keycloak } = useSession();
+
+  const [authenticatedIconSrc, setAuthenticatedIconSrc] = useState<
+    string | null
+  >(null);
+  const [isLoadingIcon, setIsLoadingIcon] = useState(false);
+
+  useEffect(() => {
+    const isDraftFile = iconSrc.includes("/draft/files/");
+
+    if (!isDraftFile) {
+      setAuthenticatedIconSrc(iconSrc);
+      return;
+    }
+
+    if (!keycloak?.token) {
+      setAuthenticatedIconSrc(FALLBACK_ICON_URL);
+      return;
+    }
+
+    let isCanceled = false;
+    let currentBlobUrl: string | null = null;
+    setIsLoadingIcon(true);
+
+    const fetchAuthenticatedImage = async () => {
+      try {
+        const response = await fetch(iconSrc, {
+          headers: {
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        if (isCanceled) return;
+
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        currentBlobUrl = blobUrl;
+        setAuthenticatedIconSrc(blobUrl);
+        setIsLoadingIcon(false);
+      } catch (error) {
+        console.error("Failed to load authenticated icon:", error);
+        if (!isCanceled) {
+          setAuthenticatedIconSrc(FALLBACK_ICON_URL);
+          setIsLoadingIcon(false);
+        }
+      }
+    };
+
+    fetchAuthenticatedImage();
+
+    return () => {
+      isCanceled = true;
+      // Revoke the blob URL created by this effect to prevent memory leaks
+      if (currentBlobUrl) {
+        URL.revokeObjectURL(currentBlobUrl);
+      }
+    };
+  }, [iconSrc, keycloak?.token]);
 
   return (
     <div
@@ -34,15 +97,19 @@ const AppCard: React.FC<
         {/* Header with icon, title, and Git link */}
         <div className="flex items-center mb-3">
           <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center mr-4 flex-shrink-0 overflow-hidden">
-            <img
-              src={iconSrc}
-              alt={name || "App icon"}
-              className="w-8 h-8 object-contain"
-              loading="lazy"
-              onError={(e) => {
-                e.currentTarget.src = ERROR_ICON_URL;
-              }}
-            />
+            {isLoadingIcon || !authenticatedIconSrc ? (
+              <div className="w-8 h-8 bg-gray-600 animate-pulse rounded"></div>
+            ) : (
+              <img
+                src={authenticatedIconSrc}
+                alt={name || "App icon"}
+                className="w-8 h-8 object-contain"
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = ERROR_ICON_URL;
+                }}
+              />
+            )}
           </div>
           <div className="flex-grow flex items-center justify-between min-w-0">
             <MLink
