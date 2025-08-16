@@ -10,17 +10,7 @@ const AppBreadcrumb: React.FC<{ projectName: string }> = ({ projectName }) => (
         </Link>
       </li>
       <li className="flex items-center">
-        <svg
-          className="icon h-4 w-4 text-slate-400 mx-2"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fillRule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4-4a1 1 0 01-1.414 0z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
+        <span className="mx-2 text-slate-400">/</span>
         <Link
           to="/#apps-grid"
           className="text-emerald-400 hover:text-emerald-300"
@@ -29,17 +19,7 @@ const AppBreadcrumb: React.FC<{ projectName: string }> = ({ projectName }) => (
         </Link>
       </li>
       <li className="flex items-center">
-        <svg
-          className="icon h-4 w-4 text-slate-400 mx-2"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
-          <path
-            fillRule="evenodd"
-            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4-4a1 1 0 01-1.414 0z"
-            clipRule="evenodd"
-          ></path>
-        </svg>
+        <span className="mx-2 text-slate-400">/</span>
         <span className="text-slate-500">{projectName}</span>
       </li>
     </ol>

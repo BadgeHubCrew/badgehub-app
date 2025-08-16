@@ -188,6 +188,8 @@ export class PostgreSQLBadgeHubMetadata {
           on conflict (version_id, dir, name, ext) do update set mimetype        = ${mimetype},
                                                                  size_of_content = ${size},
                                                                  sha256          = ${sha256},
+                                                                 image_width     = ${image_width},
+                                                                 image_height    = ${image_height},
                                                                  updated_at      = now(),
                                                                  deleted_at      = null`
     );
