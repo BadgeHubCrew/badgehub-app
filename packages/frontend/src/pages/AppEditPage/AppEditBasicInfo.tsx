@@ -100,8 +100,12 @@ const AppEditBasicInfo: React.FC<{
 
             <div className="form-control">
               <div className="label">
-                <span className="label-text">Long Description</span>
-                <span className="label-text-alt">Markdown supported</span>
+                <label htmlFor="longDescription" className="label-text">
+                  Long Description
+                </label>
+                <span className="label-text-alt">
+                  Markdown · {form.long_description?.length || 0}/2000
+                </span>
               </div>
               <div data-color-mode="dark">
                 <MDEditor
@@ -114,6 +118,7 @@ const AppEditBasicInfo: React.FC<{
                     id: "longDescription",
                     placeholder:
                       "Enter a long description using Markdown formatting.",
+                    maxLength: 2000,
                   }}
                   height={300}
                 />
