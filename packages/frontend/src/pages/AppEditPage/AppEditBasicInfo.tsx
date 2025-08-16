@@ -1,8 +1,7 @@
 import type { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import GitLink from "@sharedComponents/GitLink.tsx";
-import MarkdownText from "@sharedComponents/MarkdownText.tsx";
+import MDEditor from "@uiw/react-md-editor";
 import type React from "react";
-import { useState } from "react";
 
 /**
  * A component for editing the basic information of an application.
@@ -13,7 +12,6 @@ const AppEditBasicInfo: React.FC<{
   form: ProjectEditFormData;
   onChange: (changes: Partial<ProjectEditFormData>) => void;
 }> = ({ form, onChange }) => {
-  const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   return (
     <section className="card bg-base-200 shadow-lg">
       <div className="card-body">
@@ -105,45 +103,21 @@ const AppEditBasicInfo: React.FC<{
                 <span className="label-text">Long Description</span>
                 <span className="label-text-alt">Markdown supported</span>
               </div>
-              <div role="tablist" className="tabs tabs-border mb-2">
-                <button
-                  type="button"
-                  role="tab"
-                  onClick={() => setActiveTab("write")}
-                  className={`tab ${activeTab === "write" ? "tab-active" : ""}`}
-                >
-                  Write
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  onClick={() => setActiveTab("preview")}
-                  className={`tab ${activeTab === "preview" ? "tab-active" : ""}`}
-                >
-                  Preview
-                </button>
-              </div>
-              {activeTab === "write" ? (
-                <textarea
-                  id="longDescription"
-                  rows={4}
-                  className="textarea textarea-bordered w-full font-mono"
+              <div data-color-mode="dark">
+                <MDEditor
                   value={form.long_description || ""}
-                  onChange={(e) =>
-                    onChange({ long_description: e.target.value })
+                  onChange={(value) =>
+                    onChange({ long_description: value || "" })
                   }
+                  visibleDragbar={false}
+                  textareaProps={{
+                    id: "longDescription",
+                    placeholder:
+                      "Enter a long description using Markdown formatting.",
+                  }}
+                  height={300}
                 />
-              ) : (
-                <div className="min-h-28 rounded-box border border-base-300 p-3">
-                  {form.long_description ? (
-                    <MarkdownText>{form.long_description}</MarkdownText>
-                  ) : (
-                    <p className="opacity-60 italic">
-                      No long description provided.
-                    </p>
-                  )}
-                </div>
-              )}
+              </div>
               <div className="label">
                 <span className="label-text-alt whitespace-normal break-words">
                   Preferred on the detail page and other layouts with enough
