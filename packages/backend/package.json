@@ -46,7 +46,7 @@
     "openapi3-ts": "^2.0.2",
     "pg": "^8.11.5",
     "pino-http": "^10.1.0",
-    "pm2": "^5.4.0",
+    "pm2": "^6.0.10",
     "sharp": "^0.34.3",
     "sql-template-tag": "^5.2.1",
     "swagger-ui-express": "^5.0.0",
