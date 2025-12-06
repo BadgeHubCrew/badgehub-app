@@ -1,6 +1,6 @@
 
 [<img src="assets/badgehub-logo.svg" align="right" alt="BadgeHub logo" width="200">](#readme) 
-# BadgeHub API and Frontend
+# BadgeHub App: API and Frontend Code for BadgeHub
 
 > Monorepo with both Node.js REST API and React frontend
 ## Authentication
