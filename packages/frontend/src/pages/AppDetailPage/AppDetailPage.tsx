@@ -13,6 +13,11 @@ import Header from "@sharedComponents/Header.tsx";
 import Footer from "@sharedComponents/Footer.tsx";
 import { useTitle } from "@hooks/useTitle.ts";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
+import {
+  normalizePublicProjectError,
+  publicProjectErrorFromStatus,
+  publicProjectErrorMessage,
+} from "@utils/publicProjectErrors.ts";
 
 const AppDetailPage: React.FunctionComponent<{
   tsRestClient?: typeof defaultTsRestClient;
@@ -22,10 +27,17 @@ const AppDetailPage: React.FunctionComponent<{
   const { data: project, error, loading } = useAsyncResource(
     async () => {
       const res = await tsRestClient.getProject({ params: { slug } });
-      return res.status === 200 ? res.body : null;
+      if (res.status === 200) {
+        return res.body;
+      }
+      throw new Error(publicProjectErrorFromStatus(res.status));
     },
     [slug, tsRestClient]
   );
+
+  const errorMessage = error
+    ? publicProjectErrorMessage(normalizePublicProjectError(error))
+    : null;
 
   if (loading) {
     return (
@@ -34,13 +46,13 @@ const AppDetailPage: React.FunctionComponent<{
       </div>
     );
   }
-  if (error) {
+  if (errorMessage) {
     return (
       <div
         data-testid="app-detail-error"
         className="flex justify-center items-center h-64 text-red-400 bg-gray-900 min-h-screen"
       >
-        Failed to load project.
+        {errorMessage}
       </div>
     );
   }

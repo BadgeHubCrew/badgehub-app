@@ -4,6 +4,11 @@ import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClien
 import { ERROR_ICON_URL } from "@config.ts";
 import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries.ts";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
+import {
+  normalizePublicProjectError,
+  publicProjectErrorFromStatus,
+  publicProjectErrorMessage,
+} from "@utils/publicProjectErrors.ts";
 
 /**
  * Renders a single project item in the list.
@@ -75,8 +80,7 @@ const AppSidebarSimilar: React.FC<{
       if (result.status === 200) {
         return result.body.filter((p) => p.slug !== project.slug).slice(0, 3);
       }
-      const errorBody = result.body as { reason?: string };
-      throw new Error(errorBody?.reason || "Failed to fetch similar projects.");
+      throw new Error(publicProjectErrorFromStatus(result.status));
     },
     [project.idp_user_id, project.slug, tsRestClient]
   );
@@ -86,7 +90,11 @@ const AppSidebarSimilar: React.FC<{
       return <SkeletonLoader />;
     }
     if (error) {
-      return <p className="text-sm text-red-400">{error.message}</p>;
+      return (
+        <p className="text-sm text-red-400">
+          {publicProjectErrorMessage(normalizePublicProjectError(error))}
+        </p>
+      );
     }
     if (similarProjects && similarProjects.length > 0) {
       return similarProjects.map((p) => (
