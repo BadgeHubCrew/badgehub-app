@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   dummyApps,
   privateTsRestClientBuilder,
@@ -22,12 +22,16 @@ describe("MyProjectsPage", () => {
   });
 
   it("shows an error message when the API call fails", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     render(<MyProjectsPage tsRestClient={privateTsRestClientWithError()} />);
     expect(
       await screen.findByText(/Failed to fetch your draft projects.*/i, {
         exact: false,
       })
     ).toBeInTheDocument();
+    consoleErrorSpy.mockRestore();
   });
 
   it("shows a message or empty state when there are no draft projects", async () => {
