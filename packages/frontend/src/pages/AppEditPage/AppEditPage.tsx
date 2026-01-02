@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { VariantJSON } from "@shared/domain/readModels/project/VariantJSON.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import AppEditTokenManager from "./AppEditTokenManager.tsx";
+import { useAsyncResource } from "@hooks/useAsyncResource.ts";
 
 function getAndEnsureApplication(newProjectData: ProjectDetails): VariantJSON {
   const application: VariantJSON =
@@ -35,8 +36,6 @@ const AppEditPage: React.FC<{
   slug: string;
 }> = ({ slug }) => {
   const [project, setProject] = useState<PossiblyStaleProject | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const { user, keycloak } = useSession();
   const navigate = useNavigate();
@@ -66,53 +65,53 @@ const AppEditPage: React.FC<{
     appMetadata.author ??= user?.name;
   }
 
-  useEffect(() => {
-    if (!keycloak) {
-      return;
-    }
-    if (project && !project.stale) return;
-    let mounted = true;
-    setLoading(true);
-    setError(null);
-    (async () => {
+  const shouldFetchProject = Boolean(keycloak) && (!project || project.stale);
+  const { data: fetchedProject, error: fetchError, loading } = useAsyncResource(
+    async () => {
+      if (!keycloak) {
+        throw new Error("authentication");
+      }
       try {
         const res = await (
           await getFreshAuthorizedTsRestClient(keycloak)
         ).getDraftProject({
           params: { slug },
         });
-        if (mounted) {
-          if (res.status === 200) {
-            const project = res.body;
-            setProject(project);
-          } else if (res.status === 401 || res.status === 403) {
-            setError("authentication");
-          } else if (res.status === 404) {
-            setError("not_found");
-          } else {
-            setError("unknown");
-          }
+        if (res.status === 200) {
+          return res.body;
         }
+        if (res.status === 401 || res.status === 403) {
+          throw new Error("authentication");
+        }
+        if (res.status === 404) {
+          throw new Error("not_found");
+        }
+        throw new Error("unknown");
       } catch (error) {
         console.error("Failed to fetch draft project:", error);
-        if (mounted) {
-          // Check if user is authenticated
-          if (!keycloak.authenticated) {
-            setError("authentication");
-          } else {
-            setError("unknown");
-          }
+        if (!keycloak.authenticated) {
+          throw new Error("authentication");
         }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        throw new Error("unknown");
       }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [keycloak, project, slug]);
+    },
+    [keycloak, project?.stale, slug],
+    { enabled: shouldFetchProject }
+  );
+
+  useEffect(() => {
+    if (fetchedProject) {
+      setProject(fetchedProject);
+    }
+  }, [fetchedProject]);
+
+  const error = !keycloak
+    ? "authentication"
+    : fetchError
+      ? ["authentication", "not_found", "unknown"].includes(fetchError.message)
+        ? fetchError.message
+        : "unknown"
+      : null;
 
   const handleFormChange = (changes: Partial<ProjectEditFormData>) => {
     setAppMetadata((prev) => ({ ...prev, ...changes }) as ProjectEditFormData);
