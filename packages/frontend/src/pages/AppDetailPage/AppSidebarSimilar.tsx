@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
 import { ERROR_ICON_URL } from "@config.ts";
 import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries.ts";
+import { useAsyncResource } from "@hooks/useAsyncResource.ts";
 
 /**
  * Renders a single project item in the list.
@@ -60,63 +61,34 @@ const AppSidebarSimilar: React.FC<{
   project: ProjectDetails;
   tsRestClient: typeof defaultTsRestClient;
 }> = ({ project, tsRestClient = defaultTsRestClient }) => {
-  const [similarProjects, setSimilarProjects] = useState<ProjectSummary[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Use the passed tsRestClient or a mock version for demonstration
-
-  useEffect(() => {
-    // Ensure we have the necessary data and client to proceed
-    if (!project.idp_user_id || !tsRestClient) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchSimilarProjects = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Fetch projects by the same user, requesting one more than we need
-        // to account for the current project potentially being in the list.
-        const result = await tsRestClient.getProjectSummaries({
-          query: {
-            userId: project.idp_user_id,
-            pageLength: 4,
-          },
-        });
-
-        if (result.status === 200) {
-          // Filter out the current project from the results and limit to 3 items.
-          const otherProjects = result.body
-            .filter((p) => p.slug !== project.slug)
-            .slice(0, 3);
-          setSimilarProjects(otherProjects);
-        } else {
-          // Handle API errors gracefully
-          const errorBody = result.body as { reason?: string };
-          setError(errorBody?.reason || "Failed to fetch similar projects.");
-        }
-      } catch (e) {
-        setError("An unexpected error occurred.");
-        console.error("Failed to fetch similar projects:", e);
-      } finally {
-        setLoading(false);
+  const { data: similarProjects, error, loading } = useAsyncResource(
+    async () => {
+      if (!project.idp_user_id) {
+        return [];
       }
-    };
-
-    fetchSimilarProjects();
-    // Re-run the effect if the author or project changes
-  }, [project.idp_user_id, project.slug, tsRestClient]);
+      const result = await tsRestClient.getProjectSummaries({
+        query: {
+          userId: project.idp_user_id,
+          pageLength: 4,
+        },
+      });
+      if (result.status === 200) {
+        return result.body.filter((p) => p.slug !== project.slug).slice(0, 3);
+      }
+      const errorBody = result.body as { reason?: string };
+      throw new Error(errorBody?.reason || "Failed to fetch similar projects.");
+    },
+    [project.idp_user_id, project.slug, tsRestClient]
+  );
 
   const renderContent = () => {
     if (loading) {
       return <SkeletonLoader />;
     }
     if (error) {
-      return <p className="text-sm text-red-400">{error}</p>;
+      return <p className="text-sm text-red-400">{error.message}</p>;
     }
-    if (similarProjects.length > 0) {
+    if (similarProjects && similarProjects.length > 0) {
       return similarProjects.map((p) => (
         <ProjectItem key={p.slug} project={p} />
       ));
