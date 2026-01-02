@@ -6,7 +6,8 @@ import { assertDefined } from "@shared/util/assertions.ts";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import Keycloak from "keycloak-js";
-import { extractFilename, TEXT_FILE_EXTENSIONS, IMAGE_FILE_EXTENSIONS } from "@utils/fileUtils.ts";
+import { extractFilename } from "@utils/fileUtils.ts";
+import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
 
 const DownloadIcon = () => (
   <svg
@@ -26,80 +27,6 @@ const DownloadIcon = () => (
   </svg>
 );
 
-// Helper function to determine preview type based on mimetype and filename
-const getPreviewType = (mimetype: string, filename?: string): string => {
-  if (mimetype.startsWith("image/")) {
-    return "image";
-  }
-  if (mimetype === "application/json") {
-    return "json";
-  }
-  if (
-    mimetype === "text/x-python" ||
-    mimetype === "application/x-python-code" ||
-    mimetype === "text/x-python-script"
-  ) {
-    return "python";
-  }
-  if (mimetype === "text/plain" || mimetype.startsWith("text/")) {
-    return "text";
-  }
-  
-  // Fallback: if MIME type is generic (like application/octet-stream), 
-  // try to determine type from file extension
-  if (filename && (mimetype === "application/octet-stream" || mimetype === "application/octet")) {
-    const extension = filename.toLowerCase().split(".").pop() || "";
-    
-    if (extension === "py") {
-      return "python";
-    }
-    if (extension === "json") {
-      return "json";
-    }
-    if (TEXT_FILE_EXTENSIONS.includes(extension as any)) {
-      return "text";
-    }
-    if (IMAGE_FILE_EXTENSIONS.includes(extension as any)) {
-      return "image";
-    }
-  }
-  
-  return "unsupported";
-};
-
-// Helper function to detect programming language from file extension
-const getLanguageFromFile = (filename: string): string => {
-  const extension = filename.toLowerCase().split(".").pop() || "";
-  const languageMap: { [key: string]: string } = {
-    js: "javascript",
-    jsx: "jsx",
-    ts: "typescript",
-    tsx: "tsx",
-    py: "python",
-    json: "json",
-    html: "html",
-    css: "css",
-    scss: "scss",
-    sass: "sass",
-    less: "less",
-    xml: "xml",
-    yaml: "yaml",
-    yml: "yaml",
-    md: "markdown",
-    sh: "bash",
-    bash: "bash",
-    c: "c",
-    cpp: "cpp",
-    java: "java",
-    php: "php",
-    rb: "ruby",
-    go: "go",
-    rs: "rust",
-    sql: "sql",
-  };
-
-  return languageMap[extension] || "text";
-};
 
 // JSON Preview Component with pretty print option and syntax highlighting
 const JsonPreview: React.FC<{ content: string }> = ({ content }) => {

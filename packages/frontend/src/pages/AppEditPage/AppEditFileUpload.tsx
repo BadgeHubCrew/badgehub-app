@@ -5,6 +5,7 @@ import {
 } from "../../api/tsRestClient.ts";
 import Keycloak from "keycloak-js";
 import { assertDefined } from "@shared/util/assertions.ts";
+import { isExecutableFileName } from "@utils/fileUtils.ts";
 
 const AppEditFileUpload: React.FC<{
   slug: string;
@@ -18,19 +19,6 @@ const AppEditFileUpload: React.FC<{
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  const excludedExtensions = [
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".gif",
-    ".svg",
-    ".md",
-    ".txt",
-    ".json",
-  ];
-  const isExecutable = (fileName: string) =>
-    !excludedExtensions.some((ext) => fileName.toLowerCase().endsWith(ext));
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     assertDefined(keycloak);
@@ -60,7 +48,7 @@ const AppEditFileUpload: React.FC<{
       setSuccess("File(s) uploaded successfully.");
 
       const firstValidFile = Array.from(files).find((f) =>
-        isExecutable(f.name)
+        isExecutableFileName(f.name)
       );
       onUploadSuccess({
         metadataChanged: appMetadataChanged,

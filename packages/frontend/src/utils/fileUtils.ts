@@ -22,3 +22,19 @@ export const TEXT_FILE_EXTENSIONS = [
 export const IMAGE_FILE_EXTENSIONS = [
   "png", "jpg", "jpeg", "gif", "svg", "webp", "bmp", "tiff", "tif", "avif"
 ] as const;
+
+export const NON_EXECUTABLE_EXTENSIONS = [
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".svg",
+  ".md",
+  ".txt",
+  ".json",
+] as const;
+
+export const isExecutableFileName = (fileName: string): boolean => {
+  const lower = fileName.toLowerCase();
+  return !NON_EXECUTABLE_EXTENSIONS.some((ext) => lower.endsWith(ext));
+};
