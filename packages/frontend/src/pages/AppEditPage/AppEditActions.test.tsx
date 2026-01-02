@@ -12,7 +12,7 @@ describe("AppEditActions", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: /cancel/i })
-    ).toHaveAttribute("href", "..");
+    ).toHaveAttribute("href", "/");
     expect(
       screen.getByRole("button", { name: /delete application/i })
     ).toBeInTheDocument();
