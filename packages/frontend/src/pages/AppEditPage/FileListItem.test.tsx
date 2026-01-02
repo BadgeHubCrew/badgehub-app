@@ -107,6 +107,10 @@ describe("FileListItem", () => {
     });
     const appendChildSpy = vi.spyOn(document.body, "appendChild");
     const removeChildSpy = vi.spyOn(document.body, "removeChild");
+    const originalAnchorClick = HTMLAnchorElement.prototype.click;
+    const anchorClickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => {});
 
     render(
       <FileListItem file={baseFile} slug="demo" keycloak={keycloak} />
@@ -122,6 +126,8 @@ describe("FileListItem", () => {
     expect(removeChildSpy).toHaveBeenCalled();
     expect(revokeObjectURLMock).toHaveBeenCalled();
 
+    anchorClickSpy.mockRestore();
+    HTMLAnchorElement.prototype.click = originalAnchorClick;
     Object.defineProperty(URL, "createObjectURL", {
       writable: true,
       value: originalCreateObjectURL,
