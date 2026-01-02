@@ -33,7 +33,7 @@ describe("AppEditPage", () => {
 
     expect(await screen.findByTestId("app-edit-page")).toBeInTheDocument();
     expect(
-      screen.getByText("Editing dummy-app-1/rev1")
+      await screen.findByText(/Editing dummy-app-1\/rev1/i)
     ).toBeInTheDocument();
     expect(screen.getByTestId("app-edit-token-manager")).toBeInTheDocument();
   });
