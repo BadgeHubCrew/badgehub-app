@@ -1,6 +1,9 @@
 import React from "react";
 import { AppCreationFormData } from "./AppCreationPage";
-import { VALID_SLUG_PATTERN } from "@shared/contracts/slug.ts";
+import {
+  INVALID_SLUG_CHAR_REGEX,
+  VALID_SLUG_PATTERN,
+} from "@shared/contracts/slug.ts";
 
 const AppCreationBasicInfo: React.FC<{
   form: AppCreationFormData;
@@ -21,10 +24,13 @@ const AppCreationBasicInfo: React.FC<{
           <input
             type="text"
             className="w-full form-input p-2 font-mono"
-            placeholder="e.g., my_weather_station"
+            placeholder="e.g., my_weather_station or com.example.myapp"
             value={slug}
             onChange={(e) => {
-              const value = e.target.value.replace(/[^.a-z0-9_-]/g, "_");
+              const value = e.target.value.replace(
+                INVALID_SLUG_CHAR_REGEX,
+                "_"
+              );
               onChange({ slug: value });
             }}
             data-testid="app-creation-slug-input"
