@@ -39,6 +39,9 @@ describe("AppEditPage", () => {
   });
 
   it("shows authentication required when the draft request is unauthorized", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
       getDraftProject: vi.fn().mockResolvedValue({
         status: 401,
@@ -51,9 +54,13 @@ describe("AppEditPage", () => {
     expect(
       await screen.findByText(/authentication required/i)
     ).toBeInTheDocument();
+    consoleErrorSpy.mockRestore();
   });
 
   it("shows not found when the draft project is missing", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
     vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
       getDraftProject: vi.fn().mockResolvedValue({
         status: 404,
@@ -64,5 +71,6 @@ describe("AppEditPage", () => {
     render(<AppEditPage slug="missing-app" />);
 
     expect(await screen.findByText(/app not found/i)).toBeInTheDocument();
+    consoleErrorSpy.mockRestore();
   });
 });
