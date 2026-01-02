@@ -75,6 +75,7 @@ const AppEditFileUpload: React.FC<{
         <input
           type="file"
           name="file-upload"
+          data-testid="app-edit-file-upload-input"
           className="form-input w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
           multiple
           disabled={uploading}
