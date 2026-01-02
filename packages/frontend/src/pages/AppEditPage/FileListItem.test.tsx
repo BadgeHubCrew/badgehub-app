@@ -92,10 +92,19 @@ describe("FileListItem", () => {
       getDraftFile,
     } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
 
-    const createObjectURLSpy = vi
-      .spyOn(URL, "createObjectURL")
-      .mockReturnValue("blob:demo");
-    const revokeObjectURLSpy = vi.spyOn(URL, "revokeObjectURL");
+    const originalCreateObjectURL = URL.createObjectURL;
+    const originalRevokeObjectURL = URL.revokeObjectURL;
+    const createObjectURLMock = vi.fn().mockReturnValue("blob:demo");
+    const revokeObjectURLMock = vi.fn();
+
+    Object.defineProperty(URL, "createObjectURL", {
+      writable: true,
+      value: createObjectURLMock,
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      writable: true,
+      value: revokeObjectURLMock,
+    });
     const appendChildSpy = vi.spyOn(document.body, "appendChild");
     const removeChildSpy = vi.spyOn(document.body, "removeChild");
 
@@ -108,13 +117,19 @@ describe("FileListItem", () => {
     expect(getDraftFile).toHaveBeenCalledWith({
       params: { slug: "demo", filePath: "main.py" },
     });
-    expect(createObjectURLSpy).toHaveBeenCalled();
+    expect(createObjectURLMock).toHaveBeenCalled();
     expect(appendChildSpy).toHaveBeenCalled();
     expect(removeChildSpy).toHaveBeenCalled();
-    expect(revokeObjectURLSpy).toHaveBeenCalled();
+    expect(revokeObjectURLMock).toHaveBeenCalled();
 
-    createObjectURLSpy.mockRestore();
-    revokeObjectURLSpy.mockRestore();
+    Object.defineProperty(URL, "createObjectURL", {
+      writable: true,
+      value: originalCreateObjectURL,
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      writable: true,
+      value: originalRevokeObjectURL,
+    });
     appendChildSpy.mockRestore();
     removeChildSpy.mockRestore();
   });
