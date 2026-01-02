@@ -3,6 +3,7 @@ import { render, screen } from "@__test__";
 import userEvent from "@testing-library/user-event";
 import AppEditBasicInfo from "./AppEditBasicInfo.tsx";
 import type { ProjectEditFormData } from "./ProjectEditFormData.ts";
+import React, { useState } from "react";
 
 const baseForm: ProjectEditFormData = {
   name: "Demo",
@@ -28,30 +29,50 @@ describe("AppEditBasicInfo", () => {
   it("calls onChange for updated fields", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    render(<AppEditBasicInfo form={baseForm} onChange={onChange} />);
+    const Wrapper = () => {
+      const [form, setForm] = useState<ProjectEditFormData>(baseForm);
+      const handleChange = (changes: Partial<ProjectEditFormData>) => {
+        onChange(changes);
+        setForm((prev) => ({ ...prev, ...changes }));
+      };
+      return <AppEditBasicInfo form={form} onChange={handleChange} />;
+    };
+
+    render(<Wrapper />);
 
     await user.clear(screen.getByLabelText(/app name/i));
     await user.type(screen.getByLabelText(/app name/i), "New Name");
-    expect(onChange).toHaveBeenCalledWith({ name: "New Name" });
+    expect(screen.getByLabelText(/app name/i)).toHaveValue("New Name");
+    expect(onChange).toHaveBeenLastCalledWith({ name: "New Name" });
+    onChange.mockClear();
 
     await user.clear(screen.getByLabelText(/author/i));
     await user.type(screen.getByLabelText(/author/i), "New Author");
-    expect(onChange).toHaveBeenCalledWith({ author: "New Author" });
+    expect(screen.getByLabelText(/author/i)).toHaveValue("New Author");
+    expect(onChange).toHaveBeenLastCalledWith({ author: "New Author" });
+    onChange.mockClear();
 
     await user.clear(screen.getByLabelText(/git url/i));
     await user.type(
       screen.getByLabelText(/git url/i),
       "https://gitlab.com/demo/repo"
     );
-    expect(onChange).toHaveBeenCalledWith({
+    expect(screen.getByLabelText(/git url/i)).toHaveValue(
+      "https://gitlab.com/demo/repo"
+    );
+    expect(onChange).toHaveBeenLastCalledWith({
       git_url: "https://gitlab.com/demo/repo",
     });
+    onChange.mockClear();
 
     await user.clear(screen.getByLabelText(/description/i));
     await user.type(screen.getByLabelText(/description/i), "New Desc");
-    expect(onChange).toHaveBeenCalledWith({ description: "New Desc" });
+    expect(screen.getByLabelText(/description/i)).toHaveValue("New Desc");
+    expect(onChange).toHaveBeenLastCalledWith({ description: "New Desc" });
+    onChange.mockClear();
 
     await user.click(screen.getByLabelText(/hidden/i));
-    expect(onChange).toHaveBeenCalledWith({ hidden: true });
+    expect(screen.getByLabelText(/hidden/i)).toBeChecked();
+    expect(onChange).toHaveBeenLastCalledWith({ hidden: true });
   });
 });
