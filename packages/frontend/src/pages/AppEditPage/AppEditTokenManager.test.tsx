@@ -51,7 +51,7 @@ describe("AppEditTokenManager", () => {
 
     render(<AppEditTokenManager slug="demo" keycloak={keycloak} />);
 
-    await user.click(await screen.findByText(/generate token/i));
+    await user.click(await screen.findByText(/generate new token/i));
 
     expect(
       await screen.findByDisplayValue("new-token-value")
