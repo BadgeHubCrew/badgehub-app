@@ -30,9 +30,9 @@ describe("HomePage", () => {
     expect(screen.getByTestId("app-cards-container")).toBeInTheDocument();
   });
 
-  it("shows the filter bar", () => {
+  it("shows the filter bar", async () => {
     render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
-    expect(screen.getByTestId("filter-bar")).toBeInTheDocument();
+    expect(await screen.findByTestId("filter-bar")).toBeInTheDocument();
   });
 
   it("shows an error message when the API call fails", async () => {
