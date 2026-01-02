@@ -21,6 +21,10 @@ import { VariantJSON } from "@shared/domain/readModels/project/VariantJSON.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import AppEditTokenManager from "./AppEditTokenManager.tsx";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
+import {
+  draftProjectErrorFromStatus,
+  normalizeDraftProjectError,
+} from "@utils/draftProjectErrors.ts";
 
 function getAndEnsureApplication(newProjectData: ProjectDetails): VariantJSON {
   const application: VariantJSON =
@@ -80,19 +84,13 @@ const AppEditPage: React.FC<{
         if (res.status === 200) {
           return res.body;
         }
-        if (res.status === 401 || res.status === 403) {
-          throw new Error("authentication");
-        }
-        if (res.status === 404) {
-          throw new Error("not_found");
-        }
-        throw new Error("unknown");
+        throw new Error(draftProjectErrorFromStatus(res.status));
       } catch (error) {
         console.error("Failed to fetch draft project:", error);
         if (!keycloak.authenticated) {
           throw new Error("authentication");
         }
-        throw new Error("unknown");
+        throw new Error(normalizeDraftProjectError(error));
       }
     },
     [keycloak, project?.stale, slug],
@@ -108,9 +106,7 @@ const AppEditPage: React.FC<{
   const error = !keycloak
     ? "authentication"
     : fetchError
-      ? ["authentication", "not_found", "unknown"].includes(fetchError.message)
-        ? fetchError.message
-        : "unknown"
+      ? normalizeDraftProjectError(fetchError)
       : null;
 
   const handleFormChange = (changes: Partial<ProjectEditFormData>) => {
