@@ -3,11 +3,9 @@ import Hero from "@sharedComponents/Hero.tsx";
 import Footer from "@sharedComponents/Footer.tsx";
 import { memo, useState } from "react";
 import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
-import {
-  AppFetcher,
-  AppGridWithFilterAndPagination,
-} from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
+import { AppGridWithFilterAndPagination } from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
 import { useTitle } from "@hooks/useTitle.ts";
+import { useProjectSummariesFetcher } from "@hooks/useProjectSummariesFetcher.ts";
 
 interface AppProps {
   tsRestClient?: typeof defaultTsRestClient;
@@ -15,23 +13,7 @@ interface AppProps {
 
 const HomePage = memo(({ tsRestClient = defaultTsRestClient }: AppProps) => {
   useTitle('');
-  const appFetcher: AppFetcher = async (filters) => {
-    const result = await tsRestClient?.getProjectSummaries({
-      query: {
-        category: filters.category,
-        badge: filters.badge,
-      },
-    });
-    switch (result.status) {
-      case 200:
-        return result.body;
-      default:
-        throw new Error(
-          "Failed to fetch projects, reason " +
-            (result.body as { reason: string })?.reason
-        );
-    }
-  };
+  const appFetcher = useProjectSummariesFetcher(tsRestClient);
   const [searchQuery, setSearchQuery] = useState("");
 
   return (

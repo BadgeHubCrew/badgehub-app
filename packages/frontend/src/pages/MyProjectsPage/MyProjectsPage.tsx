@@ -2,13 +2,11 @@ import Header from "@sharedComponents/Header.tsx";
 import Footer from "@sharedComponents/Footer.tsx";
 import { memo, useState } from "react";
 import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
-import {
-  AppFetcher,
-  AppGridWithFilterAndPagination,
-} from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
+import { AppGridWithFilterAndPagination } from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import { PleaseLoginMessage } from "@sharedComponents/PleaseLoginMessage.tsx";
 import { useTitle } from "@hooks/useTitle.ts";
+import { useUserDraftProjectsFetcher } from "@hooks/useUserDraftProjectsFetcher.ts";
 
 interface AppProps {
   tsRestClient?: typeof defaultTsRestClient;
@@ -19,42 +17,11 @@ const MyProjectsPage = memo(
     useTitle("My Projects");
     const { user, keycloak } = useSession();
     const [searchQuery, setSearchQuery] = useState("");
-    const userIsLoggedIn = keycloak?.authenticated && user?.id;
-    const appFetcher: AppFetcher | undefined = userIsLoggedIn
-      ? async () => {
-          await keycloak.updateToken(30).catch((e) => {
-            console.error("Failed to update token", e);
-            throw new Error(
-              "Failed to update token. Please try logging in again."
-            );
-          }); // Ensure token is fresh
-
-          const result = await tsRestClient
-            ?.getUserDraftProjects({
-              params: {
-                userId: user.id,
-              },
-              headers: {
-                authorization: `Bearer ${keycloak.token}`,
-              },
-            })
-            .catch((e) => {
-              console.error("Failed to fetch draft projects", e);
-              throw new Error(
-                "Failed to fetch your draft projects. Message: " + e.message
-              );
-            });
-          switch (result.status) {
-            case 200:
-              return result.body;
-            default:
-              throw new Error(
-                "Failed to fetch projects, reason " +
-                  (result.body as { reason: string })?.reason
-              );
-          }
-        }
-      : undefined;
+    const appFetcher = useUserDraftProjectsFetcher({
+      tsRestClient,
+      user,
+      keycloak,
+    });
     return (
       <div
         className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
