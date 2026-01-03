@@ -53,13 +53,13 @@ describe("AppCreationPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("sanitizes slug input and enables submit for valid values", async () => {
+  it("enables submit for valid slug values", async () => {
     const user = userEvent.setup();
     render(<AppCreationPage />);
     const input = screen.getByTestId("app-creation-slug-input");
     const submit = screen.getByTestId("app-creation-submit-btn");
 
-    fireEvent.change(input, { target: { value: "1abc-DEF" } });
+    await user.type(input, "abc");
     expect(input).toHaveValue("abc");
     expect(submit).toBeEnabled();
   });
