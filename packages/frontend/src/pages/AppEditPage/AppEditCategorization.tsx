@@ -32,18 +32,19 @@ const AppEditCategorization: React.FC<{
       />
       <div>
         <label
-          htmlFor="licenseFile"
+          htmlFor="licenseType"
           className="block text-sm font-medium text-slate-300 mb-1"
         >
-          License
+          License Type
         </label>
         <input
           type="text"
           className="w-full form-input p-2"
-          id="licenseFile"
-          value={form.license_file}
-          onChange={(e) => onChange({ license_file: e.target.value })}
+          id="licenseType"
+          value={form.license_type || ""}
+          onChange={(e) => onChange({ license_type: e.target.value })}
         />
+        <p className="text-xs text-slate-500 mt-1">License Type, eg MIT</p>
       </div>
     </div>
   </section>

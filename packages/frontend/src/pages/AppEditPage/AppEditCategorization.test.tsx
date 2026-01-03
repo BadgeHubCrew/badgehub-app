@@ -7,7 +7,7 @@ import type { ProjectEditFormData } from "./ProjectEditFormData.ts";
 
 const baseForm: ProjectEditFormData = {
   categories: undefined,
-  license_file: "",
+  license_type: "",
 };
 
 describe("AppEditCategorization", () => {
@@ -65,7 +65,7 @@ describe("AppEditCategorization", () => {
     });
   });
 
-  it("updates license field", async () => {
+  it("updates license type field", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
     const Wrapper = () => {
@@ -79,12 +79,12 @@ describe("AppEditCategorization", () => {
 
     render(<Wrapper />);
 
-    const licenseInput = screen.getByLabelText(/license/i);
-    await user.type(licenseInput, "LICENSE.txt");
+    const licenseInput = screen.getByLabelText(/license type/i);
+    await user.type(licenseInput, "MIT");
 
-    expect(licenseInput).toHaveValue("LICENSE.txt");
+    expect(licenseInput).toHaveValue("MIT");
     expect(onChange).toHaveBeenLastCalledWith({
-      license_file: "LICENSE.txt",
+      license_type: "MIT",
     });
   });
 });
