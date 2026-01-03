@@ -69,6 +69,22 @@ const AppEditBasicInfo: React.FC<{
             onChange={(e) => onChange({ git_url: e.target.value })}
           />
         </div>
+        <div>
+          <label
+            htmlFor="version"
+            className="block text-sm font-medium text-slate-300 mb-1"
+          >
+            Version
+          </label>
+          <input
+            type="text"
+            id="version"
+            placeholder="1.0.0"
+            className="w-full form-input p-2 bg-gray-700 border-gray-600 rounded-md text-slate-200 focus:ring-emerald-500 focus:border-emerald-500"
+            value={form.version || ""}
+            onChange={(e) => onChange({ version: e.target.value })}
+          />
+        </div>
 
         {/* Description */}
         <div>

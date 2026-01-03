@@ -10,6 +10,7 @@ const baseForm: ProjectEditFormData = {
   author: "Author",
   description: "Desc",
   git_url: "https://github.com/demo/repo",
+  version: "1.0.0",
   hidden: false,
 };
 
@@ -22,6 +23,7 @@ describe("AppEditBasicInfo", () => {
     expect(screen.getByLabelText(/git url/i)).toHaveValue(
       "https://github.com/demo/repo"
     );
+    expect(screen.getByLabelText(/version/i)).toHaveValue("1.0.0");
     expect(screen.getByLabelText(/description/i)).toHaveValue("Desc");
     expect(screen.getByLabelText(/hidden/i)).not.toBeChecked();
   });
@@ -63,6 +65,12 @@ describe("AppEditBasicInfo", () => {
     expect(onChange).toHaveBeenLastCalledWith({
       git_url: "https://gitlab.com/demo/repo",
     });
+    onChange.mockClear();
+
+    await user.clear(screen.getByLabelText(/version/i));
+    await user.type(screen.getByLabelText(/version/i), "2.1.0");
+    expect(screen.getByLabelText(/version/i)).toHaveValue("2.1.0");
+    expect(onChange).toHaveBeenLastCalledWith({ version: "2.1.0" });
     onChange.mockClear();
 
     await user.clear(screen.getByLabelText(/description/i));
