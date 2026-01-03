@@ -25,10 +25,14 @@ describe("AppEditCategorization", () => {
 
     render(<Wrapper />);
 
-    const badgeSelect = screen.getByTestId("badge-dropdown");
-    await user.selectOptions(badgeSelect, ["why2025", "mch2022"]);
+    const badgeSearch = screen.getByLabelText(/search badge/i);
+    await user.type(badgeSearch, "why");
+    expect(screen.queryByLabelText("mch2022")).not.toBeInTheDocument();
+    await user.clear(badgeSearch);
 
-    expect(badgeSelect).toHaveValue(["why2025", "mch2022"]);
+    await user.click(screen.getByLabelText("why2025"));
+    await user.click(screen.getByLabelText("mch2022"));
+
     expect(onChange).toHaveBeenLastCalledWith({
       badges: ["why2025", "mch2022"],
     });
@@ -48,10 +52,14 @@ describe("AppEditCategorization", () => {
 
     render(<Wrapper />);
 
-    const categorySelect = screen.getByTestId("category-dropdown");
-    await user.selectOptions(categorySelect, ["Games", "Hardware"]);
+    const categorySearch = screen.getByLabelText(/search category/i);
+    await user.type(categorySearch, "Hard");
+    expect(screen.queryByLabelText("Games")).not.toBeInTheDocument();
+    await user.clear(categorySearch);
 
-    expect(categorySelect).toHaveValue(["Games", "Hardware"]);
+    await user.click(screen.getByLabelText("Games"));
+    await user.click(screen.getByLabelText("Hardware"));
+
     expect(onChange).toHaveBeenLastCalledWith({
       categories: ["Games", "Hardware"],
     });
