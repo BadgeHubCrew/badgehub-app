@@ -65,6 +65,31 @@ describe("AppEditCategorization", () => {
     });
   });
 
+  it("limits non-admin categories to three selections", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const Wrapper = () => {
+      const [form, setForm] = useState<ProjectEditFormData>(baseForm);
+      const handleChange = (changes: Partial<ProjectEditFormData>) => {
+        onChange(changes);
+        setForm((prev) => ({ ...prev, ...changes }));
+      };
+      return <AppEditCategorization form={form} onChange={handleChange} />;
+    };
+
+    render(<Wrapper />);
+
+    await user.click(screen.getByLabelText("Games"));
+    await user.click(screen.getByLabelText("Hardware"));
+    await user.click(screen.getByLabelText("Utility"));
+    await user.click(screen.getByLabelText("Graphics"));
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      categories: ["Games", "Hardware", "Utility"],
+    });
+    expect(screen.getByLabelText("Graphics")).not.toBeChecked();
+  });
+
   it("updates license type field", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

@@ -3,6 +3,7 @@ import { MultiOptionSelectorWithTitle } from "@sharedComponents/OptionSelector/M
 import {
   CategoryName,
   getAllCategoryNames,
+  isAdminCategory,
 } from "@shared/domain/readModels/project/Category.ts";
 
 export const MultiCategorySelector: React.FC<{
@@ -13,13 +14,23 @@ export const MultiCategorySelector: React.FC<{
   const valueMap: Record<string, string> = Object.fromEntries(
     getAllCategoryNames().map((c) => [c, c])
   );
+  const selectedCategories = categories ?? [];
+  const handleSelection = (nextSelection: string[]) => {
+    const nonAdminCount = nextSelection.filter(
+      (category) => !isAdminCategory(category)
+    ).length;
+    if (nonAdminCount > 3) {
+      return;
+    }
+    onCategoryChange(nextSelection as CategoryName[]);
+  };
   return (
     <MultiOptionSelectorWithTitle
       noValueSetName={noValueSetName}
       title="Category"
       valueMap={valueMap}
-      value={categories}
-      onValueSelection={onCategoryChange}
+      value={selectedCategories}
+      onValueSelection={handleSelection}
     />
   );
 };
