@@ -26,10 +26,12 @@ describe("AppEditCategorization", () => {
     render(<Wrapper />);
 
     const badgeSelect = screen.getByTestId("badge-dropdown");
-    await user.selectOptions(badgeSelect, "why2025");
+    await user.selectOptions(badgeSelect, ["why2025", "mch2022"]);
 
-    expect(badgeSelect).toHaveValue("why2025");
-    expect(onChange).toHaveBeenLastCalledWith({ badges: ["why2025"] });
+    expect(badgeSelect).toHaveValue(["why2025", "mch2022"]);
+    expect(onChange).toHaveBeenLastCalledWith({
+      badges: ["why2025", "mch2022"],
+    });
   });
 
   it("updates category selection", async () => {
@@ -47,10 +49,12 @@ describe("AppEditCategorization", () => {
     render(<Wrapper />);
 
     const categorySelect = screen.getByTestId("category-dropdown");
-    await user.selectOptions(categorySelect, "Games");
+    await user.selectOptions(categorySelect, ["Games", "Hardware"]);
 
-    expect(categorySelect).toHaveValue("Games");
-    expect(onChange).toHaveBeenLastCalledWith({ categories: ["Games"] });
+    expect(categorySelect).toHaveValue(["Games", "Hardware"]);
+    expect(onChange).toHaveBeenLastCalledWith({
+      categories: ["Games", "Hardware"],
+    });
   });
 
   it("updates license field", async () => {
