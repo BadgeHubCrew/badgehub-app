@@ -11,6 +11,27 @@ const baseForm: ProjectEditFormData = {
 };
 
 describe("AppEditCategorization", () => {
+  it("updates badge selection", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const Wrapper = () => {
+      const [form, setForm] = useState<ProjectEditFormData>(baseForm);
+      const handleChange = (changes: Partial<ProjectEditFormData>) => {
+        onChange(changes);
+        setForm((prev) => ({ ...prev, ...changes }));
+      };
+      return <AppEditCategorization form={form} onChange={handleChange} />;
+    };
+
+    render(<Wrapper />);
+
+    const badgeSelect = screen.getByTestId("badge-dropdown");
+    await user.selectOptions(badgeSelect, "why2025");
+
+    expect(badgeSelect).toHaveValue("why2025");
+    expect(onChange).toHaveBeenLastCalledWith({ badges: ["why2025"] });
+  });
+
   it("updates category selection", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

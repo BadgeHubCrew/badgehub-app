@@ -1,6 +1,7 @@
 import React from "react";
 import { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import { CategorySelector } from "@sharedComponents/OptionSelector/CategorySelector.tsx";
+import { BadgeSelector } from "@sharedComponents/OptionSelector/BadgeSelector.tsx";
 
 const AppEditCategorization: React.FC<{
   form: ProjectEditFormData;
@@ -11,11 +12,15 @@ const AppEditCategorization: React.FC<{
       Categorization
     </h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {/*<BadgeSelector*/}
-      {/*  noValueSetName="Please select"*/}
-      {/*  badge={form.badge}*/}
-      {/*  onBadgeChange={(newValue) => onChange({ badge: newValue })}*/}
-      {/*/>*/}
+      <BadgeSelector
+        noValueSetName="Please select"
+        badge={form.badges?.[0]}
+        onBadgeChange={(newValue) =>
+          onChange({
+            badges: newValue === undefined ? undefined : [newValue],
+          })
+        }
+      />
       <CategorySelector
         noValueSetName="Please select"
         category={form.categories?.[0]}
