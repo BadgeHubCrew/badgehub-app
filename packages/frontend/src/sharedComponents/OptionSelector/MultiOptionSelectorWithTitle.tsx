@@ -89,25 +89,6 @@ export const MultiOptionSelectorWithTitle: React.FC<{
         data-testid={selectionId}
         className="max-h-40 overflow-y-auto rounded-md border border-gray-700 p-2 space-y-2"
       >
-        {selectedEntries.length > 0 && (
-          <>
-            <p className="text-xs uppercase tracking-wide text-slate-400">
-              Selected
-            </p>
-            {selectedEntries.map(([option, label]) => (
-              <label key={option} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-emerald-600 focus:ring-emerald-500"
-                  checked={true}
-                  onChange={() => toggleValue(option)}
-                />
-                <span className="text-slate-100">{label}</span>
-              </label>
-            ))}
-            <div className="border-t border-gray-700 my-2" />
-          </>
-        )}
         {options.map(([option, label]) => (
           <label key={option} className="flex items-center gap-2 text-sm">
             <input
