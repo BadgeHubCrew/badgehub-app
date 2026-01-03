@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { publicTsRestClient, getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import {
+  publicTsRestClient,
+  getFreshAuthorizedTsRestClient,
+} from "@api/tsRestClient.ts";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import Keycloak from "keycloak-js";
-import { extractFilename } from "@utils/fileUtils.ts";
 import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
+import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 
 const DownloadIcon = () => (
   <svg
@@ -27,7 +30,6 @@ const DownloadIcon = () => (
   </svg>
 );
 
-
 // JSON Preview Component with pretty print option and syntax highlighting
 const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
   const [isPretty, setIsPretty] = useState(false);
@@ -37,7 +39,7 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
       const parsed = JSON.parse(jsonStr);
       return JSON.stringify(parsed, null, 2);
     } catch (error) {
-      console.warn('Failed to parse JSON, displaying raw content:', error);
+      console.warn("Failed to parse JSON, displaying raw content:", error);
       return jsonStr;
     }
   };
@@ -157,7 +159,10 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
 };
 
 // Image Preview Component
-const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({ file, imageBlob }) => {
+const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
+  file,
+  imageBlob,
+}) => {
   const [imageUrl, setImageUrl] = useState<string>(file.url || "");
 
   useEffect(() => {
@@ -225,7 +230,10 @@ const renderFilePreview = (
     return <div className="text-slate-400">File not found</div>;
   }
 
-  const previewType = getPreviewType(currentFile.mimetype, currentFile.full_path);
+  const previewType = getPreviewType(
+    currentFile.mimetype,
+    currentFile.full_path
+  );
 
   switch (previewType) {
     case "image":
@@ -244,10 +252,7 @@ const renderFilePreview = (
       );
     case "text":
       return fileContent ? (
-        <TextPreview
-          content={fileContent}
-          filename={currentFile.full_path}
-        />
+        <TextPreview content={fileContent} filename={currentFile.full_path} />
       ) : (
         <div className="text-slate-400">Loading text file...</div>
       );
@@ -266,14 +271,17 @@ interface AppCodePreviewProps {
   showFileList?: boolean;
 }
 
-const AppCodePreview: React.FC<AppCodePreviewProps> = ({ 
-  project, 
-  isDraft = false, 
-  keycloak, 
+const AppCodePreview: React.FC<AppCodePreviewProps> = ({
+  project,
+  isDraft = false,
+  keycloak,
   previewedFile: externalPreviewedFile,
-  showFileList = true 
+  showFileList = true,
 }) => {
-  const files = useMemo(() => project?.version?.files ?? [], [project?.version?.files]);
+  const files = useMemo(
+    () => project?.version?.files ?? [],
+    [project?.version?.files]
+  );
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
@@ -288,7 +296,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
       setPreviewedFile(externalPreviewedFile);
       return;
     }
-    
+
     if (!files?.length) {
       setPreviewedFile(null);
       setFileContent(null);
@@ -318,7 +326,10 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
     }
 
     // For unsupported types, don't fetch content
-    if (getPreviewType(currentFile.mimetype, currentFile.full_path) === "unsupported") {
+    if (
+      getPreviewType(currentFile.mimetype, currentFile.full_path) ===
+      "unsupported"
+    ) {
       setFileContent(null);
       setImageBlob(null);
       setLoading(false);
@@ -341,7 +352,10 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
             const blob = response.body as Blob;
 
             // For images, store the blob for display
-            if (getPreviewType(currentFile.mimetype, currentFile.full_path) === "image") {
+            if (
+              getPreviewType(currentFile.mimetype, currentFile.full_path) ===
+              "image"
+            ) {
               setImageBlob(blob);
               setFileContent(null);
             } else {
@@ -364,7 +378,10 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
           });
 
           if (res.status === 200) {
-            if (getPreviewType(currentFile.mimetype, currentFile.full_path) === "image") {
+            if (
+              getPreviewType(currentFile.mimetype, currentFile.full_path) ===
+              "image"
+            ) {
               // For published images, we use the file.url directly (no blob needed)
               setImageBlob(null);
               setFileContent(null);
@@ -385,8 +402,10 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
           }
         }
       } catch (error) {
-        console.error('Failed to fetch file content:', error);
-        setFileContent("// Network error - please check your connection and try again");
+        console.error("Failed to fetch file content:", error);
+        setFileContent(
+          "// Network error - please check your connection and try again"
+        );
         setImageBlob(null);
       } finally {
         setLoading(false);
@@ -403,26 +422,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
   const handleDownload = async (file: FileMetadata) => {
     if (isDraft) {
       // Draft mode - download via API
-      try {
-        assertDefined(keycloak);
-        const client = await getFreshAuthorizedTsRestClient(keycloak);
-        const response = await client.getDraftFile({
-          params: { slug: project.slug, filePath: file.full_path },
-        });
-
-        if (response.status === 200 && response.body) {
-          const url = window.URL.createObjectURL(response.body as Blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = extractFilename(file.full_path);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        }
-      } catch (error) {
-        console.error("Failed to download file:", error);
-      }
+      await downloadProjectFile(keycloak!, project.slug, file);
     } else {
       // Published mode - use direct URL
       window.location.href = file.url;
@@ -430,7 +430,10 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
   };
 
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg text-left" data-testid="code-preview-section">
+    <section
+      className="bg-gray-800 p-6 rounded-lg shadow-lg text-left"
+      data-testid="code-preview-section"
+    >
       <h2 className="text-2xl font-semibold text-slate-100 mb-4">
         Code Preview / Files
       </h2>
@@ -468,7 +471,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
                     }`}
                     onClick={() => handlePreview(f.full_path)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         handlePreview(f.full_path);
                       }
@@ -497,7 +500,13 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
       )}
       <div className={showFileList ? "mt-6 md:ml-0" : "mt-4"}>
         <div className="code-block font-mono text-sm bg-gray-900 rounded p-4 overflow-x-auto min-h-[200px]">
-          {renderFilePreview(loading, previewedFile, currentFile, fileContent, imageBlob || undefined)}
+          {renderFilePreview(
+            loading,
+            previewedFile,
+            currentFile,
+            fileContent,
+            imageBlob || undefined
+          )}
         </div>
       </div>
     </section>

@@ -3,10 +3,9 @@ import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts"
 import { DeleteIcon } from "@sharedComponents/icons/DeleteIcon.tsx";
 import { DownloadIcon } from "@sharedComponents/AppsGrid/DownloadIcon.tsx";
 import { IconSize } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
-import { assertDefined } from "@shared/util/assertions.ts";
 import Keycloak from "keycloak-js";
-import { extractFilename, IMAGE_FILE_EXTENSIONS } from "@utils/fileUtils.ts";
+import { IMAGE_FILE_EXTENSIONS } from "@utils/fileUtils.ts";
+import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 
 /**
  * Checks if a file is a PNG image.
@@ -57,7 +56,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
   const deletable = isDeletable(file);
 
   const excludedExtensions = [
-    ...IMAGE_FILE_EXTENSIONS.map(ext => `.${ext}`),
+    ...IMAGE_FILE_EXTENSIONS.map((ext) => `.${ext}`),
     ".md",
     ".txt",
     ".json",
@@ -76,30 +75,6 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       `${file.image_width}x${file.image_height}`) ||
     false;
 
-  const handleDownload = async () => {
-    try {
-      assertDefined(keycloak);
-      const client = await getFreshAuthorizedTsRestClient(keycloak);
-      const response = await client.getDraftFile({
-        params: { slug, filePath: file.full_path },
-      });
-
-      if (response.status === 200 && response.body) {
-        // Create a download link
-        const url = window.URL.createObjectURL(response.body as Blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = extractFilename(file.full_path);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }
-    } catch (error) {
-      console.error("Failed to download file:", error);
-    }
-  };
-
   return (
     <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-gray-700/50">
       {/* Download Button */}
@@ -107,7 +82,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
         type="button"
         className="bg-blue-600 text-white rounded p-1 flex items-center justify-center transition-colors hover:bg-blue-700"
         title="Download draft file"
-        onClick={handleDownload}
+        onClick={() => downloadProjectFile(keycloak, slug, file)}
       >
         <DownloadIcon />
       </button>
