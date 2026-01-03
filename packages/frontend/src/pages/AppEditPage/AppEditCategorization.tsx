@@ -44,7 +44,7 @@ const AppEditCategorization: React.FC<{
           value={form.license_type || ""}
           onChange={(e) => onChange({ license_type: e.target.value })}
         />
-        <p className="text-xs text-slate-500 mt-1">License Type, eg MIT</p>
+        <p className="text-xs text-slate-500 mt-1">License Type, eg. MIT</p>
       </div>
     </div>
   </section>
