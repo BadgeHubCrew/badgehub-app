@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@__test__";
+import { fireEvent, render, screen } from "@__test__";
 import { render as rtlRender } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -59,7 +59,7 @@ describe("AppCreationPage", () => {
     const input = screen.getByTestId("app-creation-slug-input");
     const submit = screen.getByTestId("app-creation-submit-btn");
 
-    await user.type(input, "1abc-DEF");
+    fireEvent.change(input, { target: { value: "1abc-DEF" } });
     expect(input).toHaveValue("abc");
     expect(submit).toBeEnabled();
   });
