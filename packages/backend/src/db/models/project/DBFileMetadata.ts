@@ -14,3 +14,14 @@ export interface DBFileMetadata extends VersionRelation, DBDatedData {
   image_width: number | null;
   image_height: number | null;
 }
+
+export const fileColumnsForCopying = [
+  "dir",
+  "name",
+  "ext",
+  "mimetype",
+  "size_of_content",
+  "sha256",
+  "image_width",
+  "image_height",
+];

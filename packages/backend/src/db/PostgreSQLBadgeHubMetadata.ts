@@ -36,7 +36,10 @@ import {
 } from "@db/sqlHelpers/objectToSQL";
 import { UploadedFile } from "@shared/domain/UploadedFile";
 import path from "node:path";
-import { DBFileMetadata } from "@db/models/project/DBFileMetadata";
+import {
+  DBFileMetadata,
+  fileColumnsForCopying,
+} from "@db/models/project/DBFileMetadata";
 import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata";
 import { DBDatedData, DBSoftDeletable } from "@db/models/project/DBDatedData";
 import { TimestampTZ } from "@db/models/DBTypes";
@@ -336,6 +339,7 @@ export class PostgreSQLBadgeHubMetadata {
     projectSlug: string,
     mockDate?: TimestampTZ
   ): Promise<void> {
+    const fileColumnsForCopyingSql = raw(fileColumnsForCopying.join(", "));
     await this.pool.query(sql`
       with published_version as (
         update versions v
@@ -361,18 +365,9 @@ export class PostgreSQLBadgeHubMetadata {
            copied_files as (
              insert
                into files
-                 (version_id, dir, name, ext, mimetype, size_of_content, sha256, created_at, updated_at,
-                  deleted_at)
+                 (version_id, ${fileColumnsForCopyingSql})
                  select (select id from new_draft_version),
-                        dir,
-                        name,
-                        ext,
-                        mimetype,
-                        size_of_content,
-                        sha256,
-                        created_at,
-                        updated_at,
-                        deleted_at
+                        ${fileColumnsForCopyingSql}
                  from files
                  where version_id = (select id from published_version)
                  returning 1)
