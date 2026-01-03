@@ -1,14 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
 import Header from "@sharedComponents/Header.tsx";
 import Footer from "@sharedComponents/Footer.tsx";
-import AppEditBreadcrumb from "./AppEditBreadcrumb.tsx";
-import AppEditBasicInfo from "./AppEditBasicInfo.tsx";
-import AppEditCategorization from "./AppEditCategorization.tsx";
-import AppEditActions from "./AppEditActions.tsx";
-import AppEditFileUpload from "./AppEditFileUpload";
-import AppEditFileList from "./AppEditFileList.tsx";
-import AppCodePreview from "@pages/AppDetailPage/AppCodePreview.tsx";
+import AppEditForm from "./AppEditForm.tsx";
+import AppEditStateView from "./AppEditStateView.tsx";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
@@ -19,12 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { VariantJSON } from "@shared/domain/readModels/project/VariantJSON.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
-import AppEditTokenManager from "./AppEditTokenManager.tsx";
-import { useAsyncResource } from "@hooks/useAsyncResource.ts";
-import {
-  draftProjectErrorFromStatus,
-  normalizeDraftProjectError,
-} from "@utils/draftProjectErrors.ts";
+import { useDraftProject, PossiblyStaleProject } from "@hooks/useDraftProject.ts";
 
 function getAndEnsureApplication(newProjectData: ProjectDetails): VariantJSON {
   const application: VariantJSON =
@@ -35,14 +25,16 @@ function getAndEnsureApplication(newProjectData: ProjectDetails): VariantJSON {
   return application;
 }
 
-type PossiblyStaleProject = ProjectDetails & { stale?: true };
 const AppEditPage: React.FC<{
   slug: string;
 }> = ({ slug }) => {
-  const [project, setProject] = useState<PossiblyStaleProject | null>(null);
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const { user, keycloak } = useSession();
   const navigate = useNavigate();
+  const { project, setProject, loading, error } = useDraftProject(
+    slug,
+    keycloak
+  );
 
   const setAppMetadata = (
     appMetadataOrFn:
@@ -68,46 +60,6 @@ const AppEditPage: React.FC<{
   if (appMetadata) {
     appMetadata.author ??= user?.name;
   }
-
-  const shouldFetchProject = Boolean(keycloak) && (!project || project.stale);
-  const { data: fetchedProject, error: fetchError, loading } = useAsyncResource(
-    async () => {
-      if (!keycloak) {
-        throw new Error("authentication");
-      }
-      try {
-        const res = await (
-          await getFreshAuthorizedTsRestClient(keycloak)
-        ).getDraftProject({
-          params: { slug },
-        });
-        if (res.status === 200) {
-          return res.body;
-        }
-        throw new Error(draftProjectErrorFromStatus(res.status));
-      } catch (error) {
-        console.error("Failed to fetch draft project:", error);
-        if (!keycloak.authenticated) {
-          throw new Error("authentication");
-        }
-        throw new Error(normalizeDraftProjectError(error));
-      }
-    },
-    [keycloak, project?.stale, slug],
-    { enabled: shouldFetchProject }
-  );
-
-  useEffect(() => {
-    if (fetchedProject) {
-      setProject(fetchedProject);
-    }
-  }, [fetchedProject]);
-
-  const error = !keycloak
-    ? "authentication"
-    : fetchError
-      ? normalizeDraftProjectError(fetchError)
-      : null;
 
   const handleFormChange = (changes: Partial<ProjectEditFormData>) => {
     setAppMetadata((prev) => ({ ...prev, ...changes }) as ProjectEditFormData);
@@ -268,96 +220,34 @@ const AppEditPage: React.FC<{
     >
       <Header />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        {!loading && (!project || !appMetadata || error) ? (
-          <div
-            data-testid="app-edit-error"
-            className="flex flex-col justify-center items-center h-64 text-center bg-gray-900"
-          >
-            {error === "authentication" ? (
-              <>
-                <div className="text-yellow-400 text-xl mb-4">
-                  Authentication Required
-                </div>
-                <div className="text-slate-400 mb-4">
-                  You need to log in to edit this project.
-                </div>
-                <button
-                  onClick={() => keycloak?.login()}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors"
-                >
-                  Log In
-                </button>
-              </>
-            ) : error === "not_found" ? (
-              <div className="text-red-400">App not found.</div>
-            ) : error === "unknown" ? (
-              <div className="text-red-400">
-                Failed to load project. Please try again.
-              </div>
-            ) : (
-              <div className="text-red-400">App not found.</div>
-            )}
-          </div>
-        ) : loading ? (
-          <div className="flex justify-center items-center h-64 text-slate-400 bg-gray-900">
-            Loading...
-          </div>
-        ) : (
-          <>
-            <AppEditBreadcrumb project={project as ProjectDetails} />
-            <h1 className="text-3xl font-bold text-slate-100 mb-6">
-              Editing {project!.slug}/rev{project!.version.revision}
-            </h1>
-            <div className="space-y-8">
-              <form className="space-y-8" onSubmit={handleSubmit}>
-                <AppEditActions
-                  onClickDeleteApplication={handleDeleteApplication}
-                />
-                <AppEditBasicInfo
-                  form={appMetadata as ProjectEditFormData}
-                  onChange={handleFormChange}
-                />
-                <AppEditCategorization
-                  form={appMetadata as ProjectEditFormData}
-                  onChange={handleFormChange}
-                />
-                <AppEditFileUpload
-                  slug={slug}
-                  keycloak={keycloak}
-                  onUploadSuccess={updateDraftFiles}
-                />
-                {keycloak && (
-                  <AppEditFileList
-                    user={user}
-                    project={project as ProjectDetails}
-                    onSetIcon={onSetIcon}
-                    iconFilePath={appMetadata?.icon_map?.["64x64"]}
-                    onDeleteFile={handleDeleteFile}
-                    mainExecutable={
-                      mainExecutable /*TODO multi variant support in frontend*/
-                    }
-                    onSetMainExecutable={onSetMainExecutable}
-                    onPreview={handlePreviewFile}
-                    slug={slug}
-                    keycloak={keycloak}
-                  />
-                )}
-                {keycloak && (
-                  <AppCodePreview
-                    project={project as ProjectDetails}
-                    isDraft={true}
-                    keycloak={keycloak}
-                    previewedFile={previewedFile}
-                    showFileList={false}
-                  />
-                )}
-              </form>
-              {keycloak && (
-                <AppEditTokenManager slug={slug} keycloak={keycloak} />
-              )}
-            </div>
-          </>
-        )}
+        <AppEditStateView
+          loading={loading}
+          error={
+            error ??
+            (!project || !appMetadata ? "not_found" : null)
+          }
+          onLogin={() => keycloak?.login()}
+        >
+          {project && appMetadata && keycloak && (
+            <AppEditForm
+              project={project as ProjectDetails}
+              appMetadata={appMetadata as ProjectEditFormData}
+              slug={slug}
+              user={user}
+              keycloak={keycloak}
+              previewedFile={previewedFile}
+              mainExecutable={mainExecutable}
+              onPreviewFile={handlePreviewFile}
+              onSetIcon={onSetIcon}
+              onDeleteFile={handleDeleteFile}
+              onSetMainExecutable={onSetMainExecutable}
+              onUploadSuccess={updateDraftFiles}
+              onFormChange={handleFormChange}
+              onSubmit={handleSubmit}
+              onDeleteApplication={handleDeleteApplication}
+            />
+          )}
+        </AppEditStateView>
       </main>
       <Footer />
     </div>
