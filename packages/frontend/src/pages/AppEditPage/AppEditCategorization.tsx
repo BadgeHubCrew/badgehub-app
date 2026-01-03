@@ -31,12 +31,16 @@ const AppEditCategorization: React.FC<{
         }
       />
       <div>
-        <label className="block text-sm font-medium text-slate-300 mb-1">
+        <label
+          htmlFor="licenseFile"
+          className="block text-sm font-medium text-slate-300 mb-1"
+        >
           License
         </label>
         <input
           type="text"
           className="w-full form-input p-2"
+          id="licenseFile"
           value={form.license_file}
           onChange={(e) => onChange({ license_file: e.target.value })}
         />

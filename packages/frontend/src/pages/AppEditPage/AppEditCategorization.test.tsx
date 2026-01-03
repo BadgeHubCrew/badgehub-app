@@ -79,7 +79,7 @@ describe("AppEditCategorization", () => {
 
     render(<Wrapper />);
 
-    const licenseInput = screen.getByRole("textbox");
+    const licenseInput = screen.getByLabelText(/license/i);
     await user.type(licenseInput, "LICENSE.txt");
 
     expect(licenseInput).toHaveValue("LICENSE.txt");
