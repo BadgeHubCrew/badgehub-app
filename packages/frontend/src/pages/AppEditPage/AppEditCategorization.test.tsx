@@ -88,6 +88,9 @@ describe("AppEditCategorization", () => {
       categories: ["Games", "Hardware", "Utility"],
     });
     expect(screen.getByLabelText("Graphics")).not.toBeChecked();
+    expect(
+      screen.getByText(/you can set at most 3 categories/i)
+    ).toBeInTheDocument();
   });
 
   it("updates license type field", async () => {
