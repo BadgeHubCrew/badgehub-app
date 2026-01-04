@@ -23,8 +23,8 @@ import { CreateProjectProps } from "@shared/domain/writeModels/project/WriteProj
 import { WriteAppMetadataJSON } from "@shared/domain/writeModels/AppMetadataJSON";
 import { LRUCache } from "lru-cache";
 import {
-  IconSize,
   appMetadataJSONSchema,
+  IconSize,
 } from "@shared/domain/readModels/project/AppMetadataJSON";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import { createIconBuffer, getImageProps } from "@util/imageProcessing";
@@ -33,6 +33,7 @@ import { randomBytes } from "node:crypto";
 import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
 import { OrderByOption } from "@shared/domain/readModels/project/ordering";
+import { parseIconSize } from "@domain/ImageDimensions";
 
 type FileContext =
   | { projectSlug: string; revision: number; filePath: string }
@@ -382,13 +383,10 @@ export class BadgeHubData {
     const iconPaths: Partial<Record<IconSize, string>> = {};
 
     for (const size of uniqueSizes) {
-      const numericSize = parseIconSize(size);
+      const iconSize = parseIconSize(size);
       let iconBuffer: Buffer;
       try {
-      iconBuffer = await createIconBuffer(fileContents, {
-        width: numericSize,
-        height: numericSize,
-      });
+        iconBuffer = await createIconBuffer(fileContents, iconSize);
       } catch {
         throw new UserError(
           `Could not convert '${sourceFilePath}' into a ${size} icon.`
@@ -527,12 +525,3 @@ export class BadgeHubData {
     return Boolean(apiToken && (await stringToSha256(apiToken)) === tokenHash);
   }
 }
-
-const parseIconSize = (size: IconSize): number => {
-  const [value] = size.split("x");
-  const numericSize = Number(value);
-  if (!Number.isFinite(numericSize) || numericSize <= 0) {
-    throw new UserError(`Invalid icon size '${size}'.`);
-  }
-  return numericSize;
-};
