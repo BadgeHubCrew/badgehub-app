@@ -9,7 +9,6 @@ import AppEditTokenManager from "./AppEditTokenManager.tsx";
 import AppCodePreview from "@pages/AppDetailPage/AppCodePreview.tsx";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
-import { IconSize } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import { User } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import Keycloak from "keycloak-js";
 
@@ -22,7 +21,7 @@ const AppEditForm: React.FC<{
   previewedFile: string | null;
   mainExecutable?: string;
   onPreviewFile: (filePath: string) => void;
-  onSetIcon: (size: IconSize, filePath: string) => void;
+  onSetIcon: (filePath: string) => void;
   onDeleteFile: (filePath: string) => void;
   onSetMainExecutable: (filePath: string) => void;
   onUploadSuccess: (result: {

@@ -2,16 +2,10 @@ import React from "react";
 import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import { DeleteIcon } from "@sharedComponents/icons/DeleteIcon.tsx";
 import { DownloadIcon } from "@sharedComponents/AppsGrid/DownloadIcon.tsx";
-import { IconSize } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import Keycloak from "keycloak-js";
 import { IMAGE_FILE_EXTENSIONS } from "@utils/fileUtils.ts";
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 
-/**
- * Checks if a file is a PNG image.
- * @param filePath The full path of the file.
- */
-const isPng = (filePath: string) => filePath.toLowerCase().endsWith(".png");
 /**
  * Determines if a file can be deleted.
  * The `metadata.json` file is protected.
@@ -22,7 +16,7 @@ const isDeletable = (file: FileMetadata) => file.full_path !== "metadata.json";
 interface FileListItemProps {
   file: FileMetadata;
   iconFilePath?: string;
-  onSetIcon?: (size: IconSize, filePath: string) => void;
+  onSetIcon?: (filePath: string) => void;
   onDeleteFile?: (filePath: string) => void;
   mainExecutable?: string;
   onSetMainExecutable?: (filePath: string) => void;
@@ -30,8 +24,6 @@ interface FileListItemProps {
   slug: string;
   keycloak: Keycloak;
 }
-
-const bigIconSize = "64x64";
 
 /**
  * Renders a single row in the file list.
@@ -50,9 +42,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
   keycloak,
 }) => {
   const isCurrentIcon = iconFilePath === file.full_path;
-  const showIconButton = onSetIcon && isPng(file.full_path);
-  const isRightSize =
-    showIconButton && file.image_height === 64 && file.image_width === 64;
+  const showIconButton = onSetIcon && file.mimetype.startsWith("image/");
   const deletable = isDeletable(file);
 
   const excludedExtensions = [
@@ -146,17 +136,15 @@ export const FileListItem: React.FC<FileListItemProps> = ({
               ? "bg-emerald-600 text-white cursor-default"
               : "bg-gray-700 text-slate-300 hover:bg-emerald-700 hover:text-white"
           }`}
-          onClick={() => onSetIcon(bigIconSize, file.full_path)}
+          onClick={() => onSetIcon(file.full_path)}
           title={
             isCurrentIcon
               ? "This file is the current icon"
-              : isRightSize
-                ? "Set as " + bigIconSize + " icon"
-                : `Image is ${widthXHeight}, icons should be ${bigIconSize}`
+              : "Set as icon"
           }
-          disabled={isCurrentIcon || !isRightSize}
+          disabled={isCurrentIcon}
         >
-          {isCurrentIcon ? "Icon" : isRightSize ? "Set as Icon" : "Wrong Size"}
+          {isCurrentIcon ? "Icon" : "Set as Icon"}
         </button>
       )}
     </li>

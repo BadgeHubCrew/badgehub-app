@@ -57,7 +57,7 @@ describe("FileListItem", () => {
     expect(onSetMainExecutable).toHaveBeenCalledWith("main.py");
   });
 
-  it("shows and triggers icon action for valid 64x64 pngs", async () => {
+  it("shows and triggers icon action for image files", async () => {
     const user = userEvent.setup();
     const onSetIcon = vi.fn();
     const file = {
@@ -65,8 +65,8 @@ describe("FileListItem", () => {
       full_path: "icon.png",
       ext: "png",
       mimetype: "image/png",
-      image_width: 64,
-      image_height: 64,
+      image_width: 24,
+      image_height: 24,
     };
 
     render(
@@ -79,7 +79,7 @@ describe("FileListItem", () => {
     );
 
     await user.click(screen.getByText("Set as Icon"));
-    expect(onSetIcon).toHaveBeenCalledWith("64x64", "icon.png");
+    expect(onSetIcon).toHaveBeenCalledWith("icon.png");
   });
 
   it("downloads draft file on download button click", async () => {

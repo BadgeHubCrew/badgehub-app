@@ -7,10 +7,7 @@ import AppEditStateView from "./AppEditStateView.tsx";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
-import {
-  AppMetadataJSON,
-  IconSize,
-} from "@shared/domain/readModels/project/AppMetadataJSON.ts";
+import { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import { useNavigate } from "react-router-dom";
 import { VariantJSON } from "@shared/domain/readModels/project/VariantJSON.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
@@ -201,11 +198,36 @@ const AppEditPage: React.FC<{
     }
   };
 
-  const onSetIcon = (size: IconSize, filePath: string) =>
-    setAppMetadata((prev) => ({
-      ...prev,
-      icon_map: { ...prev.icon_map, [size]: filePath },
-    }));
+  const handleSetIcon = async (filePath: string) => {
+    assertDefined(keycloak);
+    try {
+      await keycloak.updateToken(30);
+      const client = await getFreshAuthorizedTsRestClient(keycloak);
+      const setIconResult = await client.setDraftIconFromFile({
+        params: { slug },
+        body: { filePath, sizes: ["64x64"] },
+      });
+      if (setIconResult.status !== 200) {
+        console.error("setDraftIconFromFile failed", setIconResult);
+        window.alert("Setting icon failed");
+        return;
+      }
+      const updatedDraftProject = await client.getDraftProject({
+        params: { slug },
+      });
+      if (updatedDraftProject.status === 200) {
+        setProject(updatedDraftProject.body);
+        return;
+      }
+      setAppMetadata((prev) => ({
+        ...prev,
+        icon_map: { ...prev.icon_map, ...setIconResult.body.iconPaths },
+      }));
+    } catch (e) {
+      console.error(e);
+      window.alert("Something went wrong while setting the icon.");
+    }
+  };
 
   const onSetMainExecutable = (filePath: string) => setMainExecutable(filePath);
 
@@ -238,7 +260,7 @@ const AppEditPage: React.FC<{
               previewedFile={previewedFile}
               mainExecutable={mainExecutable}
               onPreviewFile={handlePreviewFile}
-              onSetIcon={onSetIcon}
+              onSetIcon={handleSetIcon}
               onDeleteFile={handleDeleteFile}
               onSetMainExecutable={onSetMainExecutable}
               onUploadSuccess={updateDraftFiles}
