@@ -1698,6 +1698,144 @@ Warning: if it is present, then badgehub clients on badges will not update the a
         ],
       },
     },
+    "/api/v3/projects/{slug}/draft/icon": {
+      "post": {
+        "deprecated": undefined,
+        "description": undefined,
+        "operationId": "setDraftIconFromFile",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "filePath": {
+                    "type": "string",
+                  },
+                  "sizes": {
+                    "items": {
+                      "enum": [
+                        "8x8",
+                        "16x16",
+                        "32x32",
+                        "64x64",
+                      ],
+                      "type": "string",
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                  },
+                },
+                "required": [
+                  "filePath",
+                  "sizes",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "description": "Body",
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "iconPaths": {
+                      "additionalProperties": {
+                        "type": "string",
+                      },
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "iconPaths",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "200",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "reason": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "reason",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "400",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "reason": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "reason",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "403",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "reason": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "reason",
+                  ],
+                  "type": "object",
+                },
+              },
+            },
+            "description": "404",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+          {
+            "apiTokenAuth": [],
+          },
+        ],
+        "summary": "Set the 64x64 draft icon by converting the existing project file given in the body",
+        "tags": [
+          "Private",
+        ],
+      },
+    },
     "/api/v3/projects/{slug}/draft/metadata": {
       "patch": {
         "deprecated": undefined,
