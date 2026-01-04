@@ -22,9 +22,12 @@ import { TimestampTZ } from "@db/models/DBTypes";
 import { CreateProjectProps } from "@shared/domain/writeModels/project/WriteProject";
 import { WriteAppMetadataJSON } from "@shared/domain/writeModels/AppMetadataJSON";
 import { LRUCache } from "lru-cache";
-import { appMetadataJSONSchema } from "@shared/domain/readModels/project/AppMetadataJSON";
+import {
+  IconSize,
+  appMetadataJSONSchema,
+} from "@shared/domain/readModels/project/AppMetadataJSON";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { getImageProps } from "@util/imageProcessing";
+import { createIconBuffer, getImageProps } from "@util/imageProcessing";
 import { UserError } from "@domain/UserError";
 import { randomBytes } from "node:crypto";
 import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
@@ -339,6 +342,77 @@ export class BadgeHubData {
     );
   }
 
+  async setDraftIconFromFile(
+    projectSlug: ProjectSlug,
+    sourceFilePath: string,
+    sizes: IconSize[],
+    project?: ProjectDetails
+  ): Promise<Record<IconSize, string> | undefined> {
+    const draftProject =
+      project ?? (await this.badgeHubMetadata.getProject(projectSlug, "draft"));
+    if (!draftProject) {
+      return undefined;
+    }
+
+    const fileMetadata = await this.getFileMetadata(
+      projectSlug,
+      "draft",
+      sourceFilePath
+    );
+    if (!fileMetadata) {
+      return undefined;
+    }
+
+    const fileContents = await this.getFileContents(
+      projectSlug,
+      "draft",
+      sourceFilePath
+    );
+    if (!fileContents) {
+      return undefined;
+    }
+
+    if (!fileMetadata.mimetype.startsWith("image/")) {
+      throw new UserError(
+        `File '${sourceFilePath}' is not a supported image for icon conversion.`
+      );
+    }
+
+    const uniqueSizes = Array.from(new Set(sizes));
+    const iconPaths: Partial<Record<IconSize, string>> = {};
+
+    for (const size of uniqueSizes) {
+      const numericSize = parseIconSize(size);
+      let iconBuffer: Buffer;
+      try {
+        iconBuffer = await createIconBuffer(fileContents, numericSize);
+      } catch {
+        throw new UserError(
+          `Could not convert '${sourceFilePath}' into a ${size} icon.`
+        );
+      }
+      const iconPath = `icon-${size}.png`;
+      await this.writeDraftFile(projectSlug, iconPath, {
+        mimetype: "image/png",
+        fileContent: iconBuffer,
+        size: iconBuffer.length,
+      });
+      iconPaths[size] = iconPath;
+    }
+
+    const existingMetadata = draftProject.version.app_metadata ?? {};
+    const icon_map = {
+      ...(existingMetadata.icon_map ?? {}),
+      ...iconPaths,
+    };
+    await this.updateDraftMetadata(projectSlug, {
+      ...existingMetadata,
+      icon_map,
+    });
+
+    return iconPaths as Record<IconSize, string>;
+  }
+
   getFileMetadata(
     projectSlug: string,
     versionRevision: RevisionNumberOrAlias,
@@ -450,3 +524,12 @@ export class BadgeHubData {
     return Boolean(apiToken && (await stringToSha256(apiToken)) === tokenHash);
   }
 }
+
+const parseIconSize = (size: IconSize): number => {
+  const [value] = size.split("x");
+  const numericSize = Number(value);
+  if (!Number.isFinite(numericSize) || numericSize <= 0) {
+    throw new UserError(`Invalid icon size '${size}'.`);
+  }
+  return numericSize;
+};

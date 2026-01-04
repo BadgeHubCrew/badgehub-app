@@ -21,3 +21,16 @@ export async function getImageProps(typedFile: UploadedFile) {
     image_height,
   };
 }
+
+export async function createIconBuffer(
+  fileContent: Uint8Array,
+  size = 64
+): Promise<Buffer> {
+  return sharp(fileContent)
+    .resize(size, size, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .png()
+    .toBuffer();
+}

@@ -154,6 +154,41 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
       },
     },
 
+    setDraftIconFromFile: async ({ params: { slug }, body, req }) => {
+      const project = await badgeHubData.getProject(slug, "draft");
+      if (!project) {
+        return nok(HTTP_NOT_FOUND, `No project with slug '${slug}' found`);
+      }
+      const authorizationFailureResponse = await checkProjectAuthorization(
+        badgeHubData,
+        slug,
+        req,
+        project
+      );
+      if (authorizationFailureResponse) return authorizationFailureResponse;
+
+      try {
+        const iconPaths = await badgeHubData.setDraftIconFromFile(
+          slug,
+          body.filePath,
+          body.sizes,
+          project
+        );
+        if (!iconPaths) {
+          return nok(
+            HTTP_NOT_FOUND,
+            `File '${body.filePath}' not found in draft project '${slug}'`
+          );
+        }
+        return ok({ iconPaths });
+      } catch (error) {
+        if (error instanceof UserError) {
+          return nok(400, error.message);
+        }
+        throw error;
+      }
+    },
+
     deleteDraftFile: async ({ params: { slug, filePath }, req }) => {
       const authorizationFailureResponse = await checkProjectAuthorization(
         badgeHubData,
