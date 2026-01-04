@@ -24,10 +24,10 @@ export async function getImageProps(typedFile: UploadedFile) {
 
 export async function createIconBuffer(
   fileContent: Uint8Array,
-  size = 64
+  targetOptions: { width: number; height: number }
 ): Promise<Buffer> {
   return sharp(fileContent)
-    .resize(size, size, {
+    .resize(targetOptions.width, targetOptions.height, {
       fit: "contain",
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })

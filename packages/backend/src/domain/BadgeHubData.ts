@@ -385,7 +385,10 @@ export class BadgeHubData {
       const numericSize = parseIconSize(size);
       let iconBuffer: Buffer;
       try {
-        iconBuffer = await createIconBuffer(fileContents, numericSize);
+      iconBuffer = await createIconBuffer(fileContents, {
+        width: numericSize,
+        height: numericSize,
+      });
       } catch {
         throw new UserError(
           `Could not convert '${sourceFilePath}' into a ${size} icon.`
