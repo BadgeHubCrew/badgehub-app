@@ -19,9 +19,14 @@ const baseFile: FileMetadata = {
   full_path: "main.py",
   name: "main",
   ext: "py",
-  size: 12,
-  size_formatted: "12 B",
+  size_formatted: "5 KB",
   mimetype: "text/x-python",
+  size_of_content: 5000,
+  sha256: "e".repeat(64),
+  url: "http://badgehub.p1m.nl/main.py",
+  dir: "",
+  created_at: "2023-01-01T00:00:00Z",
+  updated_at: "2023-01-01T00:00:00Z",
 };
 
 describe("FileListItem", () => {
@@ -112,9 +117,7 @@ describe("FileListItem", () => {
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => {});
 
-    render(
-      <FileListItem file={baseFile} slug="demo" keycloak={keycloak} />
-    );
+    render(<FileListItem file={baseFile} slug="demo" keycloak={keycloak} />);
 
     await user.click(screen.getByTitle("Download draft file"));
 

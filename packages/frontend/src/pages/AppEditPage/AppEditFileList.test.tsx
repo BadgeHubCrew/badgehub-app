@@ -21,6 +21,12 @@ const withFiles = (project: ProjectDetails, count: number): ProjectDetails => ({
       size: 12,
       size_formatted: "12 B",
       mimetype: "text/x-python",
+      size_of_content: 5000,
+      sha256: "e".repeat(64),
+      url: "http://badgehub.p1m.nl/main.py",
+      dir: "",
+      created_at: "2023-01-01T00:00:00Z",
+      updated_at: "2023-01-01T00:00:00Z",
     })),
   },
 });
@@ -29,11 +35,7 @@ describe("AppEditFileList", () => {
   it("shows empty state when no files are present", () => {
     const project = withFiles(dummyApps[0]!.details, 0);
     render(
-      <AppEditFileList
-        project={project}
-        slug="demo"
-        keycloak={keycloak}
-      />
+      <AppEditFileList project={project} slug="demo" keycloak={keycloak} />
     );
 
     expect(
@@ -44,11 +46,7 @@ describe("AppEditFileList", () => {
   it("renders file list items when files exist", () => {
     const project = withFiles(dummyApps[0]!.details, 2);
     render(
-      <AppEditFileList
-        project={project}
-        slug="demo"
-        keycloak={keycloak}
-      />
+      <AppEditFileList project={project} slug="demo" keycloak={keycloak} />
     );
 
     expect(screen.getAllByTestId("file-list-item")).toHaveLength(2);
