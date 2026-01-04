@@ -184,6 +184,42 @@ describe("Authenticated API Routes", () => {
           expect(getRes2.statusCode).toBe(404);
         });
 
+        test("POST /projects/{slug}/draft/icon converts and sets icons", async () => {
+          const pngBuffer = Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+qLkAAAAASUVORK5CYII=",
+            "base64"
+          );
+          const uploadRes = await request(app)
+            .post(`/api/v3/projects/${user1AppId}/draft/files/icon-source.png`)
+            .auth(USER1_TOKEN, { type: "bearer" })
+            .attach("file", pngBuffer, "icon-source.png");
+          expect(uploadRes.statusCode).toBe(204);
+
+          const setIconRes = await request(app)
+            .post(`/api/v3/projects/${user1AppId}/draft/icon`)
+            .auth(USER1_TOKEN, { type: "bearer" })
+            .send({
+              filePath: "icon-source.png",
+              sizes: ["32x32", "64x64"],
+            });
+          expect(setIconRes.statusCode).toBe(200);
+          expect(setIconRes.body).toMatchObject({
+            iconPaths: {
+              "32x32": "icon-32x32.png",
+              "64x64": "icon-64x64.png",
+            },
+          });
+
+          const getDraftRes = await request(app)
+            .get(`/api/v3/projects/${user1AppId}/draft`)
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(getDraftRes.statusCode).toBe(200);
+          expect(getDraftRes.body.version.app_metadata.icon_map).toMatchObject({
+            "32x32": "icon-32x32.png",
+            "64x64": "icon-64x64.png",
+          });
+        });
+
         test("Overwrite deleted file", async () => {
           const postRes1 = await request(app)
             .post(`/api/v3/projects/${user1AppId}/draft/files/test.txt`)

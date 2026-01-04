@@ -38,6 +38,17 @@ const authorizationOrTokenHeaderSchema = z.union([
   authorizationHeaderSchema,
 ]);
 
+const iconSizeSchema = z.enum(["8x8", "16x16", "32x32", "64x64"]);
+
+const setDraftIconBodySchema = z.object({
+  filePath: z.string(),
+  sizes: z.array(iconSizeSchema).min(1),
+});
+
+const setDraftIconResponseSchema = z.object({
+  iconPaths: z.record(iconSizeSchema, z.string()),
+});
+
 export const privateProjectContracts = c.router(
   {
     createProject: {
@@ -97,6 +108,22 @@ export const privateProjectContracts = c.router(
         404: errorResponseSchema,
       },
       summary: "Upload a file to the latest draft version of a project",
+    },
+
+    setDraftIconFromFile: {
+      method: "POST",
+      path: "/projects/:slug/draft/icon",
+      pathParams: z.object({ slug: z.string() }),
+      body: setDraftIconBodySchema,
+      headers: authorizationOrTokenHeaderSchema,
+      responses: {
+        200: setDraftIconResponseSchema,
+        400: errorResponseSchema,
+        403: errorResponseSchema,
+        404: errorResponseSchema,
+      },
+      summary:
+        "Set the 64x64 draft icon by converting the existing project file given in the body",
     },
 
     deleteDraftFile: {

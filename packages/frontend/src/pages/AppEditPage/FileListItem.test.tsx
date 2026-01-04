@@ -19,9 +19,14 @@ const baseFile: FileMetadata = {
   full_path: "main.py",
   name: "main",
   ext: "py",
-  size: 12,
-  size_formatted: "12 B",
+  size_formatted: "5 KB",
   mimetype: "text/x-python",
+  size_of_content: 5000,
+  sha256: "e".repeat(64),
+  url: "http://badgehub.p1m.nl/main.py",
+  dir: "",
+  created_at: "2023-01-01T00:00:00Z",
+  updated_at: "2023-01-01T00:00:00Z",
 };
 
 describe("FileListItem", () => {
@@ -57,7 +62,7 @@ describe("FileListItem", () => {
     expect(onSetMainExecutable).toHaveBeenCalledWith("main.py");
   });
 
-  it("shows and triggers icon action for valid 64x64 pngs", async () => {
+  it("shows and triggers icon action for image files", async () => {
     const user = userEvent.setup();
     const onSetIcon = vi.fn();
     const file = {
@@ -65,8 +70,8 @@ describe("FileListItem", () => {
       full_path: "icon.png",
       ext: "png",
       mimetype: "image/png",
-      image_width: 64,
-      image_height: 64,
+      image_width: 24,
+      image_height: 24,
     };
 
     render(
@@ -79,7 +84,7 @@ describe("FileListItem", () => {
     );
 
     await user.click(screen.getByText("Set as Icon"));
-    expect(onSetIcon).toHaveBeenCalledWith("64x64", "icon.png");
+    expect(onSetIcon).toHaveBeenCalledWith("icon.png");
   });
 
   it("downloads draft file on download button click", async () => {
@@ -112,9 +117,7 @@ describe("FileListItem", () => {
       .spyOn(HTMLAnchorElement.prototype, "click")
       .mockImplementation(() => {});
 
-    render(
-      <FileListItem file={baseFile} slug="demo" keycloak={keycloak} />
-    );
+    render(<FileListItem file={baseFile} slug="demo" keycloak={keycloak} />);
 
     await user.click(screen.getByTitle("Download draft file"));
 
