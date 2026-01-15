@@ -12,7 +12,7 @@ jobs:
       image_sha: ${{ steps.determine-tag.outputs.image_sha }} # Output the SHA for deploy
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v5
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.2.0
