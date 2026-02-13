@@ -9,6 +9,7 @@ import {
 import { writeAppMetadataJSONSchema } from "@shared/domain/writeModels/AppMetadataJSON";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { projectSummarySchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { NO_BODY_SCHEMA } from "@shared/contracts/tsRestNoBodyPatch";
 
 const c = initContract();
 
@@ -196,13 +197,13 @@ This is actually just an alias for a post to /projects/:slug/draft/files/metadat
         403: errorResponseSchema,
         404: errorResponseSchema,
       },
-      body: z.unknown().optional().nullable(),
+      body: NO_BODY_SCHEMA,
       summary: "Publish the current draft as a new version",
     },
     createProjectAPIToken: {
       method: "POST",
       path: "/projects/:slug/token",
-      body: z.unknown().optional().nullable(),
+      body: NO_BODY_SCHEMA,
       headers: authorizationOrTokenHeaderSchema,
       responses: {
         200: z

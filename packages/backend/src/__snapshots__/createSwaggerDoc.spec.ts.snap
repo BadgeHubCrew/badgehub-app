@@ -2163,16 +2163,6 @@ This is actually just an alias for a post to /projects/:slug/draft/files/metadat
             },
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "nullable": true,
-              },
-            },
-          },
-          "description": "Body",
-        },
         "responses": {
           "204": {
             "content": {
@@ -3036,16 +3026,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             },
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "nullable": true,
-              },
-            },
-          },
-          "description": "Body",
-        },
         "responses": {
           "200": {
             "content": {
