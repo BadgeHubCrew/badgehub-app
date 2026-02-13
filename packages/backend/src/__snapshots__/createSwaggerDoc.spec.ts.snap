@@ -2770,14 +2770,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             },
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {},
-            },
-          },
-          "description": "Body",
-        },
         "responses": {
           "204": {
             "content": {
@@ -2852,17 +2844,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             },
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {},
-                "type": "object",
-              },
-            },
-          },
-          "description": "Body",
-        },
         "responses": {
           "204": {
             "content": {

@@ -1,11 +1,15 @@
 import { generateOpenApi } from "@ts-rest/open-api";
-import { publicRestContracts } from "@shared/contracts/publicRestContracts";
+import {
+  NO_BODY_DESCRIPTION,
+  publicRestContracts,
+} from "@shared/contracts/publicRestContracts";
 import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import _ from "lodash";
 import {
   OpenAPIObject,
   OperationObject,
   ParameterObject,
+  PathsObject,
   ReferenceObject,
 } from "openapi3-ts";
 import { initContract } from "@ts-rest/core";
@@ -52,6 +56,40 @@ const withSecurity = (operation: OperationObject): OperationObject => ({
   security: [{ bearerAuth: [] }, { apiTokenAuth: [] }],
 });
 
+function isEmptyRequestBody(requestBody: Record<string, any> | undefined) {
+  return (
+    requestBody?.content?.["application/json"]?.schema?.description ===
+    NO_BODY_DESCRIPTION
+  );
+}
+
+function removeRequestBodyIfEmpty(
+  details: Record<string, any>
+): Record<string, any> {
+  const { requestBody, ...detailsWithoutRequestBody } = details;
+  if (!isEmptyRequestBody(requestBody)) {
+    return details;
+  }
+  return detailsWithoutRequestBody;
+}
+
+function removeEmptyBodiesFromMethods(paths: PathsObject) {
+  return Object.fromEntries(
+    Object.entries(paths).map(([method, details]) => [
+      method,
+      removeRequestBodyIfEmpty(details),
+    ])
+  );
+}
+
+function removeEmptyBodiesFromPaths(paths: PathsObject) {
+  return Object.fromEntries(
+    Object.entries(paths).map(([path, methods]) => {
+      return [path, removeEmptyBodiesFromMethods(methods)];
+    })
+  );
+}
+
 export const createSwaggerDoc = () => {
   const apiDoc = { info: { title: "BadgeHub API", version: "1.0.0" } };
   const jsonSwagger = generateOpenApi(swaggerJsonContract, apiDoc, {
@@ -69,10 +107,12 @@ export const createSwaggerDoc = () => {
 
   return {
     ...jsonSwagger,
-    paths: _.merge(
-      jsonSwagger.paths,
-      withPrefix("/api/v3", publicSwagger.paths),
-      withPrefix("/api/v3", privateSwagger.paths)
+    paths: removeEmptyBodiesFromPaths(
+      _.merge(
+        jsonSwagger.paths,
+        withPrefix("/api/v3", publicSwagger.paths),
+        withPrefix("/api/v3", privateSwagger.paths)
+      )
     ),
     tags: [
       {
