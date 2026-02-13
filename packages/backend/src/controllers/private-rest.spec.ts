@@ -245,6 +245,69 @@ describe("Authenticated API Routes", () => {
       });
 
       describe("/projects/{slug}/publish", () => {
+        test("publish keeps non-deleted files and does not restore deleted files", async () => {
+          const publishTestAppId = `test_app_publish_${Date.now()}`;
+          const keptFilePath = "keep.txt";
+          const deletedFilePath = "deleted.txt";
+          const keptFileContent = "keep this file";
+
+          const postProjectRes = await request(app)
+            .post(`/api/v3/projects/${publishTestAppId}`)
+            .auth(USER1_TOKEN, { type: "bearer" })
+            .send();
+          expect(postProjectRes.statusCode).toBe(204);
+
+          const uploadKeptFileRes = await request(app)
+            .post(`/api/v3/projects/${publishTestAppId}/draft/files/${keptFilePath}`)
+            .auth(USER1_TOKEN, { type: "bearer" })
+            .attach("file", Buffer.from(keptFileContent), keptFilePath);
+          expect(uploadKeptFileRes.statusCode).toBe(204);
+
+          const uploadDeletedFileRes = await request(app)
+            .post(
+              `/api/v3/projects/${publishTestAppId}/draft/files/${deletedFilePath}`
+            )
+            .auth(USER1_TOKEN, { type: "bearer" })
+            .attach("file", Buffer.from("delete this file"), deletedFilePath);
+          expect(uploadDeletedFileRes.statusCode).toBe(204);
+
+          const deleteFileRes = await request(app)
+            .delete(
+              `/api/v3/projects/${publishTestAppId}/draft/files/${deletedFilePath}`
+            )
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(deleteFileRes.statusCode).toBe(204);
+
+          const publishRes = await request(app)
+            .patch(`/api/v3/projects/${publishTestAppId}/publish`)
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(publishRes.statusCode).toBe(204);
+
+          const getLatestRes = await request(app)
+            .get(`/api/v3/projects/${publishTestAppId}`)
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(getLatestRes.statusCode).toBe(200);
+          expect(
+            getLatestRes.body.version.files.map((f: { full_path: string }) => f.full_path)
+          ).toContain(keptFilePath);
+          expect(
+            getLatestRes.body.version.files.map((f: { full_path: string }) => f.full_path)
+          ).not.toContain(deletedFilePath);
+
+          const getDraftKeptFileRes = await request(app)
+            .get(`/api/v3/projects/${publishTestAppId}/draft/files/${keptFilePath}`)
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(getDraftKeptFileRes.statusCode).toBe(200);
+          expect(getDraftKeptFileRes.text).toBe(keptFileContent);
+
+          const getDraftDeletedFileRes = await request(app)
+            .get(
+              `/api/v3/projects/${publishTestAppId}/draft/files/${deletedFilePath}`
+            )
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(getDraftDeletedFileRes.statusCode).toBe(404);
+        });
+
         test("publish version and change metadata", async () => {
           // Create a new project
           const publishTestAppId = `test_app_publish_${Date.now()}`;

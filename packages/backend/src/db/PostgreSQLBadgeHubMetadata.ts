@@ -370,6 +370,7 @@ export class PostgreSQLBadgeHubMetadata {
                         ${fileColumnsForCopyingSql}
                  from files
                  where version_id = (select id from published_version)
+                 and deleted_at is null
                  returning 1)
       select 1
     `);
