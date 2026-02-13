@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, test } from "vitest";
 import request from "supertest";
 import express from "express";
 import { createExpressServer } from "@createExpressServer";
+import { randomUUID } from "node:crypto";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
 import { isInDebugMode } from "@util/debug";
 import { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
 import { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
 import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
+import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 
 describe(
   "Public API Routes",
@@ -86,6 +88,46 @@ describe(
       expect(
         summaries.map((app: ProjectSummary) => app.installs)
       ).toStrictEqual(sortedExpected);
+    });
+
+    test("reporting an install should update installs in project summaries", async () => {
+      const projectSlug = "codecraft";
+      const baselineRes = await request(app).get("/api/v3/project-summaries");
+      expect(baselineRes.statusCode).toBe(200);
+      const baselineSummaries = baselineRes.body as ProjectSummary[];
+      const baselineInstalls = baselineSummaries.find(
+        (summary) => summary.slug === projectSlug
+      )?.installs;
+      expect(typeof baselineInstalls).toBe("number");
+
+      const reportRes = await request(app).post(
+        `/api/v3/projects/${projectSlug}/rev1/report/install?id=${randomUUID()}`
+      );
+      expect(reportRes.statusCode).toBe(204);
+
+      await new PostgreSQLBadgeHubMetadata().refreshReports();
+
+      const updatedRes = await request(app).get("/api/v3/project-summaries");
+      expect(updatedRes.statusCode).toBe(200);
+      const updatedSummaries = updatedRes.body as ProjectSummary[];
+      const updatedInstalls = updatedSummaries.find(
+        (summary) => summary.slug === projectSlug
+      )?.installs;
+
+      expect(updatedInstalls).toBe((baselineInstalls as number) + 1);
+    });
+
+    test("reporting an install should accept a JSON string body", async () => {
+      const projectSlug = "codecraft";
+
+      const reportRes = await request(app)
+        .post(
+          `/api/v3/projects/${projectSlug}/rev1/report/install?id=${randomUUID()}`
+        )
+        .set("Content-Type", "application/json")
+        .send('"some string"');
+
+      expect(reportRes.statusCode).toBe(204);
     });
 
     test("GET /api/v3/project-summaries should sort by default using published_at", async () => {

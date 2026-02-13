@@ -43,7 +43,8 @@ export const createExpressServer = () => {
 
   app.use(cors());
 
-  app.use(express.json());
+  // Accept any valid JSON value (including primitives like JSON strings).
+  app.use(express.json({ strict: false }));
   const indexHtmlContents = getIndexHtmlContents();
   // Handle requests for the root and /page routes by sending the main HTML file.
   // This is crucial for Single Page Applications (SPAs) that use client-side routing.

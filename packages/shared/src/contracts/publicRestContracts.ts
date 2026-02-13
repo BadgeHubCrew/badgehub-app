@@ -163,7 +163,7 @@ export const publicReportContracts = c.router({
     path: "/projects/:slug/rev:revision/report/install",
     pathParams: projectRevisionParams,
     query: badgeIdentifiersSchema,
-    body: z.undefined().optional(),
+    body: z.any().optional(),
     responses: {
       204: z.void(),
       404: errorResponseSchema,
