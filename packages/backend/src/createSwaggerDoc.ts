@@ -1,8 +1,5 @@
 import { generateOpenApi } from "@ts-rest/open-api";
-import {
-  NO_BODY_DESCRIPTION,
-  publicRestContracts,
-} from "@shared/contracts/publicRestContracts";
+import { publicRestContracts } from "@shared/contracts/publicRestContracts";
 import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import _ from "lodash";
 import {
@@ -14,6 +11,7 @@ import {
 } from "openapi3-ts";
 import { initContract } from "@ts-rest/core";
 import { EXPRESS_PORT } from "@config";
+import { NO_BODY_DESCRIPTION } from "@shared/contracts/tsRestNoBodyPatch";
 
 const c = initContract();
 export const swaggerJsonContract = c.router({
