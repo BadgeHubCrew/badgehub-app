@@ -7,8 +7,7 @@ import {
   publicRestContracts,
 } from "@shared/contracts/publicRestContracts";
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 import { noContent, nok, ok } from "@controllers/ts-rest/httpResponses";
 import { Readable } from "node:stream";
 import { RouterImplementation } from "@ts-rest/express/src/lib/types";
@@ -171,10 +170,7 @@ const createReportRouter = (badgeHubData: BadgeHubData) => {
 };
 
 export const createPublicRestRouter = (
-  badgeHubData: BadgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
-  )
+  badgeHubData: BadgeHubData = createBadgeHubData()
 ) => {
   return initServer().router(publicRestContracts, {
     ...createProjectRouter(badgeHubData),

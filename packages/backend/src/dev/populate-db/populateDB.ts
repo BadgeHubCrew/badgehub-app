@@ -8,8 +8,7 @@ import {
 } from "@config";
 import sql, { raw } from "sql-template-tag";
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 import { stringToSemiRandomNumber } from "@dev/populate-db/stringToSemiRandomNumber";
 
 import { BADGE_IDS, PROJECT_NAMES, USERS } from "@dev/populate-db/fixtures";
@@ -53,10 +52,7 @@ export async function repopulateDB() {
     port: POSTGRES_PORT,
   });
   const client: pg.PoolClient = await pool.connect();
-  const badgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
-  );
+  const badgeHubData = createBadgeHubData();
   try {
     await cleanTables(client);
     const projectSlugs = await insertProjects(badgeHubData);

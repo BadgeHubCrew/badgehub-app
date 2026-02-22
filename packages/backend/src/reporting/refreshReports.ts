@@ -1,13 +1,9 @@
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 import { REFRESH_REPORTS_INTERVAL_SEC } from "@config";
 
 export const startRefreshReportsInterval = (
-  badgeHubData: BadgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
-  )
+  badgeHubData: BadgeHubData = createBadgeHubData()
 ) => {
   if (process.env.NODE_APP_INSTANCE && process.env.NODE_APP_INSTANCE !== "0") {
     return;

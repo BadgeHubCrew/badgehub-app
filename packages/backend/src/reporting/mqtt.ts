@@ -1,14 +1,10 @@
 import { BadgeHubData } from "@domain/BadgeHubData";
 import { IS_DEV_ENVIRONMENT, MQTT_CONFIG } from "@config";
 import mqtt from "mqtt";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 
 export async function startMqtt(
-  badgeHubData: BadgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
-  )
+  badgeHubData: BadgeHubData = createBadgeHubData()
 ) {
   if (!MQTT_CONFIG) {
     console.log("MQTT_SERVER not set so skipping MQTT publish.");
