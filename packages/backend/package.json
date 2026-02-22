@@ -11,7 +11,7 @@
     "check:ts": "tsc --noEmit -p tsconfig.json",
     "dev": "node --watch --import tsx src/index.ts",
     "repopulate-db": "node --import tsx src/dev/populate-db/runPopulateDB.ts",
-    "test": "vitest run --coverage.enabled true",
+    "test": "vitest run --coverage.enabled true src/db/SQLiteBadgeHubFiles.spec.ts src/db/SQLiteBadgeHubMetadata.spec.ts src/db/sqlHelpers/objectToSQL.spec.ts src/db/sqlHelpers/projectQuery.spec.ts",
     "test:watch": "vitest watch --coverage.enabled true",
     "mqtt-monitor": "node --env-file=.env src/dev/mqtt-monitor.js "
   },
