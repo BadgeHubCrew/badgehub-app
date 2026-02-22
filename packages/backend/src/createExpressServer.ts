@@ -20,11 +20,10 @@ import * as fs from "node:fs";
 import { getSharedConfig } from "@badgehub/shared/config/sharedConfig";
 
 function getIndexHtmlContents() {
-  const original = fs.readFileSync(
-    path.join(FRONTEND_DIST_DIR, "index.html"),
-    // TODO replace indexHtmlContents
-    { encoding: "utf8" }
-  );
+  const indexPath = path.join(FRONTEND_DIST_DIR, "index.html");
+  const original = fs.existsSync(indexPath)
+    ? fs.readFileSync(indexPath, { encoding: "utf8" })
+    : "<!doctype html><html><head></head><body><div id=\"root\"></div><!-- __SHARED_CONFIG_SCRIPT_PLACEHOLDER__ --></body></html>";
   return original.replace(
     `<!-- __SHARED_CONFIG_SCRIPT_PLACEHOLDER__ -->`,
     `<script type="application/javascript">globalThis.__SHARED_CONFIG__ = ${JSON.stringify(getSharedConfig())};</script>

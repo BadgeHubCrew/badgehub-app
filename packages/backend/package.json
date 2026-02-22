@@ -13,7 +13,7 @@
     "test-db:up": "docker compose -f docker-compose.test-db.yml up -d",
     "test-db:down": "docker compose -f docker-compose.test-db.yml down",
     "backup": "docker exec -it badgehub-db /usr/bin/pg_dump --username badgehub badgehub -f /var/backup/data-backup-`date +\"%Y-%m-%dT%H:%m\"`.sql",
-    "test": "vitest run --coverage.enabled true",
+    "test": "npm run test-db:up && vitest run --coverage.enabled true",
     "test:watch": "vitest watch --coverage.enabled true",
     "db-migrate:up": "db-migrate up",
     "db-migrate:down": "db-migrate down",

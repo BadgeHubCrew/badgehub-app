@@ -8,8 +8,6 @@ import { categoryNameSchema } from "@badgehub/shared/domain/readModels/project/C
 import type { CategoryName } from "@badgehub/shared/domain/readModels/project/Category";
 import { z } from "zod/v3";
 import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
-import { projectSummarySchema } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
-import type { ProjectSummary } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
 
 export type ProjectStatusName =
   | "working"

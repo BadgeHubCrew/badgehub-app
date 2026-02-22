@@ -23,6 +23,12 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     env: {
+      NODE_ENV: "test",
+      VITE_KEYCLOAK_CLIENT_ID: "test-client",
+      VITE_BADGEHUB_API_BASE_URL: "http://localhost:8081",
+      VITE_KEYCLOAK_BASE_URL: "http://localhost:8080",
+      VITE_KEYCLOAK_REALM: "master",
+      VITE_BADGE_SLUGS: "mch2022,why2025",
       ...config({ path: "../backend/.env.test" }).parsed,
     },
     setupFiles: ["./src/setupTests.ts"],
