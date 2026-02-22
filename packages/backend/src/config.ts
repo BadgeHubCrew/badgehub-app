@@ -8,6 +8,10 @@ config();
 export const EXPRESS_PORT = 8081;
 
 export const DATABASE_ENGINE = process.env.DATABASE_ENGINE || "postgres";
+export const SQLITE_DB_PATH =
+  process.env.SQLITE_DB_PATH || "./data/badgehub.sqlite";
+export const SQLITE_FILES_DIR =
+  process.env.SQLITE_FILES_DIR || "./data/sqlite-file-data";
 
 const usingPostgres = DATABASE_ENGINE === "postgres";
 export const POSTGRES_DB = usingPostgres
