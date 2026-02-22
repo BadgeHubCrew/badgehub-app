@@ -25,6 +25,11 @@ function parseCsvEnv(name: string): [string, ...string[]] {
 export const APP_GRID_PAGE_SIZE = 12;
 
 const FRONTEND_BASE_URL = import.meta.env.BASE_URL;
+const FRONTEND_BASE_PATH_NO_TRAILING_SLASH = FRONTEND_BASE_URL.endsWith("/")
+  ? FRONTEND_BASE_URL.slice(0, -1)
+  : FRONTEND_BASE_URL;
+
+export const BADGEHUB_FRONTEND_BASE_URL = `${globalThis.location.origin}${FRONTEND_BASE_PATH_NO_TRAILING_SLASH}`;
 export const FALLBACK_ICON_URL = `${FRONTEND_BASE_URL}assets/no-icon-uploaded.png`;
 export const ERROR_ICON_URL = `${FRONTEND_BASE_URL}assets/no-icon-uploaded.png`;
 
