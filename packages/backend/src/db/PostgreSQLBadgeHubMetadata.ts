@@ -562,8 +562,8 @@ and v.app_metadata->'badges' @>
     );
   }
 
-  async registerBadge(id: string, mac: string | undefined) {
-    return this.pool.query(
+  async registerBadge(id: string, mac: string | undefined): Promise<void> {
+    await this.pool.query(
       sql`insert into registered_badges (id, mac)
           values (${id}, ${mac || null})
           on conflict (id)

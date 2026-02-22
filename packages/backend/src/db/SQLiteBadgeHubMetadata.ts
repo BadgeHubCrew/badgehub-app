@@ -7,16 +7,16 @@ import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 type ReportType = "install_count" | "launch_count" | "crash_count";
 
 export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
-  private fail(method: string): never {
+  private fail<T>(method: string): T {
     throw new Error(`SQLiteBadgeHubMetadata.${method} is not implemented yet.`);
   }
 
-  insertProject(..._args: Parameters<BadgeHubMetadataStore["insertProject"]>) { this.fail("insertProject"); }
-  updateProject(..._args: Parameters<BadgeHubMetadataStore["updateProject"]>) { this.fail("updateProject"); }
-  deleteProject(..._args: Parameters<BadgeHubMetadataStore["deleteProject"]>) { this.fail("deleteProject"); }
-  publishVersion(..._args: Parameters<BadgeHubMetadataStore["publishVersion"]>) { this.fail("publishVersion"); }
-  getProject(..._args: Parameters<BadgeHubMetadataStore["getProject"]>) { this.fail("getProject"); }
-  getFileMetadata(..._args: Parameters<BadgeHubMetadataStore["getFileMetadata"]>) { this.fail("getFileMetadata"); }
+  async insertProject(..._args: Parameters<BadgeHubMetadataStore["insertProject"]>): Promise<void> { this.fail("insertProject"); }
+  async updateProject(..._args: Parameters<BadgeHubMetadataStore["updateProject"]>): Promise<void> { this.fail("updateProject"); }
+  async deleteProject(..._args: Parameters<BadgeHubMetadataStore["deleteProject"]>): Promise<void> { this.fail("deleteProject"); }
+  async publishVersion(..._args: Parameters<BadgeHubMetadataStore["publishVersion"]>): Promise<void> { this.fail("publishVersion"); }
+  async getProject(..._args: Parameters<BadgeHubMetadataStore["getProject"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getProject"]>>> { return this.fail("getProject"); }
+  async getFileMetadata(..._args: Parameters<BadgeHubMetadataStore["getFileMetadata"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getFileMetadata"]>>> { return this.fail("getFileMetadata"); }
 
   async getBadges() {
     return getBadgeSlugs();
@@ -64,10 +64,10 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
     };
   }
 
-  getProjectSummaries(..._args: Parameters<BadgeHubMetadataStore["getProjectSummaries"]>) { this.fail("getProjectSummaries"); }
-  updateDraftMetadata(..._args: Parameters<BadgeHubMetadataStore["updateDraftMetadata"]>) { this.fail("updateDraftMetadata"); }
-  writeDraftFileMetadata(..._args: Parameters<BadgeHubMetadataStore["writeDraftFileMetadata"]>) { this.fail("writeDraftFileMetadata"); }
-  deleteDraftFile(..._args: Parameters<BadgeHubMetadataStore["deleteDraftFile"]>) { this.fail("deleteDraftFile"); }
+  async getProjectSummaries(..._args: Parameters<BadgeHubMetadataStore["getProjectSummaries"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getProjectSummaries"]>>> { return this.fail("getProjectSummaries"); }
+  async updateDraftMetadata(..._args: Parameters<BadgeHubMetadataStore["updateDraftMetadata"]>): Promise<void> { this.fail("updateDraftMetadata"); }
+  async writeDraftFileMetadata(..._args: Parameters<BadgeHubMetadataStore["writeDraftFileMetadata"]>): Promise<void> { this.fail("writeDraftFileMetadata"); }
+  async deleteDraftFile(..._args: Parameters<BadgeHubMetadataStore["deleteDraftFile"]>): Promise<void> { this.fail("deleteDraftFile"); }
 
   async registerBadge(...args: Parameters<BadgeHubMetadataStore["registerBadge"]>): Promise<void> {
     const [flashId, mac] = args;

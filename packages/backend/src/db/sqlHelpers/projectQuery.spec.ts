@@ -33,18 +33,18 @@ describe("projectQuery helpers", () => {
         name: "Demo App",
         description: "desc",
         badges: ["mcore"],
-        categories: ["game"],
+        categories: ["Games"],
         icon_map: { "64x64": "icon-64x64.png" },
       },
-      distinct_installs: 42,
-    });
+      distinct_installs: "42",
+    } as any);
 
     expect(mapped.slug).toBe("demo-app");
     expect(mapped.name).toBe("Demo App");
     expect(mapped.installs).toBe(42);
     expect(mapped.badges).toEqual(["mcore"]);
-    expect(mapped.icon_map?.["64x64"].full_path).toBe("icon-64x64.png");
-    expect(mapped.icon_map?.["64x64"].url).toContain("/projects/demo-app/rev3/files/icon-64x64.png");
+    expect(mapped.icon_map?.["64x64"]?.full_path).toBe("icon-64x64.png");
+    expect(mapped.icon_map?.["64x64"]?.url).toContain("/projects/demo-app/rev3/files/icon-64x64.png");
   });
 
   it("falls back to slug for missing app name and sets draft icon URL for unpublished versions", () => {
@@ -61,15 +61,15 @@ describe("projectQuery helpers", () => {
       app_metadata: {
         description: "desc",
         badges: ["mcore"],
-        categories: ["game"],
+        categories: ["Games"],
         hidden: true,
         icon_map: { "64x64": "icon.png" },
       },
       distinct_installs: "0",
-    });
+    } as any);
 
     expect(mapped.name).toBe("draft-app");
     expect(mapped.hidden).toBe(true);
-    expect(mapped.icon_map?.["64x64"].url).toContain("/projects/draft-app/draft/files/icon.png");
+    expect(mapped.icon_map?.["64x64"]?.url).toContain("/projects/draft-app/draft/files/icon.png");
   });
 });

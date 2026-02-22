@@ -245,7 +245,7 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
         return nok(404, "No Project API");
       }
       return ok({
-        last_used_at: metadata.last_used_at,
+        last_used_at: metadata.last_used_at ?? metadata.created_at,
         created_at: metadata.created_at,
       });
     },
