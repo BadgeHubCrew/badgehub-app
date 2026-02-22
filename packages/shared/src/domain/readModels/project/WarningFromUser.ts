@@ -3,7 +3,7 @@ import type { UserRelation } from "./User.ts";
 import { datedDataSchema } from "./DatedData.ts";
 import type { DatedData } from "./DatedData.ts";
 import { z } from "zod/v3";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
 
 export interface Warning {
   description: string;

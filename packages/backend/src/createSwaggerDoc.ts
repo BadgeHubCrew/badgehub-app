@@ -1,6 +1,6 @@
 import { generateOpenApi } from "@ts-rest/open-api";
-import { publicRestContracts } from "#shared/contracts/publicRestContracts";
-import { privateRestContracts } from "#shared/contracts/privateRestContracts";
+import { publicRestContracts } from "@badgehub/shared/contracts/publicRestContracts";
+import { privateRestContracts } from "@badgehub/shared/contracts/privateRestContracts";
 import _ from "lodash";
 import type { PathsObject } from "openapi3-ts";
 import type { OpenAPIObject } from "openapi3-ts";
@@ -9,7 +9,7 @@ import type { ReferenceObject } from "openapi3-ts";
 import type { ParameterObject } from "openapi3-ts";
 import { initContract } from "@ts-rest/core";
 import { EXPRESS_PORT } from "#config";
-import { NO_BODY_DESCRIPTION } from "#shared/contracts/tsRestNoBodyPatch";
+import { NO_BODY_DESCRIPTION } from "@badgehub/shared/contracts/tsRestNoBodyPatch";
 
 const c = initContract();
 export const swaggerJsonContract = c.router({

@@ -1,5 +1,5 @@
 import sharp from "sharp";
-import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { UploadedFile } from "@badgehub/shared/domain/UploadedFile";
 import type { ImageDimensions } from "#domain/ImageDimensions";
 
 export async function getImageProps(

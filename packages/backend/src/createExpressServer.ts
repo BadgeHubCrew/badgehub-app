@@ -8,16 +8,16 @@ import {
 } from "#config";
 import rateLimit from "express-rate-limit";
 import { createExpressEndpoints } from "@ts-rest/express";
-import { publicRestContracts } from "#shared/contracts/publicRestContracts";
+import { publicRestContracts } from "@badgehub/shared/contracts/publicRestContracts";
 import { createPublicRestRouter } from "#controllers/ts-rest/publicRestRouter";
-import { privateRestContracts } from "#shared/contracts/privateRestContracts";
+import { privateRestContracts } from "@badgehub/shared/contracts/privateRestContracts";
 import { createPrivateRestRouter } from "#controllers/ts-rest/privateRestRouter";
 import { addAuthenticationMiddleware } from "#auth/jwt-decode";
 import { jwtVerifyTokenMiddleware } from "#auth/jwt-verify";
 import cors from "cors";
 import * as path from "path";
 import * as fs from "node:fs";
-import { getSharedConfig } from "#shared/config/sharedConfig";
+import { getSharedConfig } from "@badgehub/shared/config/sharedConfig";
 
 function getIndexHtmlContents() {
   const original = fs.readFileSync(

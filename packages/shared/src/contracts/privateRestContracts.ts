@@ -1,13 +1,13 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod/v3";
-import { detailedProjectSchema } from "#shared/domain/readModels/project/ProjectDetails";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
-import { createProjectPropsSchema } from "#shared/domain/writeModels/project/WriteProject";
-import type { CreateProjectProps } from "#shared/domain/writeModels/project/WriteProject";
-import { writeAppMetadataJSONSchema } from "#shared/domain/writeModels/AppMetadataJSON";
-import { projectApiTokenMetadataSchema } from "#shared/domain/readModels/project/ProjectApiToken";
-import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
-import { NO_BODY_SCHEMA } from "#shared/contracts/tsRestNoBodyPatch";
+import { detailedProjectSchema } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
+import { createProjectPropsSchema } from "@badgehub/shared/domain/writeModels/project/WriteProject";
+import type { CreateProjectProps } from "@badgehub/shared/domain/writeModels/project/WriteProject";
+import { writeAppMetadataJSONSchema } from "@badgehub/shared/domain/writeModels/AppMetadataJSON";
+import { projectApiTokenMetadataSchema } from "@badgehub/shared/domain/readModels/project/ProjectApiToken";
+import { projectSummarySchema } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import { NO_BODY_SCHEMA } from "@badgehub/shared/contracts/tsRestNoBodyPatch";
 
 const c = initContract();
 

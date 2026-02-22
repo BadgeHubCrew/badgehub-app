@@ -2,11 +2,11 @@ import moment from "moment";
 import type { DBProject } from "#db/models/project/DBProject";
 import type { DBVersion } from "#db/models/project/DBVersion";
 import sql, { raw } from "sql-template-tag";
-import type { LatestOrDraftAlias } from "#shared/domain/readModels/project/Version";
+import type { LatestOrDraftAlias } from "@badgehub/shared/domain/readModels/project/Version";
 import { getFileDownloadUrl } from "#db/getFileDownloadUrl";
-import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
-import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
-import type { IconMapWithUrls } from "#shared/domain/readModels/project/ProjectSummaries";
+import { projectSummarySchema } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectSummary } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import type { IconMapWithUrls } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
 import type { DBProjectInstallReport } from "#db/models/DBReporting";
 import { timestampTZToISODateString } from "#db/sqlHelpers/dbDates";
 

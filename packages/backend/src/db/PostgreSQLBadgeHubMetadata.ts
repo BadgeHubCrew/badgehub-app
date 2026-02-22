@@ -1,19 +1,19 @@
 // noinspection SqlResolve
 
-import { detailedProjectSchema } from "#shared/domain/readModels/project/ProjectDetails";
-import type { ProjectCore } from "#shared/domain/readModels/project/ProjectDetails";
-import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
-import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
-import type { User } from "#shared/domain/readModels/project/User";
-import type { Version } from "#shared/domain/readModels/project/Version";
-import type { LatestOrDraftAlias } from "#shared/domain/readModels/project/Version";
-import type { RevisionNumberOrAlias } from "#shared/domain/readModels/project/Version";
+import { detailedProjectSchema } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { ProjectCore } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { ProjectSlug } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { ProjectDetails } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { User } from "@badgehub/shared/domain/readModels/project/User";
+import type { Version } from "@badgehub/shared/domain/readModels/project/Version";
+import type { LatestOrDraftAlias } from "@badgehub/shared/domain/readModels/project/Version";
+import type { RevisionNumberOrAlias } from "@badgehub/shared/domain/readModels/project/Version";
 import { Pool } from "pg";
 import { getPool } from "#db/connectionPool";
 import type { DBProject } from "#db/models/project/DBProject";
 import type { DBInsertProject } from "#db/models/project/DBProject";
 import sql, { join, raw, Sql } from "sql-template-tag";
-import { getEntriesWithDefinedValues } from "#shared/util/objectEntries";
+import { getEntriesWithDefinedValues } from "@badgehub/shared/util/objectEntries";
 import { getBaseSelectProjectQuery, projectQueryResponseToReadModel } from "#db/sqlHelpers/projectQuery";
 import type { ProjectQueryResponse } from "#db/sqlHelpers/projectQuery";
 import {
@@ -28,27 +28,27 @@ import {
   assertValidColumKey,
   getInsertKeysAndValuesSql,
 } from "#db/sqlHelpers/objectToSQL";
-import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { UploadedFile } from "@badgehub/shared/domain/UploadedFile";
 import path from "node:path";
 import { fileColumnsForCopying } from "#db/models/project/DBFileMetadata";
 import type { DBFileMetadata } from "#db/models/project/DBFileMetadata";
-import type { FileMetadata } from "#shared/domain/readModels/project/FileMetadata";
+import type { FileMetadata } from "@badgehub/shared/domain/readModels/project/FileMetadata";
 import type { DBDatedData } from "#db/models/project/DBDatedData";
 import type { DBSoftDeletable } from "#db/models/project/DBDatedData";
 import type { TimestampTZ } from "#db/models/DBTypes";
-import { VALID_SLUG_REGEX } from "#shared/contracts/slug";
+import { VALID_SLUG_REGEX } from "@badgehub/shared/contracts/slug";
 import { ProjectAlreadyExistsError, UserError } from "#domain/UserError";
-import { getAllCategoryNames } from "#shared/domain/readModels/project/Category";
-import type { CategoryName } from "#shared/domain/readModels/project/Category";
-import { getBadgeSlugs } from "#shared/domain/readModels/Badge";
-import type { BadgeSlug } from "#shared/domain/readModels/Badge";
-import type { WriteAppMetadataJSON } from "#shared/domain/writeModels/AppMetadataJSON";
+import { getAllCategoryNames } from "@badgehub/shared/domain/readModels/project/Category";
+import type { CategoryName } from "@badgehub/shared/domain/readModels/project/Category";
+import { getBadgeSlugs } from "@badgehub/shared/domain/readModels/Badge";
+import type { BadgeSlug } from "@badgehub/shared/domain/readModels/Badge";
+import type { WriteAppMetadataJSON } from "@badgehub/shared/domain/writeModels/AppMetadataJSON";
 import { getFileDownloadUrl } from "#db/getFileDownloadUrl";
-import type { ProjectApiTokenMetadata } from "#shared/domain/readModels/project/ProjectApiToken";
+import type { ProjectApiTokenMetadata } from "@badgehub/shared/domain/readModels/project/ProjectApiToken";
 import type { DBProjectApiKey } from "#db/models/project/DBProjectApiKey";
-import type { BadgeHubStats } from "#shared/domain/readModels/BadgeHubStats";
-import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
-import type { OrderByOption } from "#shared/domain/readModels/project/ordering";
+import type { BadgeHubStats } from "@badgehub/shared/domain/readModels/BadgeHubStats";
+import type { ProjectSummary } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import type { OrderByOption } from "@badgehub/shared/domain/readModels/project/ordering";
 
 const ONE_KILO = 1024;
 

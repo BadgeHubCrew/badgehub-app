@@ -11,7 +11,7 @@ import express from "express";
 import type { Express } from "express";
 import { createExpressServer } from "#createExpressServer";
 import { isInDebugMode } from "#util/debug";
-import type { CreateProjectProps } from "#shared/domain/writeModels/project/WriteProject";
+import type { CreateProjectProps } from "@badgehub/shared/domain/writeModels/project/WriteProject";
 import { decodeJwt } from "jose";
 
 const USER1_TOKEN =

@@ -1,4 +1,4 @@
-import type { IconSize } from "#shared/domain/readModels/project/AppMetadataJSON";
+import type { IconSize } from "@badgehub/shared/domain/readModels/project/AppMetadataJSON";
 import { UserError } from "#domain/UserError";
 
 export type ImageDimensions = { image_width: number; image_height: number };

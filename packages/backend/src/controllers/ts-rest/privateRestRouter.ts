@@ -14,12 +14,12 @@ import {
 import {
   privateProjectContracts,
   privateRestContracts,
-} from "#shared/contracts/privateRestContracts";
+} from "@badgehub/shared/contracts/privateRestContracts";
 import { getUser } from "#auth/jwt-decode";
 import type { UserDataInRequest } from "#auth/jwt-decode";
 import type { AuthenticatedRequest } from "#auth/jwt-decode";
-import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
-import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectSlug } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { ProjectDetails } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
 import { Readable } from "node:stream";
 import { MAX_UPLOAD_FILE_SIZE_BYTES } from "#config";
 import { ProjectAlreadyExistsError, UserError } from "#domain/UserError";

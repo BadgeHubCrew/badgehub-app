@@ -1,6 +1,6 @@
 import type { UserRelation } from "./DBUser.ts";
 import type { DBDatedData } from "#db/models/project/DBDatedData";
-import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectSlug } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
 import type { VersionRelation } from "#db/models/project/DBVersion";
 
 export interface DBProjectBase {

@@ -1,7 +1,7 @@
 import type { DBDatedData } from "#db/models/project/DBDatedData";
 import type { TimestampTZ } from "../DBTypes.ts";
 import type { ProjectSlugRelation } from "./DBProject.ts";
-import type { AppMetadataJSON } from "#shared/domain/readModels/project/AppMetadataJSON";
+import type { AppMetadataJSON } from "@badgehub/shared/domain/readModels/project/AppMetadataJSON";
 
 export type VersionRelation<
   K extends string = "version_id",

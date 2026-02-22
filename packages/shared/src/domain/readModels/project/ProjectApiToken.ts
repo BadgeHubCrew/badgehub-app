@@ -1,7 +1,7 @@
 import { z } from "zod/v3";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
-import { isoDateStringSchema } from "#shared/domain/readModels/ISODateString";
-import type { ISODateString } from "#shared/domain/readModels/ISODateString";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
+import { isoDateStringSchema } from "@badgehub/shared/domain/readModels/ISODateString";
+import type { ISODateString } from "@badgehub/shared/domain/readModels/ISODateString";
 
 export type ProjectApiTokenMetadata = {
   created_at: ISODateString;

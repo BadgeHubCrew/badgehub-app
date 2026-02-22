@@ -1,4 +1,4 @@
-import type { RevisionNumberOrAlias } from "#shared/domain/readModels/project/Version";
+import type { RevisionNumberOrAlias } from "@badgehub/shared/domain/readModels/project/Version";
 import { BADGEHUB_API_BASE_URL } from "#config";
 
 type RevisionPathPart = "draft" | `rev${number}` | "latest";

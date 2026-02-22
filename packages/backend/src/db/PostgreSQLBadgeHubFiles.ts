@@ -1,5 +1,5 @@
 import type { BadgeHubFiles } from "#domain/BadgeHubFiles";
-import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { UploadedFile } from "@badgehub/shared/domain/UploadedFile";
 import { Pool } from "pg";
 import { getPool } from "#db/connectionPool";
 import sql from "sql-template-tag";

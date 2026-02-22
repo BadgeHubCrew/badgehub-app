@@ -7,7 +7,7 @@
     "verbatimModuleSyntax": true,
     "noImplicitAny": false,
     "paths": {
-      "#shared/*": ["./src/shared/*"],
+      "@badgehub/shared/*": ["../shared/src/*"],
       "#auth/*": ["./src/auth/*"],
       "#controllers/*": ["./src/controllers/*"],
       "#db/*": ["./src/db/*"],

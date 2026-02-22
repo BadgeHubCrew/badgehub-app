@@ -4,12 +4,12 @@ import type { User } from "./User.ts";
 import { datedDataSchema } from "./DatedData.ts";
 import type { DatedData } from "./DatedData.ts";
 import type { BadgeSlug } from "../Badge.ts";
-import { categoryNameSchema } from "#shared/domain/readModels/project/Category";
-import type { CategoryName } from "#shared/domain/readModels/project/Category";
+import { categoryNameSchema } from "@badgehub/shared/domain/readModels/project/Category";
+import type { CategoryName } from "@badgehub/shared/domain/readModels/project/Category";
 import { z } from "zod/v3";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
-import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
-import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
+import { projectSummarySchema } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectSummary } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
 
 export type ProjectStatusName =
   | "working"

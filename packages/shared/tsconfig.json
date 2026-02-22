@@ -24,7 +24,7 @@
     "noEmit": true,
     "lib": ["es2023"],
     "paths": {
-      "@shared/*": ["./src/*"]
+      "@badgehub/shared/*": ["./src/*"]
     }
   },
   "include": ["./src/**/*.ts"]

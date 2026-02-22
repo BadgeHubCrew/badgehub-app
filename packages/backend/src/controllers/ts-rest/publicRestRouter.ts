@@ -5,13 +5,13 @@ import {
   publicProjectContracts,
   publicReportContracts,
   publicRestContracts,
-} from "#shared/contracts/publicRestContracts";
+} from "@badgehub/shared/contracts/publicRestContracts";
 import { BadgeHubData } from "#domain/BadgeHubData";
 import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
 import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
 import { noContent, nok, ok } from "#controllers/ts-rest/httpResponses";
 import { Readable } from "node:stream";
-import type { ProjectLatestRevisions } from "#shared/domain/readModels/project/ProjectRevision";
+import type { ProjectLatestRevisions } from "@badgehub/shared/domain/readModels/project/ProjectRevision";
 
 const createFilesRouter = (badgeHubData: BadgeHubData) => {
   const filesRouter: any = {

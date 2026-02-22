@@ -1,6 +1,6 @@
 import { z } from "zod/v3";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
-import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
+import type { ProjectSlug } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
 
 export type ProjectLatestRevision = {
   slug: ProjectSlug;

@@ -1,4 +1,4 @@
-import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { UploadedFile } from "@badgehub/shared/domain/UploadedFile";
 import type { DBDatedData } from "#db/models/project/DBDatedData";
 
 export interface BadgeHubFiles {

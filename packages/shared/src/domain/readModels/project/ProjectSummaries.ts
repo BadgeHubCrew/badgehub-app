@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { categoryNameSchema } from "#shared/domain/readModels/project/Category";
-import type { CategoryName } from "#shared/domain/readModels/project/Category";
-import type { BadgeSlug } from "#shared/domain/readModels/Badge";
-import { projectCoreSchema } from "#shared/domain/readModels/project/ProjectDetails";
-import type { ProjectCore } from "#shared/domain/readModels/project/ProjectDetails";
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
-import { isoDateStringSchema } from "#shared/domain/readModels/ISODateString";
-import type { ISODateString } from "#shared/domain/readModels/ISODateString";
+import { categoryNameSchema } from "@badgehub/shared/domain/readModels/project/Category";
+import type { CategoryName } from "@badgehub/shared/domain/readModels/project/Category";
+import type { BadgeSlug } from "@badgehub/shared/domain/readModels/Badge";
+import { projectCoreSchema } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import type { ProjectCore } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
+import { isoDateStringSchema } from "@badgehub/shared/domain/readModels/ISODateString";
+import type { ISODateString } from "@badgehub/shared/domain/readModels/ISODateString";
 
 export interface ProjectSummary extends ProjectCore {
   // Computed

@@ -2,15 +2,15 @@
 // This is only put into the database for making interesting read queries possible.
 // These contents should never be updated directly, but instead the metadata.json file should be modified and then read out again in order to fill the fields here.
 // Metadata for a published version cannot be edited, except by republishing this version which would overwrite the old version.
-import { categoryNameSchema } from "#shared/domain/readModels/project/Category";
-import type { CategoryName } from "#shared/domain/readModels/project/Category";
+import { categoryNameSchema } from "@badgehub/shared/domain/readModels/project/Category";
+import type { CategoryName } from "@badgehub/shared/domain/readModels/project/Category";
 
-import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
+import { __tsCheckSame } from "@badgehub/shared/zodUtils/zodTypeComparison";
 import { z } from "zod/v3";
-import { badgeSlugSchema } from "#shared/domain/readModels/Badge";
-import type { BadgeSlug } from "#shared/domain/readModels/Badge";
-import { variantJSONSchema } from "#shared/domain/readModels/project/VariantJSON";
-import type { VariantJSON } from "#shared/domain/readModels/project/VariantJSON";
+import { badgeSlugSchema } from "@badgehub/shared/domain/readModels/Badge";
+import type { BadgeSlug } from "@badgehub/shared/domain/readModels/Badge";
+import { variantJSONSchema } from "@badgehub/shared/domain/readModels/project/VariantJSON";
+import type { VariantJSON } from "@badgehub/shared/domain/readModels/project/VariantJSON";
 
 export interface AppMetadataJSON {
   name?: string;

@@ -10,10 +10,10 @@ import {
   USERS,
 } from "#dev/populate-db/fixtures";
 import sharp from "sharp";
-import { getBadgeSlugs } from "#shared/domain/readModels/Badge";
-import type { AppMetadataJSON } from "#shared/domain/readModels/project/AppMetadataJSON";
+import { getBadgeSlugs } from "@badgehub/shared/domain/readModels/Badge";
+import type { AppMetadataJSON } from "@badgehub/shared/domain/readModels/project/AppMetadataJSON";
 import type { TimestampTZ } from "#db/models/DBTypes";
-import type { ISODateString } from "#shared/domain/readModels/ISODateString";
+import type { ISODateString } from "@badgehub/shared/domain/readModels/ISODateString";
 
 export const getSemiRandomDates = async (stringToDigest: string) => {
   const semiRandomNumber = await stringToSemiRandomNumber(stringToDigest);

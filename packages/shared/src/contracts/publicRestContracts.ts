@@ -1,12 +1,12 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod/v3";
-import { detailedProjectSchema } from "#shared/domain/readModels/project/ProjectDetails";
-import { categoryNameSchema } from "#shared/domain/readModels/project/Category";
-import { badgeSlugSchema } from "#shared/domain/readModels/Badge";
-import { projectLatestRevisionsSchema } from "#shared/domain/readModels/project/ProjectRevision";
-import { badgeHubStatsSchema } from "#shared/domain/readModels/BadgeHubStats";
-import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
-import { NO_BODY_SCHEMA } from "#shared/contracts/tsRestNoBodyPatch";
+import { detailedProjectSchema } from "@badgehub/shared/domain/readModels/project/ProjectDetails";
+import { categoryNameSchema } from "@badgehub/shared/domain/readModels/project/Category";
+import { badgeSlugSchema } from "@badgehub/shared/domain/readModels/Badge";
+import { projectLatestRevisionsSchema } from "@badgehub/shared/domain/readModels/project/ProjectRevision";
+import { badgeHubStatsSchema } from "@badgehub/shared/domain/readModels/BadgeHubStats";
+import { projectSummarySchema } from "@badgehub/shared/domain/readModels/project/ProjectSummaries";
+import { NO_BODY_SCHEMA } from "@badgehub/shared/contracts/tsRestNoBodyPatch";
 
 const c = initContract();
 
