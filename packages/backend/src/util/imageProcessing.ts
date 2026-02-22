@@ -1,6 +1,6 @@
 import sharp from "sharp";
-import { UploadedFile } from "@shared/domain/UploadedFile";
-import { ImageDimensions } from "@domain/ImageDimensions";
+import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { ImageDimensions } from "#domain/ImageDimensions";
 
 export async function getImageProps(
   typedFile: UploadedFile

@@ -1,8 +1,8 @@
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { IS_DEV_ENVIRONMENT, MQTT_CONFIG } from "@config";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { IS_DEV_ENVIRONMENT, MQTT_CONFIG } from "#config";
 import mqtt from "mqtt";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
 
 export async function startMqtt(
   badgeHubData: BadgeHubData = new BadgeHubData(

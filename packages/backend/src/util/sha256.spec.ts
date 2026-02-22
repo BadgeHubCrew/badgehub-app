@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { stringToSha256, uint8ToSha256 } from "@util/sha256";
+import { stringToSha256, uint8ToSha256 } from "#util/sha256";
 
 describe("sha256", () => {
   it("uint8ToSha256 should match result from https://emn178.github.io/online-tools/sha256.html", async () => {

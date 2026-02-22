@@ -5,19 +5,19 @@ import {
   POSTGRES_PASSWORD,
   POSTGRES_PORT,
   POSTGRES_USER,
-} from "@config";
+} from "#config";
 import sql, { raw } from "sql-template-tag";
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
-import { stringToSemiRandomNumber } from "@dev/populate-db/stringToSemiRandomNumber";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
+import { stringToSemiRandomNumber } from "#dev/populate-db/stringToSemiRandomNumber";
 
-import { BADGE_IDS, PROJECT_NAMES, USERS } from "@dev/populate-db/fixtures";
+import { BADGE_IDS, PROJECT_NAMES, USERS } from "#dev/populate-db/fixtures";
 import {
   createSemiRandomAppdata,
   get1DayAfterSemiRandomUpdatedAt,
   getSemiRandomDates,
-} from "@dev/populate-db/createSemiRandomAppdata";
+} from "#dev/populate-db/createSemiRandomAppdata";
 
 async function reportSomeDownloads(
   badgeHubData: BadgeHubData,

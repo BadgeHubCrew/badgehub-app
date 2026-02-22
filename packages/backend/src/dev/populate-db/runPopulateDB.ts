@@ -1,5 +1,5 @@
-import { repopulateDB } from "@dev/populate-db/populateDB";
-import { runMigrations } from "@db/migrations";
+import { repopulateDB } from "#dev/populate-db/populateDB";
+import { runMigrations } from "#db/migrations";
 import { exec } from "node:child_process";
 
 const overwriteMockupData = async () => {

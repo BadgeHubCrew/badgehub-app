@@ -1,5 +1,5 @@
 import { z } from "zod/v3";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
 
 export const badgeHubStatsSchema = z.object({
   projects: z.number().describe("number of projects"),

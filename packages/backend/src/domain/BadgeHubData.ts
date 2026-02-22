@@ -1,39 +1,31 @@
-import {
-  ProjectDetails,
-  ProjectSlug,
-} from "@shared/domain/readModels/project/ProjectDetails";
-import {
-  LatestOrDraftAlias,
-  RevisionNumberOrAlias,
-} from "@shared/domain/readModels/project/Version";
-import { User } from "@shared/domain/readModels/project/User";
-import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata";
-import { BadgeSlug } from "@shared/domain/readModels/Badge";
-import {
-  CategoryName,
-  isAdminCategory,
-} from "@shared/domain/readModels/project/Category";
-import { DBProject } from "@db/models/project/DBProject";
-import { BadgeHubFiles } from "@domain/BadgeHubFiles";
-import { UploadedFile } from "@shared/domain/UploadedFile";
-import { DBDatedData } from "@db/models/project/DBDatedData";
-import { stringToSha256, uint8ToSha256 } from "@util/sha256";
-import { TimestampTZ } from "@db/models/DBTypes";
-import { CreateProjectProps } from "@shared/domain/writeModels/project/WriteProject";
-import { WriteAppMetadataJSON } from "@shared/domain/writeModels/AppMetadataJSON";
+import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
+import type { LatestOrDraftAlias } from "#shared/domain/readModels/project/Version";
+import type { RevisionNumberOrAlias } from "#shared/domain/readModels/project/Version";
+import type { User } from "#shared/domain/readModels/project/User";
+import type { FileMetadata } from "#shared/domain/readModels/project/FileMetadata";
+import type { BadgeSlug } from "#shared/domain/readModels/Badge";
+import { isAdminCategory } from "#shared/domain/readModels/project/Category";
+import type { CategoryName } from "#shared/domain/readModels/project/Category";
+import type { DBProject } from "#db/models/project/DBProject";
+import type { BadgeHubFiles } from "#domain/BadgeHubFiles";
+import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
+import { stringToSha256, uint8ToSha256 } from "#util/sha256";
+import type { TimestampTZ } from "#db/models/DBTypes";
+import type { CreateProjectProps } from "#shared/domain/writeModels/project/WriteProject";
+import type { WriteAppMetadataJSON } from "#shared/domain/writeModels/AppMetadataJSON";
 import { LRUCache } from "lru-cache";
-import {
-  appMetadataJSONSchema,
-  IconSize,
-} from "@shared/domain/readModels/project/AppMetadataJSON";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { createIconBuffer, getImageProps } from "@util/imageProcessing";
-import { UserError } from "@domain/UserError";
+import { appMetadataJSONSchema } from "#shared/domain/readModels/project/AppMetadataJSON";
+import type { IconSize } from "#shared/domain/readModels/project/AppMetadataJSON";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { createIconBuffer, getImageProps } from "#util/imageProcessing";
+import { UserError } from "#domain/UserError";
 import { randomBytes } from "node:crypto";
-import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
-import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
-import { OrderByOption } from "@shared/domain/readModels/project/ordering";
-import { parseIconSize } from "@domain/ImageDimensions";
+import type { BadgeHubStats } from "#shared/domain/readModels/BadgeHubStats";
+import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { OrderByOption } from "#shared/domain/readModels/project/ordering";
+import { parseIconSize } from "#domain/ImageDimensions";
 
 type FileContext =
   | { projectSlug: string; revision: number; filePath: string }

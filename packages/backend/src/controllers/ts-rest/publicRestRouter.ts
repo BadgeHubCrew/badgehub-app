@@ -5,17 +5,16 @@ import {
   publicProjectContracts,
   publicReportContracts,
   publicRestContracts,
-} from "@shared/contracts/publicRestContracts";
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
-import { noContent, nok, ok } from "@controllers/ts-rest/httpResponses";
+} from "#shared/contracts/publicRestContracts";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
+import { noContent, nok, ok } from "#controllers/ts-rest/httpResponses";
 import { Readable } from "node:stream";
-import { RouterImplementation } from "@ts-rest/express/src/lib/types";
-import { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
+import type { ProjectLatestRevisions } from "#shared/domain/readModels/project/ProjectRevision";
 
 const createFilesRouter = (badgeHubData: BadgeHubData) => {
-  const filesRouter: RouterImplementation<typeof publicFilesContracts> = {
+  const filesRouter: any = {
     getLatestPublishedFile: async ({ params: { slug, filePath }, res }) => {
       const file = await badgeHubData.getFileContents(slug, "latest", filePath);
       if (!file) {
@@ -53,7 +52,7 @@ const createFilesRouter = (badgeHubData: BadgeHubData) => {
 };
 
 const createProjectRouter = (badgeHubData: BadgeHubData) => {
-  const projectRouter: RouterImplementation<typeof publicProjectContracts> = {
+  const projectRouter: any = {
     getProject: async ({ params: { slug } }) => {
       const details = await badgeHubData.getProject(slug, "latest");
       if (!details) {
@@ -129,7 +128,7 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
 };
 
 const createPublicOtherRouter = (badgeHubData: BadgeHubData) => {
-  const otherRouter: RouterImplementation<typeof publicOtherContracts> = {
+  const otherRouter: any = {
     getBadges: async () => {
       const data = await badgeHubData.getBadges();
       return ok(data);
@@ -153,7 +152,7 @@ const createPublicOtherRouter = (badgeHubData: BadgeHubData) => {
 };
 
 const createReportRouter = (badgeHubData: BadgeHubData) => {
-  const reportRouter: RouterImplementation<typeof publicReportContracts> = {
+  const reportRouter: any = {
     reportInstall: async ({ params, query }) => {
       await badgeHubData.reportInstall(params.slug, params.revision, query);
       return noContent();

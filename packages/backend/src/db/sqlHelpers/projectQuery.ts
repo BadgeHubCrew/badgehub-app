@@ -1,16 +1,14 @@
 import moment from "moment";
-import { DBProject } from "@db/models/project/DBProject";
-import { DBVersion } from "@db/models/project/DBVersion";
+import type { DBProject } from "#db/models/project/DBProject";
+import type { DBVersion } from "#db/models/project/DBVersion";
 import sql, { raw } from "sql-template-tag";
-import { LatestOrDraftAlias } from "@shared/domain/readModels/project/Version";
-import { getFileDownloadUrl } from "@db/getFileDownloadUrl";
-import {
-  IconMapWithUrls,
-  ProjectSummary,
-  projectSummarySchema,
-} from "@shared/domain/readModels/project/ProjectSummaries";
-import { DBProjectInstallReport } from "@db/models/DBReporting";
-import { timestampTZToISODateString } from "@db/sqlHelpers/dbDates";
+import type { LatestOrDraftAlias } from "#shared/domain/readModels/project/Version";
+import { getFileDownloadUrl } from "#db/getFileDownloadUrl";
+import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { IconMapWithUrls } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { DBProjectInstallReport } from "#db/models/DBReporting";
+import { timestampTZToISODateString } from "#db/sqlHelpers/dbDates";
 
 export function getBaseSelectProjectQuery(
   revision: LatestOrDraftAlias = "latest"

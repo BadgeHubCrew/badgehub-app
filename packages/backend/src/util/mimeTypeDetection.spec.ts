@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { detectMimeType } from './mimeTypeDetection';
+import { detectMimeType } from './mimeTypeDetection.ts';
 
 describe('MIME Type Detection', () => {
   it('should use browser MIME type when it is specific and reliable', () => {

@@ -1,6 +1,6 @@
 import { z } from "zod/v3";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { ProjectSlug } from "@shared/domain/readModels/project/ProjectDetails";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
+import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
 
 export interface CreateProjectProps {
   slug: ProjectSlug; // The directory name of this project

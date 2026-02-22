@@ -1,6 +1,6 @@
-import { DBDatedData } from "@db/models/project/DBDatedData";
-import { VersionRelation } from "@db/models/project/DBVersion";
-import { DBFileData } from "@db/models/project/DBFileData";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
+import type { VersionRelation } from "#db/models/project/DBVersion";
+import type { DBFileData } from "#db/models/project/DBFileData";
 
 // table name: files
 export interface DBFileMetadata extends VersionRelation, DBDatedData {

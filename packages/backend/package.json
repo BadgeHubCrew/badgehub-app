@@ -5,13 +5,11 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "start": "node dist/index.mjs",
+    "start": "node --experimental-specifier-resolution=node --experimental-transform-types src/index.ts",
     "build": "node --experimental-strip-types esbuild/esbuild.config.ts",
     "check:ts": "tsc --noEmit -p tsconfig.json",
-    "dev": "concurrently npm:dev:*",
-    "dev:build": "node --experimental-strip-types esbuild/esbuild.config.ts --watch",
-    "dev:start": "node --watch dist/index.mjs",
-    "repopulate-db": "node --import tsx src/dev/populate-db/runPopulateDB.ts",
+    "dev": "node --experimental-specifier-resolution=node --experimental-transform-types --watch src/index.ts",
+    "repopulate-db": "node --experimental-specifier-resolution=node --experimental-transform-types src/dev/populate-db/runPopulateDB.ts",
     "test-db:up": "docker compose -f docker-compose.test-db.yml up -d",
     "test-db:down": "docker compose -f docker-compose.test-db.yml down",
     "backup": "docker exec -it badgehub-db /usr/bin/pg_dump --username badgehub badgehub -f /var/backup/data-backup-`date +\"%Y-%m-%dT%H:%m\"`.sql",
@@ -24,7 +22,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@ts-rest/core": "^3.53.0-rc.1",
@@ -71,5 +69,20 @@
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.3",
     "vitest": "^3.1.1"
+  },
+  "imports": {
+    "#auth/*": "./src/auth/*.ts",
+    "#config": "./src/config.ts",
+    "#controllers/*": "./src/controllers/*.ts",
+    "#createExpressServer": "./src/createExpressServer.ts",
+    "#createSwaggerDoc": "./src/createSwaggerDoc.ts",
+    "#db/*": "./src/db/*.ts",
+    "#dev/*": "./src/dev/*.ts",
+    "#domain/*": "./src/domain/*.ts",
+    "#error": "./src/error.ts",
+    "#reporting/*": "./src/reporting/*.ts",
+    "#serveApiDocs": "./src/serveApiDocs.ts",
+    "#shared/*": "./src/shared/*.ts",
+    "#util/*": "./src/util/*.ts"
   }
 }

@@ -1,4 +1,4 @@
-import { DBDatedData } from "@db/models/project/DBDatedData";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
 
 // Corresponds to the 'registered_badges_version_reports' table
 export interface DBRegisteredBadgeVersionReportInsert {

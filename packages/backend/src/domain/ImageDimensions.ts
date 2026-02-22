@@ -1,5 +1,5 @@
-import { IconSize } from "@shared/domain/readModels/project/AppMetadataJSON";
-import { UserError } from "@domain/UserError";
+import type { IconSize } from "#shared/domain/readModels/project/AppMetadataJSON";
+import { UserError } from "#domain/UserError";
 
 export type ImageDimensions = { image_width: number; image_height: number };
 export const parseIconSize = (size: IconSize): ImageDimensions => {

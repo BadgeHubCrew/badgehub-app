@@ -1,9 +1,25 @@
 {
   "extends": ["../shared/tsconfig.json"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "verbatimModuleSyntax": true,
+    "noImplicitAny": false,
     "paths": {
-      "@*": ["./src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "#shared/*": ["./src/shared/*"],
+      "#auth/*": ["./src/auth/*"],
+      "#controllers/*": ["./src/controllers/*"],
+      "#db/*": ["./src/db/*"],
+      "#dev/*": ["./src/dev/*"],
+      "#domain/*": ["./src/domain/*"],
+      "#reporting/*": ["./src/reporting/*"],
+      "#util/*": ["./src/util/*"],
+      "#config": ["./src/config.ts"],
+      "#createExpressServer": ["./src/createExpressServer.ts"],
+      "#createSwaggerDoc": ["./src/createSwaggerDoc.ts"],
+      "#serveApiDocs": ["./src/serveApiDocs.ts"],
+      "#error": ["./src/error.ts"]
     },
     "typeRoots": ["node_modules/@types", "../../node_modules/@types"]
   },

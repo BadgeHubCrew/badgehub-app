@@ -1,7 +1,7 @@
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
-import { REFRESH_REPORTS_INTERVAL_SEC } from "@config";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
+import { REFRESH_REPORTS_INTERVAL_SEC } from "#config";
 
 export const startRefreshReportsInterval = (
   badgeHubData: BadgeHubData = new BadgeHubData(

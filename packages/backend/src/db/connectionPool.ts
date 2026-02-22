@@ -5,7 +5,7 @@ import {
   POSTGRES_PASSWORD,
   POSTGRES_PORT,
   POSTGRES_USER,
-} from "@config";
+} from "#config";
 
 let pool: pg.Pool;
 export const getPool = () => {

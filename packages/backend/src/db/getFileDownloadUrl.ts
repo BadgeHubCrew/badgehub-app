@@ -1,5 +1,5 @@
-import { RevisionNumberOrAlias } from "@shared/domain/readModels/project/Version";
-import { BADGEHUB_API_BASE_URL } from "@config";
+import type { RevisionNumberOrAlias } from "#shared/domain/readModels/project/Version";
+import { BADGEHUB_API_BASE_URL } from "#config";
 
 type RevisionPathPart = "draft" | `rev${number}` | "latest";
 

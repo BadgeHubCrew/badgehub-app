@@ -7,10 +7,11 @@ import {
   test,
 } from "vitest";
 import request from "supertest";
-import express, { Express } from "express";
-import { createExpressServer } from "@createExpressServer";
-import { isInDebugMode } from "@util/debug";
-import { CreateProjectProps } from "@shared/domain/writeModels/project/WriteProject";
+import express from "express";
+import type { Express } from "express";
+import { createExpressServer } from "#createExpressServer";
+import { isInDebugMode } from "#util/debug";
+import type { CreateProjectProps } from "#shared/domain/writeModels/project/WriteProject";
 import { decodeJwt } from "jose";
 
 const USER1_TOKEN =

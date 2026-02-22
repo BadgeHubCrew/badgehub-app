@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, test } from "vitest";
 import request from "supertest";
 import express from "express";
-import { createExpressServer } from "@createExpressServer";
+import { createExpressServer } from "#createExpressServer";
 import { randomUUID } from "node:crypto";
-import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
-import { isInDebugMode } from "@util/debug";
-import { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
-import { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
-import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
-import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
+import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
+import { isInDebugMode } from "#util/debug";
+import type { AppMetadataJSON } from "#shared/domain/readModels/project/AppMetadataJSON";
+import type { ProjectLatestRevisions } from "#shared/domain/readModels/project/ProjectRevision";
+import type { BadgeHubStats } from "#shared/domain/readModels/BadgeHubStats";
+import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
 
 describe(
   "Public API Routes",

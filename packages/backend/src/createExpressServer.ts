@@ -1,23 +1,23 @@
 import express from "express";
 import { pinoHttp } from "pino-http";
-import serveApiDocs from "@serveApiDocs";
+import serveApiDocs from "#serveApiDocs";
 import {
   FRONTEND_DIST_DIR,
   FRONTEND_PUBLIC_DIR,
   IS_DEV_ENVIRONMENT,
-} from "@config";
+} from "#config";
 import rateLimit from "express-rate-limit";
 import { createExpressEndpoints } from "@ts-rest/express";
-import { publicRestContracts } from "@shared/contracts/publicRestContracts";
-import { createPublicRestRouter } from "@controllers/ts-rest/publicRestRouter";
-import { privateRestContracts } from "@shared/contracts/privateRestContracts";
-import { createPrivateRestRouter } from "@controllers/ts-rest/privateRestRouter";
-import { addAuthenticationMiddleware } from "@auth/jwt-decode";
-import { jwtVerifyTokenMiddleware } from "@auth/jwt-verify";
+import { publicRestContracts } from "#shared/contracts/publicRestContracts";
+import { createPublicRestRouter } from "#controllers/ts-rest/publicRestRouter";
+import { privateRestContracts } from "#shared/contracts/privateRestContracts";
+import { createPrivateRestRouter } from "#controllers/ts-rest/privateRestRouter";
+import { addAuthenticationMiddleware } from "#auth/jwt-decode";
+import { jwtVerifyTokenMiddleware } from "#auth/jwt-verify";
 import cors from "cors";
 import * as path from "path";
 import * as fs from "node:fs";
-import { getSharedConfig } from "@shared/config/sharedConfig";
+import { getSharedConfig } from "#shared/config/sharedConfig";
 
 function getIndexHtmlContents() {
   const original = fs.readFileSync(

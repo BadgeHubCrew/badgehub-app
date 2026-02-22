@@ -1,17 +1,15 @@
-import { Version, versionSchema } from "./Version";
-import { User } from "./User";
-import { DatedData, datedDataSchema } from "./DatedData";
-import { BadgeSlug } from "../Badge";
-import {
-  CategoryName,
-  categoryNameSchema,
-} from "@shared/domain/readModels/project/Category";
+import { versionSchema } from "./Version.ts";
+import type { Version } from "./Version.ts";
+import type { User } from "./User.ts";
+import { datedDataSchema } from "./DatedData.ts";
+import type { DatedData } from "./DatedData.ts";
+import type { BadgeSlug } from "../Badge.ts";
+import { categoryNameSchema } from "#shared/domain/readModels/project/Category";
+import type { CategoryName } from "#shared/domain/readModels/project/Category";
 import { z } from "zod/v3";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import {
-  ProjectSummary,
-  projectSummarySchema,
-} from "@shared/domain/readModels/project/ProjectSummaries";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
+import { projectSummarySchema } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
 
 export type ProjectStatusName =
   | "working"

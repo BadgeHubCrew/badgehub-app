@@ -1,62 +1,54 @@
 // noinspection SqlResolve
 
-import {
-  detailedProjectSchema,
-  ProjectCore,
-  ProjectDetails,
-  ProjectSlug,
-} from "@shared/domain/readModels/project/ProjectDetails";
-import { User } from "@shared/domain/readModels/project/User";
-import {
-  LatestOrDraftAlias,
-  RevisionNumberOrAlias,
-  Version,
-} from "@shared/domain/readModels/project/Version";
+import { detailedProjectSchema } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectCore } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
+import type { User } from "#shared/domain/readModels/project/User";
+import type { Version } from "#shared/domain/readModels/project/Version";
+import type { LatestOrDraftAlias } from "#shared/domain/readModels/project/Version";
+import type { RevisionNumberOrAlias } from "#shared/domain/readModels/project/Version";
 import { Pool } from "pg";
-import { getPool } from "@db/connectionPool";
-import { DBInsertProject, DBProject } from "@db/models/project/DBProject";
+import { getPool } from "#db/connectionPool";
+import type { DBProject } from "#db/models/project/DBProject";
+import type { DBInsertProject } from "#db/models/project/DBProject";
 import sql, { join, raw, Sql } from "sql-template-tag";
-import { getEntriesWithDefinedValues } from "@shared/util/objectEntries";
-import {
-  getBaseSelectProjectQuery,
-  ProjectQueryResponse,
-  projectQueryResponseToReadModel,
-} from "@db/sqlHelpers/projectQuery";
+import { getEntriesWithDefinedValues } from "#shared/util/objectEntries";
+import { getBaseSelectProjectQuery, projectQueryResponseToReadModel } from "#db/sqlHelpers/projectQuery";
+import type { ProjectQueryResponse } from "#db/sqlHelpers/projectQuery";
 import {
   convertDatedData,
   stripDatedData,
   timestampTZToDate,
   timestampTZToISODateString,
-} from "@db/sqlHelpers/dbDates";
-import { DBVersion } from "@db/models/project/DBVersion";
+} from "#db/sqlHelpers/dbDates";
+import type { DBVersion } from "#db/models/project/DBVersion";
 
 import {
   assertValidColumKey,
   getInsertKeysAndValuesSql,
-} from "@db/sqlHelpers/objectToSQL";
-import { UploadedFile } from "@shared/domain/UploadedFile";
+} from "#db/sqlHelpers/objectToSQL";
+import type { UploadedFile } from "#shared/domain/UploadedFile";
 import path from "node:path";
-import {
-  DBFileMetadata,
-  fileColumnsForCopying,
-} from "@db/models/project/DBFileMetadata";
-import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata";
-import { DBDatedData, DBSoftDeletable } from "@db/models/project/DBDatedData";
-import { TimestampTZ } from "@db/models/DBTypes";
-import { VALID_SLUG_REGEX } from "@shared/contracts/slug";
-import { ProjectAlreadyExistsError, UserError } from "@domain/UserError";
-import {
-  CategoryName,
-  getAllCategoryNames,
-} from "@shared/domain/readModels/project/Category";
-import { BadgeSlug, getBadgeSlugs } from "@shared/domain/readModels/Badge";
-import { WriteAppMetadataJSON } from "@shared/domain/writeModels/AppMetadataJSON";
-import { getFileDownloadUrl } from "@db/getFileDownloadUrl";
-import { ProjectApiTokenMetadata } from "@shared/domain/readModels/project/ProjectApiToken";
-import { DBProjectApiKey } from "@db/models/project/DBProjectApiKey";
-import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
-import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
-import { OrderByOption } from "@shared/domain/readModels/project/ordering";
+import { fileColumnsForCopying } from "#db/models/project/DBFileMetadata";
+import type { DBFileMetadata } from "#db/models/project/DBFileMetadata";
+import type { FileMetadata } from "#shared/domain/readModels/project/FileMetadata";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
+import type { DBSoftDeletable } from "#db/models/project/DBDatedData";
+import type { TimestampTZ } from "#db/models/DBTypes";
+import { VALID_SLUG_REGEX } from "#shared/contracts/slug";
+import { ProjectAlreadyExistsError, UserError } from "#domain/UserError";
+import { getAllCategoryNames } from "#shared/domain/readModels/project/Category";
+import type { CategoryName } from "#shared/domain/readModels/project/Category";
+import { getBadgeSlugs } from "#shared/domain/readModels/Badge";
+import type { BadgeSlug } from "#shared/domain/readModels/Badge";
+import type { WriteAppMetadataJSON } from "#shared/domain/writeModels/AppMetadataJSON";
+import { getFileDownloadUrl } from "#db/getFileDownloadUrl";
+import type { ProjectApiTokenMetadata } from "#shared/domain/readModels/project/ProjectApiToken";
+import type { DBProjectApiKey } from "#db/models/project/DBProjectApiKey";
+import type { BadgeHubStats } from "#shared/domain/readModels/BadgeHubStats";
+import type { ProjectSummary } from "#shared/domain/readModels/project/ProjectSummaries";
+import type { OrderByOption } from "#shared/domain/readModels/project/ordering";
 
 const ONE_KILO = 1024;
 

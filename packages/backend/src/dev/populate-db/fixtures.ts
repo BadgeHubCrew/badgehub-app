@@ -2,7 +2,7 @@ import path from "path";
 import {
   getAdminOnlyCategoryNames,
   getAllCategoryNames,
-} from "@shared/domain/readModels/project/Category";
+} from "#shared/domain/readModels/project/Category";
 import { fileURLToPath } from "url";
 
 export const PROJECT_NAMES = [

@@ -1,9 +1,7 @@
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
 import { z } from "zod/v3";
-import {
-  ISODateString,
-  isoDateStringSchema,
-} from "@shared/domain/readModels/ISODateString";
+import { isoDateStringSchema } from "#shared/domain/readModels/ISODateString";
+import type { ISODateString } from "#shared/domain/readModels/ISODateString";
 
 export interface DatedData {
   created_at: ISODateString; // Creation date

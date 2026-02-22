@@ -1,4 +1,4 @@
-import { getEntriesWithDefinedValues } from "@shared/util/objectEntries";
+import { getEntriesWithDefinedValues } from "#shared/util/objectEntries";
 import { join, raw } from "sql-template-tag";
 
 const COLUMN_KEY_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;

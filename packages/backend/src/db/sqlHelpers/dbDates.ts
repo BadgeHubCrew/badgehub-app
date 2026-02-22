@@ -1,7 +1,8 @@
-import { DBDatedData, DBSoftDeletable } from "@db/models/project/DBDatedData";
-import { DatedData } from "@shared/domain/readModels/project/DatedData";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
+import type { DBSoftDeletable } from "#db/models/project/DBDatedData";
+import type { DatedData } from "#shared/domain/readModels/project/DatedData";
 import moment from "moment";
-import { ISODateString } from "@shared/domain/readModels/ISODateString";
+import type { ISODateString } from "#shared/domain/readModels/ISODateString";
 
 export function extractDatedDataConverted(dbDatedData: DBDatedData): DatedData {
   const datedData: DatedData = {

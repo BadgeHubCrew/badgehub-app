@@ -1,5 +1,5 @@
 import path from "path";
-import { stringToSemiRandomNumber } from "@dev/populate-db/stringToSemiRandomNumber";
+import { stringToSemiRandomNumber } from "#dev/populate-db/stringToSemiRandomNumber";
 import {
   CATEGORY_NAMES,
   ICON_COUNT,
@@ -8,12 +8,12 @@ import {
   SIX_HUNDRED_DAYS_IN_MS,
   TWENTY_FOUR_HOURS_IN_MS,
   USERS,
-} from "@dev/populate-db/fixtures";
+} from "#dev/populate-db/fixtures";
 import sharp from "sharp";
-import { getBadgeSlugs } from "@shared/domain/readModels/Badge";
-import { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
-import { TimestampTZ } from "@db/models/DBTypes";
-import { ISODateString } from "@shared/domain/readModels/ISODateString";
+import { getBadgeSlugs } from "#shared/domain/readModels/Badge";
+import type { AppMetadataJSON } from "#shared/domain/readModels/project/AppMetadataJSON";
+import type { TimestampTZ } from "#db/models/DBTypes";
+import type { ISODateString } from "#shared/domain/readModels/ISODateString";
 
 export const getSemiRandomDates = async (stringToDigest: string) => {
   const semiRandomNumber = await stringToSemiRandomNumber(stringToDigest);

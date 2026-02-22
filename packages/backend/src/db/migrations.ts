@@ -1,5 +1,5 @@
 import { exec } from "node:child_process";
-import { getClient } from "@db/connectionPool";
+import { getClient } from "#db/connectionPool";
 
 const MIGRATION_LOCK_ID = 108;
 

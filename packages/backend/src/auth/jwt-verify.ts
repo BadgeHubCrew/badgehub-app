@@ -3,8 +3,9 @@ import {
   DISABLE_AUTH,
   KEYCLOAK_CERTS_URL,
   KEYCLOAK_REALM_ISSUER_URL,
-} from "@config";
-import { NextFunction, Response } from "express";
+} from "#config";
+import type { Response } from "express";
+import type { NextFunction } from "express";
 
 const JWKS = createRemoteJWKSet(new URL(KEYCLOAK_CERTS_URL!));
 

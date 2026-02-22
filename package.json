@@ -43,5 +43,8 @@
   "workspaces": [
     "packages/frontend",
     "packages/backend"
-  ]
+  ],
+  "imports": {
+    "#shared/*": "./packages/shared/src/*.ts"
+  }
 }

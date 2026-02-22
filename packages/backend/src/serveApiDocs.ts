@@ -1,7 +1,7 @@
-import { Express } from "express";
+import type { Express } from "express";
 import swaggerUi from "swagger-ui-express";
 import { createExpressEndpoints, initServer } from "@ts-rest/express";
-import { createSwaggerDoc, swaggerJsonContract } from "@createSwaggerDoc";
+import { createSwaggerDoc, swaggerJsonContract } from "#createSwaggerDoc";
 
 const swaggerDoc = createSwaggerDoc();
 

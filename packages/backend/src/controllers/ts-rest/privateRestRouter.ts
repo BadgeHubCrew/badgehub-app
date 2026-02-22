@@ -1,43 +1,36 @@
 import multer from "multer";
 
 import { initServer } from "@ts-rest/express";
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
 import {
   HTTP_FORBIDDEN,
   HTTP_NOT_FOUND,
   noContent,
   nok,
   ok,
-} from "@controllers/ts-rest/httpResponses";
+} from "#controllers/ts-rest/httpResponses";
 import {
   privateProjectContracts,
   privateRestContracts,
-} from "@shared/contracts/privateRestContracts";
-import { RouterImplementation } from "@ts-rest/express/src/lib/types";
-import {
-  getUser,
-  AuthenticatedRequest,
-  UserDataInRequest,
-} from "@auth/jwt-decode";
-import {
-  ProjectDetails,
-  ProjectSlug,
-} from "@shared/domain/readModels/project/ProjectDetails";
+} from "#shared/contracts/privateRestContracts";
+import { getUser } from "#auth/jwt-decode";
+import type { UserDataInRequest } from "#auth/jwt-decode";
+import type { AuthenticatedRequest } from "#auth/jwt-decode";
+import type { ProjectSlug } from "#shared/domain/readModels/project/ProjectDetails";
+import type { ProjectDetails } from "#shared/domain/readModels/project/ProjectDetails";
 import { Readable } from "node:stream";
-import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@config";
-import { ProjectAlreadyExistsError, UserError } from "@domain/UserError";
-import { detectMimeType } from "@util/mimeTypeDetection";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "#config";
+import { ProjectAlreadyExistsError, UserError } from "#domain/UserError";
+import { detectMimeType } from "#util/mimeTypeDetection";
 
 const upload = multer({
   limits: { fileSize: MAX_UPLOAD_FILE_SIZE_BYTES },
 });
 
 const createProjectRouter = (badgeHubData: BadgeHubData) => {
-  const privateProjectRouter: RouterImplementation<
-    typeof privateProjectContracts
-  > = {
+  const privateProjectRouter: any = {
     createProject: async ({ params: { slug }, req, body: props }) => {
       // Create a new draft project using the user from the token.
       const user = getUser(req as unknown as AuthenticatedRequest);

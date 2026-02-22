@@ -1,6 +1,7 @@
 import { z } from "zod/v3";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { BadgeSlug, badgeSlugSchema } from "@shared/domain/readModels/Badge";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
+import { badgeSlugSchema } from "#shared/domain/readModels/Badge";
+import type { BadgeSlug } from "#shared/domain/readModels/Badge";
 
 export const variantJSONSchema = z.object({
   revision: z.coerce.number().int().nonnegative().optional()

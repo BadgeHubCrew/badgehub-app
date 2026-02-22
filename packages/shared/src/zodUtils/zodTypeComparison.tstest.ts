@@ -1,6 +1,6 @@
 // Example usage with a Zod schema
 import { z } from "zod/v3";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
+import { __tsCheckSame } from "#shared/zodUtils/zodTypeComparison";
 
 type SubObject = {
   subProperty: string;

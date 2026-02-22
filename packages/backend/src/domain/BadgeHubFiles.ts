@@ -1,5 +1,5 @@
-import { UploadedFile } from "@shared/domain/UploadedFile";
-import { DBDatedData } from "@db/models/project/DBDatedData";
+import type { UploadedFile } from "#shared/domain/UploadedFile";
+import type { DBDatedData } from "#db/models/project/DBDatedData";
 
 export interface BadgeHubFiles {
   // Using path parts instead of a string to make it easier to work with paths in a cross-platform way

@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getAndAssertEnv, getSharedConfig } from "@shared/config/sharedConfig";
+import { getAndAssertEnv, getSharedConfig } from "#shared/config/sharedConfig";
 
 config();
 
@@ -35,7 +35,7 @@ export const IS_DEV_ENVIRONMENT = sharedConfig.isDevEnvironment;
 export const KEYCLOAK_CERTS_URL =
   KEYCLOAK_REALM_ISSUER_URL + "/protocol/openid-connect/certs";
 
-export * from "@shared/config/sharedConfig";
+export * from "#shared/config/sharedConfig";
 
 // MQTT
 export const MQTT_CONFIG =

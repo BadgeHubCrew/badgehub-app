@@ -1,11 +1,11 @@
-import { EXPRESS_PORT, IS_DEV_ENVIRONMENT } from "@config";
-import { runMigrations } from "@db/migrations";
-import { createExpressServer } from "@createExpressServer";
-import { startMqtt } from "@reporting/mqtt";
-import { startRefreshReportsInterval } from "@reporting/refreshReports";
-import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { EXPRESS_PORT, IS_DEV_ENVIRONMENT } from "#config";
+import { runMigrations } from "#db/migrations";
+import { createExpressServer } from "#createExpressServer";
+import { startMqtt } from "#reporting/mqtt";
+import { startRefreshReportsInterval } from "#reporting/refreshReports";
+import { BadgeHubData } from "#domain/BadgeHubData";
+import { PostgreSQLBadgeHubMetadata } from "#db/PostgreSQLBadgeHubMetadata";
+import { PostgreSQLBadgeHubFiles } from "#db/PostgreSQLBadgeHubFiles";
 
 async function startServer() {
   const app = createExpressServer();
