@@ -2,6 +2,8 @@ import { BadgeHubData } from "@domain/BadgeHubData";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
 import { DATABASE_ENGINE } from "@config";
+import { SQLiteBadgeHubMetadata } from "@db/SQLiteBadgeHubMetadata";
+import { SQLiteBadgeHubFiles } from "@db/SQLiteBadgeHubFiles";
 
 export function createBadgeHubData(): BadgeHubData {
   switch (DATABASE_ENGINE) {
@@ -11,8 +13,9 @@ export function createBadgeHubData(): BadgeHubData {
         new PostgreSQLBadgeHubFiles()
       );
     case "sqlite":
-      throw new Error(
-        "DATABASE_ENGINE=sqlite is not implemented yet. Set DATABASE_ENGINE=postgres until SQLite store wiring lands."
+      return new BadgeHubData(
+        new SQLiteBadgeHubMetadata(),
+        new SQLiteBadgeHubFiles()
       );
     default:
       throw new Error(
