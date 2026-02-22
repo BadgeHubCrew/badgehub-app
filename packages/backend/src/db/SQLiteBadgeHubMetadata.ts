@@ -82,8 +82,9 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
   }
 
   async publishVersion(...args: Parameters<BadgeHubMetadataStore["publishVersion"]>): Promise<void> {
-    const [projectSlug] = args;
+    const [projectSlug, mockDate] = args;
     const db = getSqliteDb();
+    const publishAt = mockDate ?? null;
 
     const project = db
       .prepare("SELECT draft_revision FROM projects WHERE slug = ? AND deleted_at IS NULL")
@@ -92,8 +93,8 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
       throw new Error(`Project draft not found: ${projectSlug}`);
     }
 
-    db.prepare("UPDATE versions SET published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE project_slug = ? AND revision = ?")
-      .run(projectSlug, project.draft_revision);
+    db.prepare("UPDATE versions SET published_at = COALESCE(?, CURRENT_TIMESTAMP), updated_at = COALESCE(?, CURRENT_TIMESTAMP) WHERE project_slug = ? AND revision = ?")
+      .run(publishAt, publishAt, projectSlug, project.draft_revision);
 
     const nextDraftRevision = project.draft_revision + 1;
     db.prepare(
@@ -104,7 +105,17 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
        ON CONFLICT(project_slug, revision) DO NOTHING`
     ).run(nextDraftRevision, projectSlug, project.draft_revision);
 
-    db.prepare("UPDATE projects SET latest_revision = ?, draft_revision = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?")
+    db.prepare(
+      `INSERT INTO files (version_id, dir, name, ext, mimetype, size_of_content, sha256, image_width, image_height, created_at, updated_at, deleted_at)
+       SELECT vTo.id, f.dir, f.name, f.ext, f.mimetype, f.size_of_content, f.sha256, f.image_width, f.image_height,
+              COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP), f.deleted_at
+       FROM files f
+       JOIN versions vFrom ON vFrom.id = f.version_id
+       JOIN versions vTo ON vTo.project_slug = vFrom.project_slug AND vTo.revision = ?
+       WHERE vFrom.project_slug = ? AND vFrom.revision = ?`
+    ).run(publishAt, publishAt, nextDraftRevision, projectSlug, project.draft_revision);
+
+    db.prepare("UPDATE projects SET latest_revision = ?, draft_revision = ? WHERE slug = ?")
       .run(project.draft_revision, nextDraftRevision, projectSlug);
   }
 
@@ -140,6 +151,7 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
             .get(projectSlug, versionRevision, projectSlug) as { revision: number; app_metadata: string; published_at: string | null } | undefined);
 
     if (!versionRow) return undefined;
+    if (typeof versionRevision === "number" && (versionRevision <= 0 || !versionRow.published_at)) return undefined;
 
     const files = db
       .prepare(
@@ -236,6 +248,7 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
       | undefined;
 
     if (!row) return undefined;
+    if (typeof versionRevision === "number" && (versionRevision <= 0 || !row.published_at)) return undefined;
     const full_path = path.join(row.dir, row.name + row.ext);
     return {
       dir: row.dir,
@@ -343,7 +356,6 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
         return {
           slug: r.slug,
           idp_user_id: r.idp_user_id,
-          latest_revision: effectiveRevision,
           name: metadata.name ?? r.slug,
           published_at: timestampTZToISODateString(r.published_at ?? undefined),
           installs: Number(r.distinct_installs ?? 0),
@@ -363,14 +375,28 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
           badges: metadata.badges,
           description: metadata.description,
           revision: effectiveRevision,
-          git_url: metadata.git_url ?? r.git,
           hidden: metadata.hidden,
         };
       });
 
+    if (revision === "latest") {
+      summaries = summaries.filter((s) => Boolean(s.published_at));
+      if (!query.slugs?.length) {
+        summaries = summaries.filter((s) => !s.hidden);
+      }
+    }
+
     if (query.badge) summaries = summaries.filter((s) => s.badges?.includes(query.badge!));
     if (query.category) summaries = summaries.filter((s) => s.categories?.includes(query.category!));
-    if (query.search) summaries = summaries.filter((s) => (s.name + " " + (s.description ?? "")).toLowerCase().includes(query.search!.toLowerCase()));
+    if (query.search) {
+      const searchLower = query.search.toLowerCase();
+      summaries = summaries.filter((s) => {
+        const searchableText = [s.name, s.description ?? "", ...(s.categories ?? [])]
+          .join(" ")
+          .toLowerCase();
+        return searchableText.includes(searchLower);
+      });
+    }
     if (query.slugs?.length) summaries = summaries.filter((s) => query.slugs!.includes(s.slug));
     if (query.userId) summaries = summaries.filter((s) => s.idp_user_id === query.userId);
 

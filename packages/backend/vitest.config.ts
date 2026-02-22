@@ -18,7 +18,7 @@ export default defineConfig({
     },
   },
   test: {
-    maxWorkers: 1,
+    fileParallelism: false,
     env: {
       ...config({ path: ".env.test" }).parsed,
     },
