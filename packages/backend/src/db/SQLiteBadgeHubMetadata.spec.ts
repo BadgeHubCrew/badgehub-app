@@ -56,6 +56,27 @@ describe("SQLiteBadgeHubMetadata", () => {
     expect(stats.crashed_projects).toBe(0);
   });
 
+  it("updates project rows with allowed columns only", async () => {
+    const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
+    const { getSqliteDb } = await import("@db/sqliteDatabase");
+    const metadata = new SQLiteBadgeHubMetadata();
+
+    await metadata.insertProject({ slug: "project-upd", idp_user_id: "user-1" });
+    await metadata.updateProject("project-upd", {
+      git: "https://example.com/repo.git",
+      latest_revision: 5,
+      // @ts-expect-error testing runtime filtering of unknown column
+      made_up_column: "ignore-me",
+    });
+
+    const row = getSqliteDb()
+      .prepare("SELECT git, latest_revision FROM projects WHERE slug = ?")
+      .get("project-upd") as { git: string; latest_revision: number };
+
+    expect(row.git).toBe("https://example.com/repo.git");
+    expect(row.latest_revision).toBe(5);
+  });
+
   it("manages project api token lifecycle", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
     const metadata = new SQLiteBadgeHubMetadata();

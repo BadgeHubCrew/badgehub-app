@@ -18,6 +18,8 @@ function initSchema(db: DatabaseSync) {
       slug TEXT PRIMARY KEY,
       git TEXT,
       idp_user_id TEXT,
+      latest_revision INTEGER,
+      draft_revision INTEGER,
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       deleted_at TEXT

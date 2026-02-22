@@ -35,7 +35,10 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
   async updateProject(...args: Parameters<BadgeHubMetadataStore["updateProject"]>): Promise<void> {
     const [projectSlug, changes] = args;
     const db = getSqliteDb();
-    const entries = Object.entries(changes).filter(([, value]) => value !== undefined);
+    const allowedKeys = new Set(["git", "latest_revision", "draft_revision", "idp_user_id", "deleted_at"]);
+    const entries = Object.entries(changes)
+      .filter(([, value]) => value !== undefined)
+      .filter(([key]) => allowedKeys.has(key));
     if (!entries.length) return;
 
     const setSql = entries.map(([key]) => `${key} = ?`).join(", ");
