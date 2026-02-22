@@ -263,7 +263,7 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
   }
 
   async refreshReports(): Promise<void> {
-    // No-op for sqlite for now. PostgreSQL uses a materialized view.
+    // No-op for sqlite for now. Stats are read directly from sqlite tables.
   }
 
   async getStats(): Promise<BadgeHubStats> {
