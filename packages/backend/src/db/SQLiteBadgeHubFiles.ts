@@ -36,7 +36,7 @@ export class SQLiteBadgeHubFiles implements BadgeHubFiles {
     const filePath = this.getFilePath(sha256);
     try {
       const buffer = await readFile(filePath);
-      return new Uint8Array(buffer);
+      return buffer;
     } catch {
       return undefined;
     }

@@ -18,6 +18,7 @@ export default defineConfig({
     },
   },
   test: {
+    maxWorkers: 1,
     env: {
       ...config({ path: ".env.test" }).parsed,
     },
