@@ -300,7 +300,88 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
     };
   }
 
-  async getProjectSummaries(..._args: Parameters<BadgeHubMetadataStore["getProjectSummaries"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getProjectSummaries"]>>> { return this.fail("getProjectSummaries"); }
+  async getProjectSummaries(...args: Parameters<BadgeHubMetadataStore["getProjectSummaries"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getProjectSummaries"]>>> {
+    const [query, revision] = args;
+    const db = getSqliteDb();
+    const revisionColumn = revision === "draft" ? "p.draft_revision" : "p.latest_revision";
+
+    const rows = db.prepare(
+      `SELECT p.slug,
+              p.idp_user_id,
+              p.created_at,
+              p.updated_at,
+              p.git,
+              v.revision,
+              v.published_at,
+              v.app_metadata,
+              (
+                SELECT COUNT(DISTINCT er.badge_id)
+                FROM event_reports er
+                WHERE er.project_slug = p.slug
+                  AND er.event_type = 'install_count'
+              ) AS distinct_installs
+       FROM projects p
+              LEFT JOIN versions v ON v.project_slug = p.slug AND v.revision = ${revisionColumn}
+       WHERE p.deleted_at IS NULL`
+    ).all() as Array<{
+      slug: string;
+      idp_user_id: string;
+      created_at: string;
+      updated_at: string;
+      git?: string;
+      revision: number | null;
+      published_at: string | null;
+      app_metadata: string | null;
+      distinct_installs: number | string;
+    }>;
+
+    let summaries = rows
+      .filter((r) => r.revision !== null)
+      .map((r) => {
+        const metadata = JSON.parse(r.app_metadata || "{}") as Record<string, any>;
+        const effectiveRevision = r.revision as number;
+        return {
+          slug: r.slug,
+          idp_user_id: r.idp_user_id,
+          latest_revision: effectiveRevision,
+          name: metadata.name ?? r.slug,
+          published_at: timestampTZToISODateString(r.published_at ?? undefined),
+          installs: Number(r.distinct_installs ?? 0),
+          icon_map: metadata.icon_map
+            ? Object.fromEntries(
+                Object.entries(metadata.icon_map).map(([key, fullPath]) => [
+                  key,
+                  {
+                    full_path: fullPath,
+                    url: getFileDownloadUrl(r.slug, r.published_at ? effectiveRevision : "draft", String(fullPath)),
+                  },
+                ])
+              )
+            : undefined,
+          license_type: metadata.license_type,
+          categories: metadata.categories,
+          badges: metadata.badges,
+          description: metadata.description,
+          revision: effectiveRevision,
+          git_url: metadata.git_url ?? r.git,
+          hidden: metadata.hidden,
+        };
+      });
+
+    if (query.badge) summaries = summaries.filter((s) => s.badges?.includes(query.badge!));
+    if (query.category) summaries = summaries.filter((s) => s.categories?.includes(query.category!));
+    if (query.search) summaries = summaries.filter((s) => (s.name + " " + (s.description ?? "")).toLowerCase().includes(query.search!.toLowerCase()));
+    if (query.slugs?.length) summaries = summaries.filter((s) => query.slugs!.includes(s.slug));
+    if (query.userId) summaries = summaries.filter((s) => s.idp_user_id === query.userId);
+
+    if (query.orderBy === "installs") summaries.sort((a, b) => b.installs - a.installs);
+    if (query.orderBy === "published_at") summaries.sort((a, b) => (b.published_at ?? "").localeCompare(a.published_at ?? ""));
+    if (query.orderBy === "updated_at") summaries.sort((a, b) => b.revision - a.revision);
+
+    const start = query.pageStart ?? 0;
+    const end = query.pageLength ? start + query.pageLength : undefined;
+    return summaries.slice(start, end) as Awaited<ReturnType<BadgeHubMetadataStore["getProjectSummaries"]>>;
+  }
 
   async updateDraftMetadata(...args: Parameters<BadgeHubMetadataStore["updateDraftMetadata"]>): Promise<void> {
     const [slug, newAppMetadata] = args;

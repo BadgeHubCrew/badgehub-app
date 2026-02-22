@@ -124,6 +124,28 @@ describe("SQLiteBadgeHubMetadata", () => {
     expect(latest?.version.published_at).toBeTruthy();
   });
 
+  it("returns project summaries with filtering", async () => {
+    const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
+    const metadata = new SQLiteBadgeHubMetadata();
+
+    await metadata.insertProject({ slug: "summary-a", idp_user_id: "user-1" });
+    await metadata.updateDraftMetadata("summary-a", {
+      name: "Summary A",
+      categories: ["Games"],
+      badges: ["why2025"],
+      description: "test summary",
+    });
+
+    const all = await metadata.getProjectSummaries({ orderBy: "installs" }, "draft");
+    expect(all.some((s) => s.slug === "summary-a")).toBe(true);
+
+    const filtered = await metadata.getProjectSummaries(
+      { orderBy: "installs", badge: "why2025", category: "Games", search: "summary" },
+      "draft"
+    );
+    expect(filtered.some((s) => s.slug === "summary-a")).toBe(true);
+  });
+
   it("refreshReports is a no-op", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
     const metadata = new SQLiteBadgeHubMetadata();
