@@ -44,7 +44,7 @@ jobs:
           VITE_KEYCLOAK_BASE_URL: http://localhost
           VITE_KEYCLOAK_REALM: ci
           VITE_BADGEHUB_API_BASE_URL: http://localhost
-          VITE_BADGE_SLUGS: mcore
+          VITE_BADGE_SLUGS: why2025,mch2022,mcore
         run: |
           npm run test
       - name: Report Coverage
