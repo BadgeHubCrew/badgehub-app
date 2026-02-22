@@ -18,8 +18,8 @@ RUN npm run build
 
 # Setup env and dirs for running the application
 WORKDIR packages/backend
-RUN mkdir -p /home/node/.pm2 logs pids && chown -R node:node /home/node/.pm2 logs pids
+RUN mkdir -p logs pids && chown -R node:node logs pids
 USER node
 EXPOSE 8081
 ENV NODE_ENV=production
-CMD ["npm", "run", "start:pm2"]
+CMD ["npm", "run", "start"]

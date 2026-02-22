@@ -6,7 +6,6 @@
   "main": "src/index.ts",
   "scripts": {
     "start": "node dist/index.mjs",
-    "start:pm2": "pm2-runtime process.json",
     "build": "node --experimental-strip-types esbuild/esbuild.config.ts",
     "check:ts": "tsc --noEmit -p tsconfig.json",
     "dev": "node --watch --import tsx src/index.ts",
@@ -46,7 +45,6 @@
     "openapi3-ts": "^2.0.2",
     "pg": "^8.11.5",
     "pino-http": "^10.1.0",
-    "pm2": "^5.4.0",
     "sharp": "^0.34.3",
     "sql-template-tag": "^5.2.1",
     "swagger-ui-express": "^5.0.0",

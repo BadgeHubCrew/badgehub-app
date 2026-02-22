@@ -78,8 +78,7 @@ Then to run the tests, do:
 ## - Production -
 
 In production, use the production docker compose file `docker-compose.production.yml`.
-The `NODE_ENV` environment file is set to `production`, there's no watcher and
-PM2 is used to run Node.js multithreaded.
+The `NODE_ENV` environment file is set to `production`, and there's no watcher.
 
 The first time, a Docker container is created. Make sure the `dist` directory
 contains the latest build to be copied to the container.
@@ -113,4 +112,3 @@ The docker compose files used for running BadgeHub in production are maintained 
 - [sql-template-tag](https://github.com/blakeembrey/sql-template-tag) for more easily writing SQL queries
 - [tsx](https://tsx.is/) for running TypeScript files in Node.js
 - [db-migrate](https://db-migrate.readthedocs.io/en/latest/) for database migrations
-- [PM2](https://pm2.keymetrics.io/) for managing Node.js processes
