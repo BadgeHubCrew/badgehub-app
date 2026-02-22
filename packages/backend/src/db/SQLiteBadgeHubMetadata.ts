@@ -72,7 +72,14 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
   async registerBadge(...args: Parameters<BadgeHubMetadataStore["registerBadge"]>): Promise<void> {
     const [flashId, mac] = args;
     const db = getSqliteDb();
-    db.prepare("INSERT OR IGNORE INTO registered_badges (id, mac) VALUES (?, ?)").run(flashId, mac ?? null);
+    db.prepare(
+      `INSERT INTO registered_badges (id, mac)
+       VALUES (?, ?)
+       ON CONFLICT(id)
+       DO UPDATE SET
+         mac = COALESCE(registered_badges.mac, excluded.mac),
+         last_seen_at = CURRENT_TIMESTAMP`
+    ).run(flashId, mac ?? null);
   }
 
   async reportEvent(...args: Parameters<BadgeHubMetadataStore["reportEvent"]>): Promise<void> {
@@ -83,8 +90,41 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
     ).run(slug, revision, badgeId, eventType);
   }
 
-  revokeProjectApiToken(..._args: Parameters<BadgeHubMetadataStore["revokeProjectApiToken"]>) { this.fail("revokeProjectApiToken"); }
-  getProjectApiTokenMetadata(..._args: Parameters<BadgeHubMetadataStore["getProjectApiTokenMetadata"]>) { this.fail("getProjectApiTokenMetadata"); }
-  createProjectApiToken(..._args: Parameters<BadgeHubMetadataStore["createProjectApiToken"]>) { this.fail("createProjectApiToken"); }
-  getProjectApiTokenHash(..._args: Parameters<BadgeHubMetadataStore["getProjectApiTokenHash"]>) { this.fail("getProjectApiTokenHash"); }
+  async revokeProjectApiToken(...args: Parameters<BadgeHubMetadataStore["revokeProjectApiToken"]>) {
+    const [slug] = args;
+    const db = getSqliteDb();
+    db.prepare("DELETE FROM project_api_token WHERE project_slug = ?").run(slug);
+  }
+
+  async getProjectApiTokenMetadata(...args: Parameters<BadgeHubMetadataStore["getProjectApiTokenMetadata"]>) {
+    const [slug] = args;
+    const db = getSqliteDb();
+    const row = db
+      .prepare("SELECT created_at, last_used_at FROM project_api_token WHERE project_slug = ?")
+      .get(slug) as { created_at: string; last_used_at: string | null } | undefined;
+    return row;
+  }
+
+  async createProjectApiToken(...args: Parameters<BadgeHubMetadataStore["createProjectApiToken"]>) {
+    const [slug, tokenHash] = args;
+    const db = getSqliteDb();
+    db.prepare(
+      `INSERT INTO project_api_token (project_slug, key_hash, created_at, last_used_at)
+       VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       ON CONFLICT(project_slug)
+       DO UPDATE SET
+         key_hash = excluded.key_hash,
+         created_at = CURRENT_TIMESTAMP,
+         last_used_at = CURRENT_TIMESTAMP`
+    ).run(slug, tokenHash);
+  }
+
+  async getProjectApiTokenHash(...args: Parameters<BadgeHubMetadataStore["getProjectApiTokenHash"]>) {
+    const [slug] = args;
+    const db = getSqliteDb();
+    const row = db
+      .prepare("SELECT key_hash FROM project_api_token WHERE project_slug = ?")
+      .get(slug) as { key_hash: string } | undefined;
+    return row?.key_hash;
+  }
 }

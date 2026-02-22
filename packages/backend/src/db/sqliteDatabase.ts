@@ -23,7 +23,15 @@ function initSchema(db: DatabaseSync) {
     CREATE TABLE IF NOT EXISTS registered_badges (
       id TEXT PRIMARY KEY,
       mac TEXT,
-      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      last_seen_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS project_api_token (
+      project_slug TEXT PRIMARY KEY,
+      key_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      last_used_at TEXT
     );
 
     CREATE TABLE IF NOT EXISTS event_reports (

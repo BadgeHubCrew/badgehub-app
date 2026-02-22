@@ -50,6 +50,21 @@ describe("SQLiteBadgeHubMetadata", () => {
     expect(stats.crashed_projects).toBe(0);
   });
 
+  it("manages project api token lifecycle", async () => {
+    const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
+    const metadata = new SQLiteBadgeHubMetadata();
+
+    await metadata.createProjectApiToken("project-a", "hash-1");
+    expect(await metadata.getProjectApiTokenHash("project-a")).toBe("hash-1");
+
+    const tokenMetadata = await metadata.getProjectApiTokenMetadata("project-a");
+    expect(tokenMetadata?.created_at).toBeTruthy();
+    expect(tokenMetadata?.last_used_at).toBeTruthy();
+
+    await metadata.revokeProjectApiToken("project-a");
+    expect(await metadata.getProjectApiTokenHash("project-a")).toBeUndefined();
+  });
+
   it("refreshReports is a no-op", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
     const metadata = new SQLiteBadgeHubMetadata();
