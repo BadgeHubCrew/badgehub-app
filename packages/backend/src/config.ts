@@ -7,13 +7,25 @@ config();
 
 export const EXPRESS_PORT = 8081;
 
-export const POSTGRES_DB = getAndAssertEnv("POSTGRES_DB");
-console.log(`Using database: ${POSTGRES_DB}`);
-export const POSTGRES_USER = getAndAssertEnv("POSTGRES_USER");
-export const POSTGRES_PASSWORD = getAndAssertEnv("POSTGRES_PASSWORD");
-export const POSTGRES_HOST = getAndAssertEnv("POSTGRES_HOST");
-export const POSTGRES_PORT = 5432;
 export const DATABASE_ENGINE = process.env.DATABASE_ENGINE || "postgres";
+
+const usingPostgres = DATABASE_ENGINE === "postgres";
+export const POSTGRES_DB = usingPostgres
+  ? getAndAssertEnv("POSTGRES_DB")
+  : process.env.POSTGRES_DB || "";
+if (usingPostgres) {
+  console.log(`Using database: ${POSTGRES_DB}`);
+}
+export const POSTGRES_USER = usingPostgres
+  ? getAndAssertEnv("POSTGRES_USER")
+  : process.env.POSTGRES_USER || "";
+export const POSTGRES_PASSWORD = usingPostgres
+  ? getAndAssertEnv("POSTGRES_PASSWORD")
+  : process.env.POSTGRES_PASSWORD || "";
+export const POSTGRES_HOST = usingPostgres
+  ? getAndAssertEnv("POSTGRES_HOST")
+  : process.env.POSTGRES_HOST || "";
+export const POSTGRES_PORT = 5432;
 export const DISABLE_AUTH = process.env.DISABLE_AUTH === "true";
 export const MAX_UPLOAD_FILE_SIZE_BYTES = 32 * 1024 * 1024; // 32 MB
 

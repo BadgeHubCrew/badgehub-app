@@ -1,9 +1,15 @@
 import { exec } from "node:child_process";
 import { getClient } from "@db/connectionPool";
+import { DATABASE_ENGINE } from "@config";
 
 const MIGRATION_LOCK_ID = 108;
 
 export async function runMigrations() {
+  if (DATABASE_ENGINE === "sqlite") {
+    console.log("Skipping PostgreSQL migrations (DATABASE_ENGINE=sqlite)");
+    return;
+  }
+
   // This code runs the npm script 'db-migrate:up' to make sure all migrations are done
   console.log(`Waiting for db-migrations lock [${MIGRATION_LOCK_ID}]`);
   const dbClient = getClient();
@@ -29,5 +35,3 @@ export async function runMigrations() {
     console.log("released db-migrations");
   }
 }
-
-runMigrations();
