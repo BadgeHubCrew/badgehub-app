@@ -1,1 +1,0 @@
-alter table projects drop column git;

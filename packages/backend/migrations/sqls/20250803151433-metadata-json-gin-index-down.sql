@@ -1,1 +1,0 @@
-drop index if exists idx_v_app_metadata;

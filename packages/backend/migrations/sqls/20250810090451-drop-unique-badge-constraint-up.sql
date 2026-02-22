@@ -1,1 +1,0 @@
-alter table registered_badges drop constraint if exists registered_badges_mac_address_unique;

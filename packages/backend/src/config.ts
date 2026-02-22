@@ -7,29 +7,11 @@ config();
 
 export const EXPRESS_PORT = 8081;
 
-export const DATABASE_ENGINE = process.env.DATABASE_ENGINE || "postgres";
+export const DATABASE_ENGINE = "sqlite";
 export const SQLITE_DB_PATH =
   process.env.SQLITE_DB_PATH || "./data/badgehub.sqlite";
 export const SQLITE_FILES_DIR =
   process.env.SQLITE_FILES_DIR || "./data/sqlite-file-data";
-
-const usingPostgres = DATABASE_ENGINE === "postgres";
-export const POSTGRES_DB = usingPostgres
-  ? getAndAssertEnv("POSTGRES_DB")
-  : process.env.POSTGRES_DB || "";
-if (usingPostgres) {
-  console.log(`Using database: ${POSTGRES_DB}`);
-}
-export const POSTGRES_USER = usingPostgres
-  ? getAndAssertEnv("POSTGRES_USER")
-  : process.env.POSTGRES_USER || "";
-export const POSTGRES_PASSWORD = usingPostgres
-  ? getAndAssertEnv("POSTGRES_PASSWORD")
-  : process.env.POSTGRES_PASSWORD || "";
-export const POSTGRES_HOST = usingPostgres
-  ? getAndAssertEnv("POSTGRES_HOST")
-  : process.env.POSTGRES_HOST || "";
-export const POSTGRES_PORT = 5432;
 export const DISABLE_AUTH = process.env.DISABLE_AUTH === "true";
 export const MAX_UPLOAD_FILE_SIZE_BYTES = 32 * 1024 * 1024; // 32 MB
 

@@ -9,7 +9,7 @@ import { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJS
 import { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
 import { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 
 describe(
   "Public API Routes",
@@ -105,7 +105,7 @@ describe(
       );
       expect(reportRes.statusCode).toBe(204);
 
-      await new PostgreSQLBadgeHubMetadata().refreshReports();
+      await createBadgeHubData().refreshReports();
 
       const updatedRes = await request(app).get("/api/v3/project-summaries");
       expect(updatedRes.statusCode).toBe(200);

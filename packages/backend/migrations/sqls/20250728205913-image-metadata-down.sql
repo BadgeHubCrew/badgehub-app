@@ -1,1 +1,0 @@
--- the extra columns are nullable and the "up" query is idempotent so not really needed to delete them

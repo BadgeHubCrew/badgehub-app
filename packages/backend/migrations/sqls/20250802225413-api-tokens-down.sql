@@ -1,1 +1,0 @@
-drop table project_api_token

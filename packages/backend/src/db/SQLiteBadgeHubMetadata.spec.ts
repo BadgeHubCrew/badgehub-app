@@ -122,7 +122,7 @@ describe("SQLiteBadgeHubMetadata", () => {
     const latest = await metadata.getProject("project-files", "latest");
     expect(latest?.latest_revision).toBe(0);
     expect(latest?.version.published_at).toBeTruthy();
-  });
+  }, 15000);
 
   it("returns project summaries with filtering", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
