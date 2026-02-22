@@ -16,7 +16,10 @@ function initSchema(db: DatabaseSync) {
 
     CREATE TABLE IF NOT EXISTS projects (
       slug TEXT PRIMARY KEY,
+      git TEXT,
       idp_user_id TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
       deleted_at TEXT
     );
 

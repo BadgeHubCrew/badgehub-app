@@ -11,9 +11,47 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
     throw new Error(`SQLiteBadgeHubMetadata.${method} is not implemented yet.`);
   }
 
-  async insertProject(..._args: Parameters<BadgeHubMetadataStore["insertProject"]>): Promise<void> { this.fail("insertProject"); }
-  async updateProject(..._args: Parameters<BadgeHubMetadataStore["updateProject"]>): Promise<void> { this.fail("updateProject"); }
-  async deleteProject(..._args: Parameters<BadgeHubMetadataStore["deleteProject"]>): Promise<void> { this.fail("deleteProject"); }
+  async insertProject(...args: Parameters<BadgeHubMetadataStore["insertProject"]>): Promise<void> {
+    const [project, mockDates] = args;
+    const db = getSqliteDb();
+    db.prepare(
+      `INSERT INTO projects (slug, git, idp_user_id, created_at, updated_at, deleted_at)
+       VALUES (?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), COALESCE(?, CURRENT_TIMESTAMP), NULL)
+       ON CONFLICT(slug)
+       DO UPDATE SET
+         git = excluded.git,
+         idp_user_id = excluded.idp_user_id,
+         updated_at = COALESCE(excluded.updated_at, CURRENT_TIMESTAMP),
+         deleted_at = NULL`
+    ).run(
+      project.slug,
+      project.git ?? null,
+      project.idp_user_id,
+      mockDates?.created_at ?? null,
+      mockDates?.updated_at ?? null
+    );
+  }
+
+  async updateProject(...args: Parameters<BadgeHubMetadataStore["updateProject"]>): Promise<void> {
+    const [projectSlug, changes] = args;
+    const db = getSqliteDb();
+    const entries = Object.entries(changes).filter(([, value]) => value !== undefined);
+    if (!entries.length) return;
+
+    const setSql = entries.map(([key]) => `${key} = ?`).join(", ");
+    const values = entries.map(([, value]) => value);
+    db.prepare(`UPDATE projects SET ${setSql}, updated_at = CURRENT_TIMESTAMP WHERE slug = ?`).run(
+      ...values,
+      projectSlug
+    );
+  }
+
+  async deleteProject(...args: Parameters<BadgeHubMetadataStore["deleteProject"]>): Promise<void> {
+    const [projectSlug] = args;
+    const db = getSqliteDb();
+    db.prepare("UPDATE projects SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE slug = ?")
+      .run(projectSlug);
+  }
   async publishVersion(..._args: Parameters<BadgeHubMetadataStore["publishVersion"]>): Promise<void> { this.fail("publishVersion"); }
   async getProject(..._args: Parameters<BadgeHubMetadataStore["getProject"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getProject"]>>> { return this.fail("getProject"); }
   async getFileMetadata(..._args: Parameters<BadgeHubMetadataStore["getFileMetadata"]>): Promise<Awaited<ReturnType<BadgeHubMetadataStore["getFileMetadata"]>>> { return this.fail("getFileMetadata"); }

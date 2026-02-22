@@ -28,12 +28,16 @@ describe("SQLiteBadgeHubMetadata", () => {
     expect(categories.length).toBeGreaterThan(0);
   });
 
-  it("stores report events and registered badges in sqlite stats", async () => {
+  it("stores report events, badges and projects in sqlite stats", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
     const metadata = new SQLiteBadgeHubMetadata();
 
+    await metadata.insertProject({ slug: "project-a", idp_user_id: "user-1" });
+    await metadata.insertProject({ slug: "project-b", idp_user_id: "user-2" });
+    await metadata.deleteProject("project-b");
+
     await metadata.registerBadge("badge-1-v1", "30:ed:aa:bb");
-    await metadata.registerBadge("badge-1-v1", "30:ed:aa:bb"); // ignore duplicate id
+    await metadata.registerBadge("badge-1-v1", "30:ed:aa:bb"); // duplicate id should upsert
 
     await metadata.reportEvent("project-a", 1, "badge-1-v1", "install_count");
     await metadata.reportEvent("project-a", 1, "badge-1-v1", "launch_count");
@@ -41,6 +45,8 @@ describe("SQLiteBadgeHubMetadata", () => {
 
     const stats = await metadata.getStats();
 
+    expect(stats.projects).toBe(1);
+    expect(stats.authors).toBe(1);
     expect(stats.badges).toBe(1);
     expect(stats.installs).toBe(2);
     expect(stats.launches).toBe(1);
