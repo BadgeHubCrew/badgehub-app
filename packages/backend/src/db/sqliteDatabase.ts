@@ -39,6 +39,34 @@ function initSchema(db: DatabaseSync) {
       last_used_at TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS versions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_slug TEXT NOT NULL,
+      revision INTEGER NOT NULL,
+      app_metadata TEXT NOT NULL DEFAULT '{}',
+      published_at TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(project_slug, revision)
+    );
+
+    CREATE TABLE IF NOT EXISTS files (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      version_id INTEGER NOT NULL,
+      dir TEXT NOT NULL,
+      name TEXT NOT NULL,
+      ext TEXT NOT NULL,
+      mimetype TEXT NOT NULL,
+      size_of_content TEXT NOT NULL,
+      sha256 TEXT NOT NULL,
+      image_width INTEGER,
+      image_height INTEGER,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      deleted_at TEXT,
+      UNIQUE(version_id, dir, name, ext)
+    );
+
     CREATE TABLE IF NOT EXISTS event_reports (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       project_slug TEXT NOT NULL,

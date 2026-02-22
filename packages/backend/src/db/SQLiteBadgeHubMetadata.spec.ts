@@ -92,6 +92,38 @@ describe("SQLiteBadgeHubMetadata", () => {
     expect(await metadata.getProjectApiTokenHash("project-a")).toBeUndefined();
   });
 
+  it("writes draft metadata + files and reads them through getProject/getFileMetadata", async () => {
+    const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
+    const metadata = new SQLiteBadgeHubMetadata();
+
+    await metadata.insertProject({ slug: "project-files", idp_user_id: "user-1" });
+    await metadata.updateDraftMetadata("project-files", {
+      name: "Project Files",
+      categories: ["Games"],
+      badges: ["why2025"],
+      icon_map: { "64x64": "icons/app.png" },
+    });
+
+    await metadata.writeDraftFileMetadata(
+      "project-files",
+      ["icons", "app.png"],
+      { mimetype: "image/png", size: 12, fileContent: new Uint8Array([1, 2, 3]), image_width: 64, image_height: 64 },
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    );
+
+    const file = await metadata.getFileMetadata("project-files", "draft", "icons/app.png");
+    expect(file?.full_path).toBe(path.join("icons", "app.png"));
+
+    const project = await metadata.getProject("project-files", "draft");
+    expect(project?.version.app_metadata.name).toBe("Project Files");
+    expect(project?.version.files.length).toBe(1);
+
+    await metadata.publishVersion("project-files");
+    const latest = await metadata.getProject("project-files", "latest");
+    expect(latest?.latest_revision).toBe(0);
+    expect(latest?.version.published_at).toBeTruthy();
+  });
+
   it("refreshReports is a no-op", async () => {
     const { SQLiteBadgeHubMetadata } = await import("@db/SQLiteBadgeHubMetadata");
     const metadata = new SQLiteBadgeHubMetadata();
