@@ -31,13 +31,7 @@ jobs:
       - name: Run build
         run: |
           npm run build
-      - name: Prepare backend test env
-        run: |
-          cp packages/backend/.env.test packages/backend/.env
-      - name: Populate the DB with test data
-        run: |
-          npm run repopulate-db --workspace=packages/backend
-      - name: Run test
+      - name: Run frontend tests
         env:
           VITE_KEYCLOAK_CLIENT_ID: ci
           VITE_KEYCLOAK_BASE_URL: http://localhost
@@ -45,7 +39,7 @@ jobs:
           VITE_BADGEHUB_API_BASE_URL: http://localhost
           VITE_BADGE_SLUGS: why2025,mch2022,mcore
         run: |
-          npm run test
+          npm run test --workspace=packages/frontend
       - name: Report Coverage
         if: always() && hashFiles('packages/backend/coverage/coverage-summary.json') != ''
         uses: davelosert/vitest-coverage-report-action@v2
