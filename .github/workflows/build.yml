@@ -48,7 +48,7 @@ jobs:
         run: |
           npm run test
       - name: Report Coverage
-        if: always()
+        if: always() && hashFiles('packages/backend/coverage/coverage-summary.json') != ''
         uses: davelosert/vitest-coverage-report-action@v2
         with:
           working-directory: packages/backend
