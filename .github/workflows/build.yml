@@ -14,7 +14,7 @@ jobs:
       VITE_KEYCLOAK_BASE_URL: https://auth.example.invalid
       VITE_KEYCLOAK_REALM: badgehub
       VITE_KEYCLOAK_CLIENT_ID: badgehub-frontend
-      VITE_BADGE_SLUGS: badgehub
+      VITE_BADGE_SLUGS: why2025
       VITE_BASE_PATH: /
     steps:
       - uses: actions/checkout@v4
