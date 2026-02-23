@@ -120,7 +120,7 @@ describe("SQLiteBadgeHubMetadata", () => {
 
     await metadata.publishVersion("project-files");
     const latest = await metadata.getProject("project-files", "latest");
-    expect(latest?.latest_revision).toBe(0);
+    expect(latest?.latest_revision).toBe(1);
     expect(latest?.version.published_at).toBeTruthy();
   }, 15000);
 

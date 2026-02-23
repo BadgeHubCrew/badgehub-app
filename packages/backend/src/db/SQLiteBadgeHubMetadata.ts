@@ -45,14 +45,14 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
 
     db.prepare(
       `INSERT INTO versions (project_slug, revision, app_metadata, published_at)
-       VALUES (?, 0, '{}', NULL)
+       VALUES (?, 1, '{}', NULL)
        ON CONFLICT(project_slug, revision) DO NOTHING`
     ).run(project.slug);
 
     db.prepare(
       `UPDATE projects
-       SET draft_revision = COALESCE(draft_revision, 0),
-           latest_revision = COALESCE(latest_revision, 0)
+       SET draft_revision = COALESCE(draft_revision, 1),
+           latest_revision = NULL
        WHERE slug = ?`
     ).run(project.slug);
   }
@@ -181,6 +181,7 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
       updated_at: timestampTZToISODateString(project.updated_at),
       version: {
         revision: versionRow.revision,
+        project_slug: project.slug,
         app_metadata: JSON.parse(versionRow.app_metadata || "{}"),
         published_at: timestampTZToISODateString(versionRow.published_at),
         files: files.map((f) => {
@@ -299,13 +300,13 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
       );
 
     return {
-      projects: countValue("SELECT COUNT(*) AS count FROM projects WHERE deleted_at IS NULL"),
-      installs: eventCount("install_count"),
+      crashed_projects: distinctProjectsFor("crash_count"),
       crashes: eventCount("crash_count"),
-      launches: eventCount("launch_count"),
       installed_projects: distinctProjectsFor("install_count"),
       launched_projects: distinctProjectsFor("launch_count"),
-      crashed_projects: distinctProjectsFor("crash_count"),
+      launches: eventCount("launch_count"),
+      projects: countValue("SELECT COUNT(*) AS count FROM projects WHERE deleted_at IS NULL"),
+      installs: eventCount("install_count"),
       authors: countValue(
         "SELECT COUNT(DISTINCT idp_user_id) AS count FROM projects WHERE deleted_at IS NULL AND idp_user_id IS NOT NULL"
       ),
@@ -353,6 +354,9 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
       .map((r) => {
         const metadata = JSON.parse(r.app_metadata || "{}") as Record<string, any>;
         const effectiveRevision = r.revision as number;
+        const categories = Array.isArray(metadata.categories)
+          ? (metadata.categories.length > 0 ? metadata.categories : ["Uncategorised"])
+          : metadata.categories;
         return {
           slug: r.slug,
           idp_user_id: r.idp_user_id,
@@ -371,7 +375,7 @@ export class SQLiteBadgeHubMetadata implements BadgeHubMetadataStore {
               )
             : undefined,
           license_type: metadata.license_type,
-          categories: metadata.categories,
+          categories,
           badges: metadata.badges,
           description: metadata.description,
           revision: effectiveRevision,
