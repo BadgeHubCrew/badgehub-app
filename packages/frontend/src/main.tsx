@@ -12,6 +12,7 @@ import { TodoPage } from "@pages/TodoPage.tsx";
 import MyProjectsPage from "@pages/MyProjectsPage/MyProjectsPage.tsx";
 import { IS_DEV_ENVIRONMENT } from "@config.ts";
 import { useTitle } from "@hooks/useTitle.ts";
+import { installBrowserBackendIfNeeded } from "@browserBackend.ts";
 
 const AppDetailWrapper = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -30,25 +31,31 @@ const AppEditPageWrapper = () => {
   return <AppEditPage slug={slug} />;
 };
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <HashRouter>
-      <SessionProvider>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/page/project/:slug" element={<AppDetailWrapper />} />
-          <Route
-            path="/page/project/:slug/edit"
-            element={<AppEditPageWrapper />}
-          />
-          <Route path="/page/my-projects" element={<MyProjectsPage />} />
-          <Route path="/page/todo" element={<TodoPage />} />
-          <Route path="/page/create-project" element={<CreateProjectPage />} />
-        </Routes>
-      </SessionProvider>
-    </HashRouter>
-  </StrictMode>
-);
+async function bootstrap() {
+  await installBrowserBackendIfNeeded();
+
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <HashRouter>
+        <SessionProvider>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/page/project/:slug" element={<AppDetailWrapper />} />
+            <Route
+              path="/page/project/:slug/edit"
+              element={<AppEditPageWrapper />}
+            />
+            <Route path="/page/my-projects" element={<MyProjectsPage />} />
+            <Route path="/page/todo" element={<TodoPage />} />
+            <Route path="/page/create-project" element={<CreateProjectPage />} />
+          </Routes>
+        </SessionProvider>
+      </HashRouter>
+    </StrictMode>
+  );
+}
+
+void bootstrap();
 
 // Floating toggle button logic
 function setupTodoToggleButton() {

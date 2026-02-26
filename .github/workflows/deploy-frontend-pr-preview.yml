@@ -38,6 +38,7 @@ jobs:
           VITE_KEYCLOAK_REALM: ${{ vars.VITE_KEYCLOAK_REALM }}
           VITE_KEYCLOAK_CLIENT_ID: ${{ vars.VITE_KEYCLOAK_CLIENT_ID }}
           VITE_BADGE_SLUGS: ${{ vars.VITE_BADGE_SLUGS }}
+          VITE_ENABLE_BROWSER_BACKEND: "true"
         run: npm run build
 
       - name: Deploy PR preview to gh-pages
