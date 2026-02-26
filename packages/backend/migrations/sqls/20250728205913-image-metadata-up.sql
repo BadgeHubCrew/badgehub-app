@@ -1,3 +1,0 @@
-ALTER TABLE files
-    ADD COLUMN IF NOT EXISTS image_width INTEGER,
-    ADD COLUMN IF NOT EXISTS image_height INTEGER;

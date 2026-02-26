@@ -2,8 +2,7 @@ import multer from "multer";
 
 import { initServer } from "@ts-rest/express";
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 import {
   HTTP_FORBIDDEN,
   HTTP_NOT_FOUND,
@@ -246,7 +245,7 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
         return nok(404, "No Project API");
       }
       return ok({
-        last_used_at: metadata.last_used_at,
+        last_used_at: metadata.last_used_at ?? metadata.created_at,
         created_at: metadata.created_at,
       });
     },
@@ -265,10 +264,7 @@ const createProjectRouter = (badgeHubData: BadgeHubData) => {
   return privateProjectRouter;
 };
 export const createPrivateRestRouter = (
-  badgeHubData: BadgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
-  )
+  badgeHubData: BadgeHubData = createBadgeHubData()
 ) => {
   const s = initServer();
 

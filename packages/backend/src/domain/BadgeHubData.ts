@@ -26,7 +26,7 @@ import {
   appMetadataJSONSchema,
   IconSize,
 } from "@shared/domain/readModels/project/AppMetadataJSON";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
+import { BadgeHubMetadataStore } from "@domain/BadgeHubMetadataStore";
 import { createIconBuffer, getImageProps } from "@util/imageProcessing";
 import { UserError } from "@domain/UserError";
 import { randomBytes } from "node:crypto";
@@ -65,7 +65,7 @@ export class BadgeHubData {
   private statsCache: LRUCache<string, BadgeHubStats, void>;
 
   constructor(
-    private badgeHubMetadata: PostgreSQLBadgeHubMetadata,
+    private badgeHubMetadata: BadgeHubMetadataStore,
     private badgeHubFiles: BadgeHubFiles
   ) {
     this.immutableFileCache = new LRUCache({

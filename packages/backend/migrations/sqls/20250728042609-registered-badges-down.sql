@@ -1,1 +1,0 @@
--- The newly created tables don't have to be cleaned up when going down.

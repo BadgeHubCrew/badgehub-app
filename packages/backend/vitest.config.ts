@@ -18,6 +18,7 @@ export default defineConfig({
     },
   },
   test: {
+    fileParallelism: false,
     env: {
       ...config({ path: ".env.test" }).parsed,
     },

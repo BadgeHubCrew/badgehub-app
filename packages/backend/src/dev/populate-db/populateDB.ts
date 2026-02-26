@@ -1,15 +1,6 @@
-import pg from "pg";
-import {
-  POSTGRES_DB,
-  POSTGRES_HOST,
-  POSTGRES_PASSWORD,
-  POSTGRES_PORT,
-  POSTGRES_USER,
-} from "@config";
-import sql, { raw } from "sql-template-tag";
+import { getSqliteDb } from "@db/sqliteDatabase";
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
+import { createBadgeHubData } from "@domain/createBadgeHubData";
 import { stringToSemiRandomNumber } from "@dev/populate-db/stringToSemiRandomNumber";
 
 import { BADGE_IDS, PROJECT_NAMES, USERS } from "@dev/populate-db/fixtures";
@@ -45,54 +36,28 @@ async function registerMostBadges(badgeHubData: BadgeHubData) {
 }
 
 export async function repopulateDB() {
-  const pool = new pg.Pool({
-    host: POSTGRES_HOST,
-    database: POSTGRES_DB,
-    user: POSTGRES_USER,
-    password: POSTGRES_PASSWORD,
-    port: POSTGRES_PORT,
-  });
-  const client: pg.PoolClient = await pool.connect();
-  const badgeHubData = new BadgeHubData(
-    new PostgreSQLBadgeHubMetadata(),
-    new PostgreSQLBadgeHubFiles()
+  const badgeHubData = createBadgeHubData();
+  await cleanTables();
+  const projectSlugs = await insertProjects(badgeHubData);
+  const publishedProjectSlugs = await publishSomeProjects(
+    badgeHubData,
+    projectSlugs
   );
-  try {
-    await cleanTables(client);
-    const projectSlugs = await insertProjects(badgeHubData);
-    const publishedProjectSlugs = await publishSomeProjects(
-      badgeHubData,
-      projectSlugs
-    );
-    await registerMostBadges(badgeHubData);
-    await reportSomeDownloads(badgeHubData, publishedProjectSlugs);
-  } finally {
-    client.release();
-  }
+  await registerMostBadges(badgeHubData);
+  await reportSomeDownloads(badgeHubData, publishedProjectSlugs);
 }
 
-async function cleanTables(client: pg.PoolClient) {
-  const tablesWithoutIdSeq = ["projects", "registered_badges"];
-  for (const table of tablesWithoutIdSeq) {
-    await client.query(sql`delete
-                           from ${raw(table)}`);
-  }
-
-  const tablesWithIdSeq = [
-    "files",
-    "file_data",
-    "versions",
-    "registered_badges_version_reports",
-  ];
-  for (const table of tablesWithIdSeq) {
-    await client.query(sql`delete
-                           from ${raw(table)}`);
-    await client
-      .query(sql`alter sequence ${raw(table)}_id_seq restart`)
-      .catch((e) => {
-        console.warn(`could not reset ${table}_id_seq, ignoring issue`, e);
-      });
-  }
+async function cleanTables() {
+  const db = getSqliteDb();
+  db.exec(`
+    DELETE FROM event_reports;
+    DELETE FROM files;
+    DELETE FROM versions;
+    DELETE FROM project_api_token;
+    DELETE FROM registered_badges;
+    DELETE FROM projects;
+    DELETE FROM sqlite_sequence WHERE name IN ('event_reports', 'files', 'versions');
+  `);
 }
 
 async function publishSomeProjects(
