@@ -32,7 +32,11 @@ const AppEditPageWrapper = () => {
 };
 
 async function bootstrap() {
-  await installBrowserBackendIfNeeded();
+  try {
+    await installBrowserBackendIfNeeded();
+  } catch (error) {
+    console.error("Failed to initialize browser backend preview:", error);
+  }
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
