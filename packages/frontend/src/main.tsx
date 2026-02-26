@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
+import { HashRouter, Route, Routes, useParams } from "react-router-dom";
 import "./index.css";
 import HomePage from "./pages/HomePage/HomePage.tsx";
 import AppDetailPage from "@pages/AppDetailPage/AppDetailPage.tsx";
@@ -32,7 +32,7 @@ const AppEditPageWrapper = () => {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <SessionProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -46,7 +46,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/page/create-project" element={<CreateProjectPage />} />
         </Routes>
       </SessionProvider>
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>
 );
 

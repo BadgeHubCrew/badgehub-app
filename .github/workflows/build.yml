@@ -14,6 +14,13 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_BADGEHUB_API_BASE_URL: https://api.example.invalid
+      VITE_KEYCLOAK_BASE_URL: https://auth.example.invalid
+      VITE_KEYCLOAK_REALM: badgehub
+      VITE_KEYCLOAK_CLIENT_ID: badgehub-frontend
+      VITE_BADGE_SLUGS: why2025,mch2022
+      VITE_BASE_PATH: /
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
