@@ -11,6 +11,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./mockup-data.sql:/docker-entrypoint-initdb.d/data.sql
       - ./backup:/var/backup
+    networks:
+      - badgehub_network
 
   badgehub:
     build: ./
@@ -37,6 +39,12 @@ services:
       MQTT_INTERVAL_SEC: ${MQTT_INTERVAL_SEC}
     depends_on:
       - db
+    networks:
+      - badgehub_network
 
 volumes:
   postgres_data:
+
+networks:    
+  badgehub_network:
+    name: badgehub_network
