@@ -1,0 +1,42 @@
+services:
+  db:
+    container_name: badgehub-db
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./mockup-data.sql:/docker-entrypoint-initdb.d/data.sql
+      - ./backup:/var/backup
+
+  badgehub:
+    build: ./
+    ports:
+      - "${EXPOSED_PORT}:8081"
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      NODE_ENV: ${NODE_ENV}
+      KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      CATEGORY_NAMES: ${CATEGORY_NAMES}
+      ADMIN_CATEGORY_NAMES: ${ADMIN_CATEGORY_NAMES}
+      BADGE_SLUGS: ${BADGE_SLUGS}
+      BADGEHUB_API_BASE_URL: ${BADGEHUB_API_BASE_URL}
+      REFRESH_REPORTS_INTERVAL_SEC: ${REFRESH_REPORTS_INTERVAL_SEC}
+      MQTT_USER: ${MQTT_USER}
+      MQTT_PASSWD: ${MQTT_PASSWD}
+      MQTT_TOPIC: ${MQTT_TOPIC}
+      MQTT_SERVER: ${MQTT_SERVER}
+      MQTT_INTERVAL_SEC: ${MQTT_INTERVAL_SEC}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

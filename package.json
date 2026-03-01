@@ -21,6 +21,7 @@
     "dev": "concurrently -k -c 'auto' 'npm:dev:*'",
     "dev:frontend": "npm run dev --workspace=packages/frontend",
     "test-db:up": "npm run --workspace=packages/backend test-db:up | exit 0",
+    "backup": "docker exec -it badgehub-db /usr/bin/pg_dump --username badgehub badgehub -f /var/backup/data-backup-`date +\"%Y-%m-%dT%H:%m\"`.sql",    
     "dev:backend": "npm run test-db:up && npm run dev --workspace=packages/backend",
     "dump-db": "docker exec -it badgehub-db /usr/bin/pg_dump --username badgehub --schema badgehub badgehub > mockup-data.sql",
     "prepare": "husky",
