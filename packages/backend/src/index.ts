@@ -7,6 +7,24 @@ import { BadgeHubData } from "@domain/BadgeHubData";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
 
+// unhandled-rejection-handler.js
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("=== UNHANDLED PROMISE REJECTION ===");
+
+  if (reason instanceof Error) {
+    console.error(reason.stack);
+  } else {
+    console.error("Non-error rejection value:");
+    console.error(require("util").inspect(reason, { depth: null }));
+  }
+
+  // Ensure logs flush before exit
+  process.nextTick(() => {
+    process.exit(1);
+  });
+});
+
 async function startServer() {
   const app = createExpressServer();
 
