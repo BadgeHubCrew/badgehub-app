@@ -13,7 +13,7 @@ services:
       - ./backup:/var/backup
 
   badgehub:
-    build: ./
+    image: ghcr.io/badgehubcrew/badgehub-app:latest
     ports:
       - "${EXPOSED_PORT}:8081"
     environment:
