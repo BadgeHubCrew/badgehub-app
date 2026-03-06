@@ -1,0 +1,110 @@
+{
+  "clientId": "badgehub",
+  "name": "",
+  "description": "",
+  "rootUrl": "http://localhost:8001/",
+  "adminUrl": "",
+  "baseUrl": "http://localhost:8001/",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "secret": "j9MaioigtFyvQQZruSIPnAOwYxleZ91Q",
+  "redirectUris": [
+    "http://localhost:8001/api/auth/callback/*",
+    "http://localhost:8001/api/auth/callback/keycloak",
+    "http://localhost:8001/*",
+    "http://localhost:8001/api/auth/*"
+  ],
+  "webOrigins": [
+    "http://localhost:8001/"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": true,
+  "serviceAccountsEnabled": true,
+  "publicClient": false,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "oidc.ciba.grant.enabled": "false",
+    "client.secret.creation.time": "1740959933",
+    "backchannel.logout.session.required": "true",
+    "post.logout.redirect.uris": "http://localhost:8001/",
+    "display.on.consent.screen": "false",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "login_theme": "",
+    "frontchannel.logout.url": "",
+    "backchannel.logout.url": ""
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "Client IP Address",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "clientAddress",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "clientAddress",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "name": "Client Host",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "clientHost",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "clientHost",
+        "jsonType.label": "String"
+      }
+    },
+    {
+      "name": "Client ID",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usersessionmodel-note-mapper",
+      "consentRequired": false,
+      "config": {
+        "user.session.note": "client_id",
+        "introspection.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "client_id",
+        "jsonType.label": "String"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "profile",
+    "roles",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  },
+  "authorizationServicesEnabled": false
+}

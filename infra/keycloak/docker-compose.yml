@@ -1,0 +1,54 @@
+services:
+  db-keycloak:
+    image: postgres:18
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - badgehub_network
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5.5
+    ports:
+      - "8999:8080"
+    entrypoint: sh -c "/opt/keycloak/bin/kc.sh start"
+    env_file:
+      - .env
+    environment:
+      - KC_PROXY_HEADERS=${KC_PROXY_HEADERS}
+      - PROXY_ADDRESS_FORWARDING=${PROXY_ADDRESS_FORWARDING}
+      - KC_PROXY=${KC_PROXY}
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
+      - KC_DB_SCHEMA=${KC_DB_SCHEMA}
+      - KC_DB_USERNAME=${KC_DB_USERNAME}
+      - KC_DB_URL_HOST=${KC_DB_URL_HOST}
+      - KC_DB_URL_PORT=${KC_DB_URL_PORT}
+      - KC_DB_URL_DATABASE=${KC_DB_URL_DATABASE}
+      - KC_DB=${KC_DB}
+      - KC_DB_PASSWORD=${KC_DB_PASSWORD}
+      - KC_DB_USERNAME=${KC_DB_USERNAME}
+      - KC_HOSTNAME=${KC_HOSTNAME}
+      - KC_METRICS_ENABLED=${KC_METRICS_ENABLED}
+      - KC_HEALTH_ENABLED=${KC_HEALTH_ENABLED}
+      - KC_LOG_LEVEL=${KC_LOG_LEVEL}
+      - KC_HTTP_ENABLED=${KC_HTTP_ENABLED}
+      - KC_HOSTNAME_STRICT_HTTPS=${KC_HOSTNAME_STRICT_HTTPS}
+      - QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY=${QUARKUS_TRANSACTION_MANAGER_ENABLE_RECOVERY}
+    command:
+      - start
+    volumes:
+      - ./auth/import:/opt/keycloak/data/import
+    depends_on:
+      - db-keycloak
+    networks:
+      - badgehub_network
+
+networks:
+  badgehub_network:
+    name: badgehub_network
+
+volumes:
+  postgres_data:
