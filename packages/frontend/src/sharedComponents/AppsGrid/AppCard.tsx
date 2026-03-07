@@ -158,8 +158,8 @@ const AppCard: React.FC<
                   <span
                     key={tag.id}
                     className={`${
-                      tag.type === "category" ? "tag" : "tag-mcu"
-                    } text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full`}
+                      tag.type === "category" ? "badge badge-neutral" : "badge badge-success"
+                    } text-xs font-semibold mr-2`}
                   >
                     {tag.text}
                   </span>

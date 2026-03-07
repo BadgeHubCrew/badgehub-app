@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProps> = ({
 
         <div className="flex items-end">
           <button
-            className="w-full btn-primary px-4 py-2 rounded-md text-sm font-semibold flex items-center justify-center"
+            className="w-full btn btn-primary btn-sm flex items-center justify-center"
             type="button"
             onClick={onResetFilters}
           >

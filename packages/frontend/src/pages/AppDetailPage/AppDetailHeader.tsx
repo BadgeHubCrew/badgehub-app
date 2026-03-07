@@ -37,7 +37,7 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
         {appMetadata.badges?.map((dev: string) => (
           <span
             key={dev}
-            className="tag-mcu text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-success text-sm font-semibold mr-2"
           >
             {dev}
           </span>
@@ -45,7 +45,7 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
         {appMetadata.categories?.map((cat) => (
           <span
             key={cat}
-            className="tag text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-neutral text-sm font-semibold mr-2"
           >
             {cat}
           </span>
@@ -53,7 +53,7 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
         {[]?.map((tag: string) => (
           <span
             key={tag}
-            className="tag text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-neutral text-sm font-semibold mr-2"
           >
             {tag}
           </span>

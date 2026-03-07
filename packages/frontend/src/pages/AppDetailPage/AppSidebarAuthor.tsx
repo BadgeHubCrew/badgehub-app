@@ -41,7 +41,7 @@ const AppSidebarAuthor: React.FC<{ project: ProjectDetails }> = ({
       </p>
       <a
         href="#"
-        className="mt-3 inline-block btn-secondary px-4 py-2 rounded-md text-xs font-semibold w-full text-center todoElement"
+        className="mt-3 inline-block btn btn-neutral btn-sm w-full text-center todoElement"
       >
         View Profile
       </a>
