@@ -22,17 +22,14 @@ export const OptionSelectorWithTitle: React.FC<
   const selectionId = `${title.toLowerCase()}-dropdown`;
   return (
     <div className={valueMap ? "" : "todoElement"}>
-      <label
-        htmlFor={selectionId}
-        className="block text-sm font-medium text-slate-300 mb-1"
-      >
-        {title}
+      <label htmlFor={selectionId} className="label">
+        <span className="label-text">{title}</span>
       </label>
       <select
         id={selectionId}
         name={selectionId}
         data-testid={selectionId}
-        className="w-full border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2"
+        className="select select-bordered w-full"
         value={value === undefined ? NO_FILTER_OPTION_VALUE : String(value)}
         onChange={(e) =>
           onValueSelection(

@@ -138,40 +138,41 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
 
   if (loading) {
     return (
-      <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold text-slate-100 mb-4">
-          API Token
-        </h2>
-        <p className="text-slate-400">Loading token information...</p>
+      <section className="card bg-base-200 shadow-lg">
+        <div className="card-body">
+          <h2 className="card-title text-2xl mb-2">API Token</h2>
+          <p className="opacity-70">Loading token information...</p>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold text-slate-100 mb-4">API Token</h2>
+    <section className="card bg-base-200 shadow-lg">
+      <div className="card-body">
+      <h2 className="card-title text-2xl mb-2">API Token</h2>
       <div className="space-y-4">
         {error && <p className="text-red-400">{error}</p>}
 
         {newToken && (
-          <div className="bg-gray-900 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-emerald-400">
+          <div className="bg-base-300 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold text-success">
               New Token Generated
             </h3>
-            <p className="text-slate-400 text-sm mb-2">
+            <p className="opacity-70 text-sm mb-2">
               Please copy this token. You will not be able to see it again.
             </p>
-            <div className="flex items-center space-x-2 bg-gray-700 p-2 rounded-md">
+            <div className="flex items-center space-x-2 bg-base-200 p-2 rounded-md">
               <input
                 type={showToken ? "text" : "password"}
                 readOnly
                 value={newToken}
-                className="flex-grow bg-transparent border-none text-slate-200 font-mono focus:ring-0"
+                className="flex-grow bg-transparent border-none font-mono focus:ring-0 focus:outline-none"
               />
               <button
                 type="button"
                 onClick={() => setShowToken(!showToken)}
-                className="text-slate-400 hover:text-white"
+                className="btn btn-sm btn-ghost"
                 title={showToken ? "Hide token" : "Show token"}
               >
                 {showToken ? <EyeOffIcon /> : <EyeIcon />}
@@ -179,12 +180,12 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
               <button
                 type="button"
                 onClick={handleCopyToken}
-                className="text-slate-400 hover:text-white relative"
+                className="btn btn-sm btn-ghost relative"
                 title="Copy to clipboard"
               >
                 <ClipboardCopyIcon />
                 {tokenCopied && (
-                  <span className="absolute -top-7 right-0 bg-emerald-600 text-white text-xs rounded px-2 py-1">
+                  <span className="absolute -top-7 right-0 badge badge-success text-xs">
                     Copied!
                   </span>
                 )}
@@ -196,39 +197,39 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
         {tokenMetadata ? (
           <div className={newToken ? "mt-4" : ""}>
             {!newToken && (
-              <p className="text-slate-300">
+              <p>
                 An API token exists for this project.
               </p>
             )}
             <div className="flex flex-col sm:flex-row sm:gap-6">
-              <p className="text-sm text-slate-500">
+              <p className="text-sm opacity-60">
                 <span className="font-semibold">Created:</span>{" "}
                 {new Date(tokenMetadata.created_at).toLocaleString()}
               </p>
               {tokenMetadata.last_used_at && (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm opacity-60">
                   <span className="font-semibold">Last used:</span>{" "}
                   {new Date(tokenMetadata.last_used_at).toLocaleString()}
                 </p>
               )}
             </div>
             <div className="mt-6 mb-4">
-              <h4 className="text-lg font-semibold text-slate-200 mb-2">
+              <h4 className="text-lg font-semibold mb-2">
                 Example Usage (cURL)
               </h4>
-              <div className="flex items-start space-x-2 bg-gray-900 p-2 rounded-md font-mono text-sm">
-                <pre className="text-emerald-300 overflow-x-auto whitespace-pre-wrap flex-grow pt-1">
+              <div className="flex items-start space-x-2 bg-base-300 p-2 rounded-md font-mono text-sm">
+                <pre className="text-success overflow-x-auto whitespace-pre-wrap flex-grow pt-1">
                   <code>{curlCommand}</code>
                 </pre>
                 <button
                   type="button"
                   onClick={handleCopyCommand}
-                  className="text-slate-400 hover:text-white relative"
+                  className="btn btn-sm btn-ghost relative"
                   title="Copy command"
                 >
                   <ClipboardCopyIcon />
                   {commandCopied && (
-                    <span className="absolute -top-7 right-0 bg-emerald-600 text-white text-xs rounded px-2 py-1">
+                    <span className="absolute -top-7 right-0 badge badge-success text-xs">
                       Copied!
                     </span>
                   )}
@@ -240,7 +241,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                 type="button"
                 onClick={handleRevokeToken}
                 disabled={isOperating}
-                className="bg-red-600 text-white rounded px-4 py-2 flex items-center gap-2 hover:bg-red-700 disabled:opacity-50"
+                className="btn btn-error flex items-center gap-2"
               >
                 <DeleteIcon />
                 Revoke Token
@@ -249,7 +250,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
                 type="button"
                 onClick={handleGenerateToken}
                 disabled={isOperating}
-                className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 disabled:opacity-50"
+                className="btn btn-info"
               >
                 Regenerate Token
               </button>
@@ -257,17 +258,18 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
           </div>
         ) : (
           <div>
-            <p className="text-slate-300">No active API token.</p>
+            <p>No active API token.</p>
             <button
               type="button"
               onClick={handleGenerateToken}
               disabled={isOperating}
-              className="mt-4 bg-emerald-600 text-white rounded px-4 py-2 hover:bg-emerald-700 disabled:opacity-50"
+              className="btn btn-success mt-4"
             >
               Generate New Token
             </button>
           </div>
         )}
+      </div>
       </div>
     </section>
   );
