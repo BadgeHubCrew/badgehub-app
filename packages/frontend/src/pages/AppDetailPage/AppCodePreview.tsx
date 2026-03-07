@@ -63,7 +63,6 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
           language="json"
           style={atomOneDark}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -92,7 +91,6 @@ const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
           language="python"
           style={atomOneDark}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -141,7 +139,6 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
           language={language}
           style={atomOneDark}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -444,7 +441,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
             <h3 className="text-lg font-medium text-base-content mb-2">
               Project Files:
             </h3>
-            <ul className="list-none opacity-60 text-sm space-y-1">
+            <ul className="list-none text-sm space-y-1">
               {files.map((f, i: number) => (
                 <li key={i} className="flex items-center gap-2">
                   <button
