@@ -15,7 +15,7 @@ services:
       - badgehub_network
 
   badgehub:
-    build: ./
+    build: ../..
     ports:
       - "${EXPOSED_PORT}:8081"
     environment:
