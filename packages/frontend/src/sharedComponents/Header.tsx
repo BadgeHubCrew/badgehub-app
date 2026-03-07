@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { BadgeHubIcon } from "@sharedComponents/BadgeHubIcon.tsx";
 import ProfileIcon from "@sharedComponents/ProfileIcon";
 import { MLink } from "@sharedComponents/MLink.tsx";
+import ThemePicker from "@sharedComponents/ThemePicker.tsx";
 
 const navLinks = [
   { label: "Browse Projects", to: "/", testId: "BrowseProjects" },
@@ -90,6 +91,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
         {checkedSearchProps && (
           <SearchField {...checkedSearchProps} />
         )}
+        <ThemePicker />
         <ProfileIcon />
         <div className="md:hidden">
           <button
