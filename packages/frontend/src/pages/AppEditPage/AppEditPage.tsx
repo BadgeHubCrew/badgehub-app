@@ -238,7 +238,7 @@ const AppEditPage: React.FC<{
   return (
     <div
       data-testid="app-edit-page"
-      className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
+      className="min-h-screen flex flex-col"
     >
       <Header />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">

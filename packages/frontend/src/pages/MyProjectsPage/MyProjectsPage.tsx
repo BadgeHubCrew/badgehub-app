@@ -24,7 +24,7 @@ const MyProjectsPage = memo(
     });
     return (
       <div
-        className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
+        className="min-h-screen flex flex-col"
         data-testid="my-projects-page"
       >
         <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />

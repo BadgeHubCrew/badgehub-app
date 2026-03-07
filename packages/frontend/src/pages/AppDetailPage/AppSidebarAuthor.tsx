@@ -7,8 +7,9 @@ const AppSidebarAuthor: React.FC<{ project: ProjectDetails }> = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const author = (project as any).author || {}; // TODO
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg todoElement">
-      <h2 className="text-xl font-semibold text-slate-100 mb-4 border-b border-gray-700 pb-2">
+    <section className="card bg-base-200 shadow-lg todoElement">
+      <div className="card-body p-6">
+      <h2 className="text-xl font-semibold mb-4 border-b border-base-300 pb-2">
         Author
       </h2>
       <div className="flex items-center">
@@ -23,11 +24,11 @@ const AppSidebarAuthor: React.FC<{ project: ProjectDetails }> = ({
         <div>
           <a
             href="#"
-            className="text-lg font-semibold text-emerald-400 hover:underline"
+            className="text-lg font-semibold text-primary hover:underline"
           >
             {author.displayName || author.username || "Unknown"}
           </a>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs opacity-60">
             Joined:{" "}
             {author.createdAt
               ? new Date(author.createdAt).toLocaleDateString()
@@ -35,7 +36,7 @@ const AppSidebarAuthor: React.FC<{ project: ProjectDetails }> = ({
           </p>
         </div>
       </div>
-      <p className="text-sm text-slate-400 mt-3">
+      <p className="text-sm opacity-70 mt-3">
         {author.bio ||
           "Passionate about embedded systems and open-source. Sharing my projects with the community!"}
       </p>
@@ -45,6 +46,7 @@ const AppSidebarAuthor: React.FC<{ project: ProjectDetails }> = ({
       >
         View Profile
       </a>
+      </div>
     </section>
   );
 };

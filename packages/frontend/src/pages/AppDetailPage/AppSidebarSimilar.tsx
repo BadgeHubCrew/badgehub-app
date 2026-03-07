@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
 import { ERROR_ICON_URL } from "@config.ts";
@@ -19,7 +20,7 @@ const ProjectItem: React.FC<{ project: ProjectSummary }> = ({ project }) => (
       <img
         src={project.icon_map["64x64"].url}
         alt={`${project.name} Icon`}
-        className="h-12 w-12 flex-shrink-0 rounded-md bg-gray-700 object-cover"
+        className="h-12 w-12 flex-shrink-0 rounded-md bg-base-300 object-cover"
         // Basic fallback in case the image URL is broken
         onError={(e) => {
           e.currentTarget.src = ERROR_ICON_URL;
@@ -27,12 +28,12 @@ const ProjectItem: React.FC<{ project: ProjectSummary }> = ({ project }) => (
       />
     )}
     <div>
-      <a
-        href={`/page/project/${project.slug}`} // This link should point to your project detail page
-        className="text-sm font-semibold text-emerald-400 hover:underline"
+      <Link
+        to={`/page/project/${project.slug}`}
+        className="text-sm font-semibold text-primary hover:underline"
       >
         {project.name}
-      </a>
+      </Link>
       {project.categories && project.categories.length > 0 && (
         <p className="text-xs text-slate-400">
           {project.categories.join(", ")}
@@ -49,10 +50,10 @@ const SkeletonLoader: React.FC = () => (
   <>
     {[...Array(3)].map((_, i) => (
       <div key={i} className="flex animate-pulse items-start space-x-3">
-        <div className="h-12 w-12 flex-shrink-0 rounded-md bg-gray-700"></div>
+        <div className="skeleton h-12 w-12 flex-shrink-0 rounded-md"></div>
         <div className="flex-grow space-y-2 pt-1">
-          <div className="h-4 w-3/4 rounded bg-gray-700"></div>
-          <div className="h-3 w-1/2 rounded bg-gray-700"></div>
+          <div className="skeleton h-4 w-3/4 rounded"></div>
+          <div className="skeleton h-3 w-1/2 rounded"></div>
         </div>
       </div>
     ))}
@@ -91,7 +92,7 @@ const AppSidebarSimilar: React.FC<{
     }
     if (error) {
       return (
-        <p className="text-sm text-red-400">
+        <p className="text-sm text-error">
           {publicProjectErrorMessage(normalizePublicProjectError(error))}
         </p>
       );
@@ -102,18 +103,20 @@ const AppSidebarSimilar: React.FC<{
       ));
     }
     return (
-      <p className="text-sm text-slate-400">
+      <p className="text-sm opacity-60">
         No other projects by this author found.
       </p>
     );
   };
 
   return (
-    <section className="w-full max-w-sm rounded-lg bg-gray-800 p-6 shadow-lg">
-      <h2 className="mb-4 border-b border-gray-700 pb-2 text-xl font-semibold text-slate-100">
+    <section className="card w-full max-w-sm bg-base-200 shadow-lg">
+      <div className="card-body p-6">
+      <h2 className="mb-4 border-b border-base-300 pb-2 text-xl font-semibold">
         Other Projects by {project.version.app_metadata.author || "this author"}
       </h2>
       <div className="space-y-4">{renderContent()}</div>
+      </div>
     </section>
   );
 };

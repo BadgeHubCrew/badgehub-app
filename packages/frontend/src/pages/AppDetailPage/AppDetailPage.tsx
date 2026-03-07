@@ -41,7 +41,7 @@ const AppDetailPage: React.FunctionComponent<{
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64 text-slate-400 bg-gray-900 min-h-screen">
+      <div className="flex justify-center items-center h-64 min-h-screen">
         Loading...
       </div>
     );
@@ -50,7 +50,7 @@ const AppDetailPage: React.FunctionComponent<{
     return (
       <div
         data-testid="app-detail-error"
-        className="flex justify-center items-center h-64 text-red-400 bg-gray-900 min-h-screen"
+        className="flex justify-center items-center h-64 text-error min-h-screen"
       >
         {errorMessage}
       </div>
@@ -60,7 +60,7 @@ const AppDetailPage: React.FunctionComponent<{
     return (
       <div
         data-testid="app-detail-error"
-        className="flex justify-center items-center h-64 text-red-400 bg-gray-900 min-h-screen"
+        className="flex justify-center items-center h-64 text-error min-h-screen"
       >
         App not found.
       </div>
@@ -70,7 +70,7 @@ const AppDetailPage: React.FunctionComponent<{
   return (
     <div
       data-testid={"app-detail-page"}
-      className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
+      className="min-h-screen flex flex-col"
     >
       <Header />
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
