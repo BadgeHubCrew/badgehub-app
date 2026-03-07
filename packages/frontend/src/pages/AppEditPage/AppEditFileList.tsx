@@ -36,17 +36,16 @@ const AppEditFileList: React.FC<AppEditFilePreviewProps> = ({
   const files = project?.version?.files ?? [];
 
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg text-left mt-8">
-      <h2 className="text-2xl font-semibold text-slate-100 mb-4">Files</h2>
-      <div>
-        <h3 className="text-lg font-medium text-slate-200 mb-2">
+    <section className="card bg-base-200 shadow-lg text-left mt-8">
+      <div className="card-body">
+        <h2 className="card-title text-2xl mb-2">Files</h2>
+        <h3 className="text-lg font-medium mb-2">
           Project Files:
         </h3>
         {files.length > 0 ? (
-          <ul className="list-none text-slate-400 text-sm space-y-1">
+          <ul className="list-none text-sm space-y-1">
             {files.map((file) => (
               <FileListItem
-                // Using a stable identifier like full_path for the key is better than an index
                 key={file.full_path}
                 file={file}
                 onDeleteFile={onDeleteFile}
@@ -61,7 +60,7 @@ const AppEditFileList: React.FC<AppEditFilePreviewProps> = ({
             ))}
           </ul>
         ) : (
-          <p className="text-slate-500 italic">
+          <p className="opacity-50 italic">
             No files in this project version.
           </p>
         )}

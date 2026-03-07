@@ -7,22 +7,22 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
 }) => {
   const appMetadata = project.version.app_metadata;
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
+    <section className="card bg-base-200 shadow-lg"><div className="card-body p-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1
-            className="text-3xl font-bold text-slate-100 mb-2"
+            className="text-3xl font-bold mb-2"
             data-testid="app-detail-name"
           >
             {appMetadata.name}
           </h1>
           {(project.version?.app_metadata.author && (
-            <p className="text-slate-400 mb-1">
+            <p className="opacity-70 mb-1">
               By {project.version?.app_metadata.author}
             </p>
           )) ||
             null}
-          <p className="text-xs text-slate-500">
+          <p className="text-xs opacity-50">
             Published:{" "}
             {project.version?.published_at
               ? new Date(project.version?.published_at).toLocaleDateString()
@@ -33,11 +33,11 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
           <GitLink url={appMetadata.git_url} showText={true} />
         </div>
       </div>
-      <div className="mt-4 pt-4 border-t border-gray-700">
+      <div className="mt-4 pt-4 border-t border-base-300">
         {appMetadata.badges?.map((dev: string) => (
           <span
             key={dev}
-            className="tag-mcu text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-success text-sm font-semibold mr-2"
           >
             {dev}
           </span>
@@ -45,7 +45,7 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
         {appMetadata.categories?.map((cat) => (
           <span
             key={cat}
-            className="tag text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-neutral text-sm font-semibold mr-2"
           >
             {cat}
           </span>
@@ -53,13 +53,13 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
         {[]?.map((tag: string) => (
           <span
             key={tag}
-            className="tag text-sm font-semibold mr-2 px-3 py-1 rounded-full"
+            className="badge badge-neutral text-sm font-semibold mr-2"
           >
             {tag}
           </span>
         ))}
       </div>
-    </section>
+    </div></section>
   );
 };
 

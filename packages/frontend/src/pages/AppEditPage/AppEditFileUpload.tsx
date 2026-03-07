@@ -66,30 +66,34 @@ const AppEditFileUpload: React.FC<{
   };
 
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold text-slate-100 mb-4">Files</h2>
-      <div>
-        <label className="block text-sm font-medium text-slate-300 mb-2">
-          Upload Files
-        </label>
-        <input
-          type="file"
-          name="file-upload"
-          data-testid="app-edit-file-upload-input"
-          className="form-input w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-          multiple
-          disabled={uploading}
-          onChange={handleFileChange}
-        />
-        <p className="text-xs text-slate-500 mt-1">
-          You can upload any file type (e.g., code, images, docs). Executable
-          file types will be selectable as "Main".
-        </p>
-        {uploading && (
-          <p className="text-xs text-emerald-400 mt-2">Uploading...</p>
-        )}
-        {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
-        {success && <p className="text-xs text-emerald-400 mt-2">{success}</p>}
+    <section className="card bg-base-200 shadow-lg">
+      <div className="card-body">
+        <h2 className="card-title text-2xl mb-2">Files</h2>
+        <div className="form-control">
+          <label className="label">
+            <span className="label-text">Upload Files</span>
+          </label>
+          <input
+            type="file"
+            name="file-upload"
+            data-testid="app-edit-file-upload-input"
+            className="file-input file-input-bordered w-full"
+            multiple
+            disabled={uploading}
+            onChange={handleFileChange}
+          />
+          <label className="label">
+            <span className="label-text-alt">
+              You can upload any file type (e.g., code, images, docs). Executable
+              file types will be selectable as "Main".
+            </span>
+          </label>
+          {uploading && (
+            <p className="text-xs text-success mt-2">Uploading...</p>
+          )}
+          {error && <p className="text-xs text-error mt-2">{error}</p>}
+          {success && <p className="text-xs text-success mt-2">{success}</p>}
+        </div>
       </div>
     </section>
   );

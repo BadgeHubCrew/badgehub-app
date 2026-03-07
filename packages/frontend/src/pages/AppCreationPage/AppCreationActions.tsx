@@ -3,13 +3,14 @@ import React from "react";
 const AppCreationActions: React.FC<{ isSlugValid: boolean }> = ({
   isSlugValid,
 }) => (
-  <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 className="text-2xl font-semibold text-slate-100 mb-4">Submit</h2>
+  <section className="card bg-base-200 shadow-lg">
+    <div className="card-body">
+    <h2 className="card-title text-2xl mb-4">Submit</h2>
     <div className="flex items-center justify-start">
       <button
         type="submit"
-        className={`btn-primary px-8 py-3 rounded-lg font-semibold transition-all duration-200 ease-in-out transform hover:scale-105 flex items-center space-x-2 ${
-          !isSlugValid ? "opacity-50 cursor-not-allowed hover:scale-100" : ""
+        className={`btn btn-primary ${
+          !isSlugValid ? "opacity-50 cursor-not-allowed" : ""
         }`}
         data-testid="app-creation-submit-btn"
         disabled={!isSlugValid}
@@ -29,9 +30,10 @@ const AppCreationActions: React.FC<{ isSlugValid: boolean }> = ({
         <span>Create Application</span>
       </button>
     </div>
-    <p className="text-xs text-slate-500 mt-4">
+    <p className="text-xs opacity-60 mt-4">
       You can add code, media, and other details after creation.
     </p>
+    </div>
   </section>
 );
 

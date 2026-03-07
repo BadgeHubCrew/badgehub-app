@@ -15,11 +15,12 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
       : null;
 
   return (
-    <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h2 className="text-xl font-semibold text-slate-100 mb-4 border-b border-gray-700 pb-2">
+    <section className="card bg-base-200 shadow-lg">
+      <div className="card-body p-6">
+      <h2 className="text-xl font-semibold mb-4 border-b border-base-300 pb-2">
         App Details
       </h2>
-      <ul className="text-sm text-slate-300 space-y-3 font-mono">
+      <ul className="text-sm space-y-3 font-mono">
         {version && (
           <li>
             <strong>Version:</strong> {version}
@@ -54,6 +55,7 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
           }
         </li>
       </ul>
+      </div>
     </section>
   );
 };

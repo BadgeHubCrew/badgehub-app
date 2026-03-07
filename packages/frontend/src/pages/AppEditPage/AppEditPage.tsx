@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
-import Header from "@sharedComponents/Header.tsx";
-import Footer from "@sharedComponents/Footer.tsx";
+import PageLayout from "@sharedComponents/PageLayout.tsx";
 import AppEditForm from "./AppEditForm.tsx";
 import AppEditStateView from "./AppEditStateView.tsx";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
@@ -236,43 +235,36 @@ const AppEditPage: React.FC<{
   };
 
   return (
-    <div
-      data-testid="app-edit-page"
-      className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
-    >
-      <Header />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        <AppEditStateView
-          loading={loading}
-          error={
-            error ??
-            (!project || !appMetadata ? "not_found" : null)
-          }
-          onLogin={() => keycloak?.login()}
-        >
-          {project && appMetadata && keycloak && (
-            <AppEditForm
-              project={project as ProjectDetails}
-              appMetadata={appMetadata as ProjectEditFormData}
-              slug={slug}
-              user={user}
-              keycloak={keycloak}
-              previewedFile={previewedFile}
-              mainExecutable={mainExecutable}
-              onPreviewFile={handlePreviewFile}
-              onSetIcon={handleSetIcon}
-              onDeleteFile={handleDeleteFile}
-              onSetMainExecutable={onSetMainExecutable}
-              onUploadSuccess={updateDraftFiles}
-              onFormChange={handleFormChange}
-              onSubmit={handleSubmit}
-              onDeleteApplication={handleDeleteApplication}
-            />
-          )}
-        </AppEditStateView>
-      </main>
-      <Footer />
-    </div>
+    <PageLayout data-testid="app-edit-page">
+      <AppEditStateView
+        loading={loading}
+        error={
+          error ??
+          (!project || !appMetadata ? "not_found" : null)
+        }
+        onLogin={() => keycloak?.login()}
+      >
+        {project && appMetadata && keycloak && (
+          <AppEditForm
+            project={project as ProjectDetails}
+            appMetadata={appMetadata as ProjectEditFormData}
+            slug={slug}
+            user={user}
+            keycloak={keycloak}
+            previewedFile={previewedFile}
+            mainExecutable={mainExecutable}
+            onPreviewFile={handlePreviewFile}
+            onSetIcon={handleSetIcon}
+            onDeleteFile={handleDeleteFile}
+            onSetMainExecutable={onSetMainExecutable}
+            onUploadSuccess={updateDraftFiles}
+            onFormChange={handleFormChange}
+            onSubmit={handleSubmit}
+            onDeleteApplication={handleDeleteApplication}
+          />
+        )}
+      </AppEditStateView>
+    </PageLayout>
   );
 };
 

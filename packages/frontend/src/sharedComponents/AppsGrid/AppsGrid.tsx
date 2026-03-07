@@ -11,7 +11,7 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps, editable }) => {
   return (
     <>
       <section id="apps-grid">
-        <h2 className="text-2xl font-semibold text-slate-100 mb-6">
+        <h2 className="text-2xl font-semibold mb-6">
           Badge Projects
         </h2>
         <div
@@ -19,7 +19,7 @@ const AppsGrid: React.FC<AppsGridProps> = ({ apps, editable }) => {
           data-testid="app-cards-container"
         >
           {apps.length === 0 ? (
-            <div className="col-span-full text-center text-slate-400 py-8">
+            <div className="col-span-full text-center opacity-60 py-8">
               No apps found.
             </div>
           ) : (

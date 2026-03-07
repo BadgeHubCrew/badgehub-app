@@ -8,19 +8,20 @@ interface AppEditActionsProps {
 const AppEditActions: React.FC<AppEditActionsProps> = ({
   onClickDeleteApplication,
 }) => (
-  <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 className="text-2xl font-semibold text-slate-100 mb-4">Actions</h2>
+  <section className="card bg-base-200 shadow-lg">
+    <div className="card-body">
+    <h2 className="card-title text-2xl mb-4">Actions</h2>
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="flex items-center space-x-4">
         <button
           type="submit"
-          className="btn-primary px-6 py-3 rounded-lg font-semibold transition-all duration-200 ease-in-out transform hover:scale-105"
+          className="btn btn-primary"
         >
           Save & Publish
         </button>
         <Link
           to=".."
-          className="btn-secondary px-6 py-3 rounded-lg font-semibold transition-all duration-200 ease-in-out"
+          className="btn btn-neutral"
         >
           Cancel
         </Link>
@@ -28,7 +29,7 @@ const AppEditActions: React.FC<AppEditActionsProps> = ({
       <div>
         <button
           type="button"
-          className="btn-danger bg-red-700 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ease-in-out flex items-center"
+          className="btn btn-error flex items-center"
           onClick={onClickDeleteApplication}
         >
           <svg
@@ -47,9 +48,10 @@ const AppEditActions: React.FC<AppEditActionsProps> = ({
         </button>
       </div>
     </div>
-    <p className="text-xs text-slate-500 mt-4 text-right">
+    <p className="text-xs opacity-60 mt-4 text-right">
       Deleting an application is permanent and cannot be undone.
     </p>
+    </div>
   </section>
 );
 

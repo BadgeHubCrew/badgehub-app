@@ -40,18 +40,12 @@ export const MultiOptionSelectorWithTitle: React.FC<{
 
   return (
     <div>
-      <label
-        htmlFor={selectionId}
-        className="block text-sm font-medium text-slate-300 mb-1"
-      >
-        {title}
+      <label htmlFor={selectionId} className="label">
+        <span className="label-text">{title}</span>
       </label>
       <div className="mb-2">
-        <label
-          htmlFor={searchId}
-          className="block text-xs font-medium text-slate-400 mb-1"
-        >
-          Search {title}
+        <label htmlFor={searchId} className="label">
+          <span className="label-text-alt">Search {title}</span>
         </label>
         <input
           id={searchId}
@@ -59,13 +53,13 @@ export const MultiOptionSelectorWithTitle: React.FC<{
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full border-gray-600 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 text-sm"
+          className="input input-bordered input-sm w-full"
           placeholder="Type to filter"
         />
       </div>
       {selectedEntries.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+          <p className="text-xs uppercase tracking-wide opacity-60 mb-2">
             Selected
           </p>
           <div className="flex flex-wrap gap-2">
@@ -74,7 +68,7 @@ export const MultiOptionSelectorWithTitle: React.FC<{
                 key={option}
                 type="button"
                 onClick={() => toggleValue(option)}
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-700/30 text-emerald-200 px-3 py-1 text-xs hover:bg-emerald-700/50"
+                className="badge badge-primary gap-2 cursor-pointer"
                 title={`Remove ${label}`}
               >
                 <span>{label}</span>
@@ -87,25 +81,25 @@ export const MultiOptionSelectorWithTitle: React.FC<{
       <div
         id={selectionId}
         data-testid={selectionId}
-        className="max-h-40 overflow-y-auto rounded-md border border-gray-700 p-2 space-y-2"
+        className="max-h-40 overflow-y-auto rounded-md border border-base-300 p-2 space-y-2"
       >
         {options.map(([option, label]) => (
           <label key={option} className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-emerald-600 focus:ring-emerald-500"
+              className="checkbox checkbox-primary checkbox-sm"
               checked={selectedValues.includes(option)}
               onChange={() => toggleValue(option)}
             />
-            <span className="text-slate-300">{label}</span>
+            <span>{label}</span>
           </label>
         ))}
         {options.length === 0 && (
-          <p className="text-xs text-slate-500">{noValueSetName}</p>
+          <p className="text-xs opacity-60">{noValueSetName}</p>
         )}
       </div>
       {selectedValues.length === 0 && options.length > 0 && (
-        <p className="text-xs text-slate-500 mt-1">{noValueSetName}</p>
+        <p className="text-xs opacity-60 mt-1">{noValueSetName}</p>
       )}
     </div>
   );

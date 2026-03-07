@@ -6,14 +6,16 @@ const AppDescription: React.FC<{ project: ProjectDetails }> = ({
     version: { app_metadata },
   },
 }) => (
-  <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 className="text-2xl font-semibold text-slate-100 mb-4">Description</h2>
-    <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-slate-300 space-y-4">
+  <section className="card bg-base-200 shadow-lg">
+    <div className="card-body">
+    <h2 className="card-title text-2xl mb-4">Description</h2>
+    <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-base-content/80 space-y-4">
       {app_metadata.description ? (
-        <pre>{app_metadata.description}</pre>
+        <p className="whitespace-pre-wrap">{app_metadata.description}</p>
       ) : (
         <p>No description provided.</p>
       )}
+    </div>
     </div>
   </section>
 );

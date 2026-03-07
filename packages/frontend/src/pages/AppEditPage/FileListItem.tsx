@@ -66,11 +66,11 @@ export const FileListItem: React.FC<FileListItemProps> = ({
     false;
 
   return (
-    <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-gray-700/50">
+    <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-base-300/50">
       {/* Download Button */}
       <button
         type="button"
-        className="bg-blue-600 text-white rounded p-1 flex items-center justify-center transition-colors hover:bg-blue-700"
+        className="btn btn-sm btn-info p-1"
         title="Download draft file"
         onClick={() => downloadProjectFile(keycloak, slug, file)}
       >
@@ -80,9 +80,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       {onDeleteFile && (
         <button
           type="button"
-          className={`bg-red-600 text-white rounded p-1 flex items-center justify-center transition-colors ${
-            deletable ? "hover:bg-red-700" : "opacity-50 cursor-not-allowed"
-          }`}
+          className={`btn btn-sm btn-error p-1 ${deletable ? "" : "opacity-50 cursor-not-allowed"}`}
           title={deletable ? "Delete file" : "This file cannot be deleted"}
           onClick={() => deletable && onDeleteFile(file.full_path)}
           disabled={!deletable}
@@ -94,22 +92,22 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       {onPreview ? (
         <button
           type="button"
-          className="flex-grow font-mono text-slate-400 hover:text-slate-100 hover:underline text-left bg-transparent border-none cursor-pointer p-0"
+          className="flex-grow font-mono opacity-70 hover:opacity-100 hover:underline text-left bg-transparent border-none cursor-pointer p-0"
           onClick={() => onPreview(file.full_path)}
           title="Preview file"
         >
           {file.full_path}
         </button>
       ) : (
-        <p className="flex-grow font-mono text-slate-400">{file.full_path}</p>
+        <p className="flex-grow font-mono opacity-60">{file.full_path}</p>
       )}
       {file.size_formatted && (
-        <span className="ml-2 text-slate-500 text-xs">
+        <span className="ml-2 opacity-60 text-xs">
           {file.size_formatted}
         </span>
       )}{" "}
       {widthXHeight && (
-        <span className="ml-2 text-slate-500 text-xs">{widthXHeight}px</span>
+        <span className="ml-2 opacity-60 text-xs">{widthXHeight}px</span>
       )}
       {/* "Set as Main" Button */}
       {isSelectableAsMain && (
@@ -117,7 +115,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
           type="button"
           disabled={isCurrentMain}
           onClick={() => onSetMainExecutable(file.full_path)}
-          className={`ml-2 px-2 py-1 rounded text-xs ${isCurrentMain ? "bg-blue-600 text-white cursor-default" : "bg-gray-700 text-slate-300 hover:bg-blue-700"}`}
+          className={`btn btn-xs ml-2 ${isCurrentMain ? "btn-info" : "btn-ghost"}`}
           title={
             isCurrentMain
               ? "This is the main executable"
@@ -131,11 +129,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       {showIconButton && (
         <button
           type="button"
-          className={`ml-2 px-2 py-1 rounded text-xs transition-colors duration-200 ${
-            isCurrentIcon
-              ? "bg-emerald-600 text-white cursor-default"
-              : "bg-gray-700 text-slate-300 hover:bg-emerald-700 hover:text-white"
-          }`}
+          className={`btn btn-xs ml-2 ${isCurrentIcon ? "btn-success" : "btn-ghost"}`}
           onClick={() => onSetIcon(file.full_path)}
           title={
             isCurrentIcon

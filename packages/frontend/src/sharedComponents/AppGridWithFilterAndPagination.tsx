@@ -105,7 +105,7 @@ export const AppGridWithFilterAndPagination = ({
       ) : error ? (
         <div
           data-testid="error-message"
-          className="text-center py-10 text-red-400"
+          className="text-center py-10 text-error"
         >
           {error}
         </div>

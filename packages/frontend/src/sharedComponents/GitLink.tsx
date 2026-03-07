@@ -44,7 +44,7 @@ const GitLink: React.FC<GitLinkProps> = ({ url, showText = false }) => {
   const styles = {
     button:
       "btn-secondary px-4 py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 flex items-center",
-    icon: "text-slate-400 hover:text-white transition-colors ml-2 flex-shrink-0",
+    icon: "text-base-content/60 hover:text-base-content transition-colors ml-2 flex-shrink-0",
   };
 
   return (

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Header from "@sharedComponents/Header.tsx";
-import Footer from "@sharedComponents/Footer.tsx";
+import PageLayout from "@sharedComponents/PageLayout.tsx";
 import AppCreationBreadcrumb from "./AppCreationBreadcrumb.tsx";
 import AppCreationBasicInfo from "./AppCreationBasicInfo.tsx";
 import AppCreationActions from "./AppCreationActions.tsx";
@@ -73,34 +72,27 @@ const AppCreationPage: React.FC = () => {
   const userIsLoggedIn = keycloak?.authenticated && user?.id;
 
   return (
-    <div
-      data-testid="app-creation-page"
-      className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
-    >
-      <Header />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        <AppCreationBreadcrumb />
-        <h1 className="text-3xl font-bold text-slate-100 mb-6">
-          Create a New Project
-        </h1>
-        {!userIsLoggedIn ? (
-          <PleaseLoginMessage whatToSee="create a project" />
-        ) : (
-          <>
-            {error && (
-              <div className="mb-4 text-red-400 bg-red-900/40 border border-red-700 rounded px-4 py-2">
-                {error}
-              </div>
-            )}
-            <form className="space-y-8" onSubmit={handleSubmit}>
-              <AppCreationBasicInfo form={form} onChange={handleFormChange} />
-              <AppCreationActions isSlugValid={isSlugValid} />
-            </form>
-          </>
-        )}
-      </main>
-      <Footer />
-    </div>
+    <PageLayout data-testid="app-creation-page">
+      <AppCreationBreadcrumb />
+      <h1 className="text-3xl font-bold mb-6">
+        Create a New Project
+      </h1>
+      {!userIsLoggedIn ? (
+        <PleaseLoginMessage whatToSee="create a project" />
+      ) : (
+        <>
+          {error && (
+            <div role="alert" className="alert alert-error mb-4">
+              {error}
+            </div>
+          )}
+          <form className="space-y-8" onSubmit={handleSubmit}>
+            <AppCreationBasicInfo form={form} onChange={handleFormChange} />
+            <AppCreationActions isSlugValid={isSlugValid} />
+          </form>
+        </>
+      )}
+    </PageLayout>
   );
 };
 
