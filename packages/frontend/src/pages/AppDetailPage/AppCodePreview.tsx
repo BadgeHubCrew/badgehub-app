@@ -8,6 +8,21 @@ import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts"
 import { assertDefined } from "@shared/util/assertions.ts";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import { atomOneLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+
+function useIsDarkTheme() {
+  const [isDark, setIsDark] = useState(() =>
+    getComputedStyle(document.documentElement).colorScheme === "dark"
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(getComputedStyle(document.documentElement).colorScheme === "dark");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
 import Keycloak from "keycloak-js";
 import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
@@ -31,7 +46,7 @@ const DownloadIcon = () => (
 );
 
 // JSON Preview Component with pretty print option and syntax highlighting
-const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
+const JsonPreview: React.FC<{ content: string; isDark: boolean }> = ({ content, isDark }) => {
   const [isPretty, setIsPretty] = useState(false);
 
   const formatJson = (jsonStr: string): string => {
@@ -61,7 +76,7 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language="json"
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
             padding: "1rem",
             margin: 0,
@@ -80,7 +95,7 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
 };
 
 // Python Preview Component with syntax highlighting
-const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
+const PythonPreview: React.FC<{ content: string; isDark: boolean }> = ({ content, isDark }) => {
   return (
     <div>
       <div className="mb-2">
@@ -89,7 +104,7 @@ const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language="python"
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
             padding: "1rem",
             margin: 0,
@@ -108,9 +123,10 @@ const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
 };
 
 // Text Preview Component with syntax highlighting for recognized file types
-const TextPreview: React.FC<{ content: string; filename: string }> = ({
+const TextPreview: React.FC<{ content: string; filename: string; isDark: boolean }> = ({
   content,
   filename,
+  isDark,
 }) => {
   const language = getLanguageFromFile(filename);
 
@@ -137,7 +153,7 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language={language}
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
             padding: "1rem",
             margin: 0,
@@ -213,6 +229,7 @@ const renderFilePreview = (
   previewedFile: string | null,
   currentFile: FileMetadata | null,
   fileContent: string | null,
+  isDark: boolean,
   imageBlob?: Blob
 ): React.ReactElement => {
   if (loading) {
@@ -237,19 +254,19 @@ const renderFilePreview = (
       return <ImagePreview file={currentFile} imageBlob={imageBlob} />;
     case "json":
       return fileContent ? (
-        <JsonPreview content={fileContent} />
+        <JsonPreview content={fileContent} isDark={isDark} />
       ) : (
         <div className="opacity-60">Loading JSON...</div>
       );
     case "python":
       return fileContent ? (
-        <PythonPreview content={fileContent} />
+        <PythonPreview content={fileContent} isDark={isDark} />
       ) : (
         <div className="opacity-60">Loading Python file...</div>
       );
     case "text":
       return fileContent ? (
-        <TextPreview content={fileContent} filename={currentFile.full_path} />
+        <TextPreview content={fileContent} filename={currentFile.full_path} isDark={isDark} />
       ) : (
         <div className="opacity-60">Loading text file...</div>
       );
@@ -279,6 +296,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
     () => project?.version?.files ?? [],
     [project?.version?.files]
   );
+  const isDark = useIsDarkTheme();
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
@@ -503,6 +521,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
             previewedFile,
             currentFile,
             fileContent,
+            isDark,
             imageBlob || undefined
           )}
         </div>
