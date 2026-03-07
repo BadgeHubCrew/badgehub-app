@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import * as path from "node:path";
@@ -13,7 +14,7 @@ export default defineConfig({
     cors: true,          // allow the backend origin to load Vite assets
     allowedHosts: true,  // allow any Host header (e.g. op5b.local)
   },
-  plugins: [...react(), tsconfigPaths()],
+  plugins: [tailwindcss(), ...react(), tsconfigPaths()],
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "../shared/src"),
