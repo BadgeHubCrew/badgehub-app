@@ -28,7 +28,7 @@ const Filters: React.FC<FiltersProps> = ({
 }) => {
   return (
     <section
-      className="mb-8 p-4 bg-gray-800 rounded-lg shadow"
+      className="card bg-base-200 shadow mb-8 p-4"
       data-testid="filter-bar"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
