@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
-    "@tailwindcss/postcss": "^4.2.1",
     "@tailwindcss/vite": "^4.2.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -31,7 +30,6 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitest/coverage-v8": "^3.1.4",
-    "autoprefixer": "^10.4.21",
     "daisyui": "^5.5.19",
     "dotenv": "^16.5.0",
     "eslint": "^9.25.0",
@@ -39,7 +37,6 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "jsdom": "^26.1.0",
-    "postcss": "^8.5.4",
     "tailwindcss": "^4.1.8",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
