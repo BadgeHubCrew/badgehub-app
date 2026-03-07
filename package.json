@@ -18,7 +18,7 @@
     "build": "npm run build --workspaces",
     "check:ts": "npm run check:ts --workspaces",
     "start": "npm run start --workspace=packages/backend",
-    "dev": "concurrently -k -c 'auto' 'npm:dev:*'",
+    "dev": "concurrently -k -c 'auto' 'npm:dev:frontend' 'npm:dev:backend'",
     "dev:frontend": "npm run dev --workspace=packages/frontend",
     "test-db:up": "npm run --workspace=packages/backend test-db:up | exit 0",
     "backup": "docker exec -it badgehub-db /usr/bin/pg_dump --username badgehub badgehub -f /var/backup/data-backup-`date +\"%Y-%m-%dT%H:%m\"`.sql",    
@@ -28,6 +28,8 @@
     "lint-staged": "pretty-quick --staged",
     "lint": "pretty-quick --check",
     "lint:fix": "pretty-quick",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
     "validate": "npm run lint && npm run check:ts && npm run build && npm run test"
   },
   "dependencies": {
