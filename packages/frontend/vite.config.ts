@@ -7,7 +7,15 @@ const publicStaticFileDir = "static"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [...react(), tsconfigPaths()],
+  base: process.env.VITE_BASE_PATH || "/",
+  define: browserBackendDefines,
+  server: {
+    host: true,          // bind to all interfaces so remote machines can reach it
+    port: 5173,          // fixed port so index-indirect-dev.html can reference it
+    cors: true,          // allow the backend origin to load Vite assets
+    allowedHosts: true,  // allow any Host header (e.g. op5b.local)
+  },
+  plugins: [...react(), tsconfigPaths(), injectSharedConfigPlugin()],
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "../shared/src"),
