@@ -15,7 +15,7 @@ import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 const DownloadIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4 text-slate-300 hover:text-slate-100"
+    className="w-4 h-4 text-base-content/80 hover:text-base-content"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -49,11 +49,11 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-slate-300 text-sm">JSON file</span>
+        <span className="text-base-content/80 text-sm">JSON file</span>
         <button
           type="button"
           onClick={() => setIsPretty(!isPretty)}
-          className="px-2 py-1 bg-slate-700 text-slate-200 rounded text-xs hover:bg-slate-600"
+          className="btn btn-xs btn-ghost"
         >
           {isPretty ? "Show Raw" : "Pretty Print"}
         </button>
@@ -85,7 +85,7 @@ const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">Python file</span>
+        <span className="text-base-content/80 text-sm">Python file</span>
       </div>
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
@@ -121,9 +121,9 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
     return (
       <div>
         <div className="mb-2">
-          <span className="text-slate-300 text-sm">Text file</span>
+          <span className="text-base-content/80 text-sm">Text file</span>
         </div>
-        <pre className="text-slate-300 whitespace-pre-wrap break-words">
+        <pre className="text-base-content/80 whitespace-pre-wrap break-words">
           <code>{content}</code>
         </pre>
       </div>
@@ -134,7 +134,7 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">{language} file</span>
+        <span className="text-base-content/80 text-sm">{language} file</span>
       </div>
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
@@ -178,7 +178,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">
+        <span className="text-base-content/80 text-sm">
           Image file{" "}
           {file.image_width &&
             file.image_height &&
@@ -190,7 +190,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
           <img
             src={imageUrl}
             alt={file.full_path}
-            className="max-w-full max-h-96 rounded border border-slate-600"
+            className="max-w-full max-h-96 rounded border border-base-300"
             style={{ maxHeight: "400px" }}
           />
         )}
@@ -202,7 +202,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
 // No Preview Component for unsupported types
 const NoPreview: React.FC<{ mimetype: string }> = ({ mimetype }) => {
   return (
-    <div className="text-center py-8 text-slate-400">
+    <div className="text-center py-8 opacity-60">
       <p>Preview not available for this file type.</p>
       <p className="text-sm mt-2">MIME type: {mimetype}</p>
       <p className="text-sm">Use the download button to view the file.</p>
@@ -219,15 +219,15 @@ const renderFilePreview = (
   imageBlob?: Blob
 ): React.ReactElement => {
   if (loading) {
-    return <div className="text-slate-400">Loading file...</div>;
+    return <div className="opacity-60">Loading file...</div>;
   }
 
   if (!previewedFile) {
-    return <div className="text-slate-400">No file selected</div>;
+    return <div className="opacity-60">No file selected</div>;
   }
 
   if (!currentFile) {
-    return <div className="text-slate-400">File not found</div>;
+    return <div className="opacity-60">File not found</div>;
   }
 
   const previewType = getPreviewType(
@@ -242,24 +242,24 @@ const renderFilePreview = (
       return fileContent ? (
         <JsonPreview content={fileContent} />
       ) : (
-        <div className="text-slate-400">Loading JSON...</div>
+        <div className="opacity-60">Loading JSON...</div>
       );
     case "python":
       return fileContent ? (
         <PythonPreview content={fileContent} />
       ) : (
-        <div className="text-slate-400">Loading Python file...</div>
+        <div className="opacity-60">Loading Python file...</div>
       );
     case "text":
       return fileContent ? (
         <TextPreview content={fileContent} filename={currentFile.full_path} />
       ) : (
-        <div className="text-slate-400">Loading text file...</div>
+        <div className="opacity-60">Loading text file...</div>
       );
     case "unsupported":
       return <NoPreview mimetype={currentFile.mimetype} />;
     default:
-      return <div className="text-slate-400">Unknown file type</div>;
+      return <div className="opacity-60">Unknown file type</div>;
   }
 };
 
@@ -431,24 +431,25 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
 
   return (
     <section
-      className="bg-gray-800 p-6 rounded-lg shadow-lg text-left"
+      className="card bg-base-200 shadow-lg text-left"
       data-testid="code-preview-section"
     >
-      <h2 className="text-2xl font-semibold text-slate-100 mb-4">
+      <div className="card-body">
+      <h2 className="card-title text-2xl mb-4">
         Code Preview / Files
       </h2>
       {showFileList && (
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/3 w-full">
-            <h3 className="text-lg font-medium text-slate-200 mb-2">
+            <h3 className="text-lg font-medium text-base-content mb-2">
               Project Files:
             </h3>
-            <ul className="list-none text-slate-400 text-sm space-y-1">
+            <ul className="list-none opacity-60 text-sm space-y-1">
               {files.map((f, i: number) => (
                 <li key={i} className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="px-1 py-1 bg-slate-700 rounded hover:bg-slate-600"
+                    className="btn btn-xs btn-ghost"
                     onClick={() => handleDownload(f)}
                     title="Download file"
                     style={{
@@ -466,8 +467,8 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
                     type="button"
                     className={`text-left hover:underline font-mono ${
                       previewedFile === f.full_path
-                        ? "text-slate-100 font-bold"
-                        : "text-slate-400"
+                        ? "text-base-content font-bold"
+                        : "opacity-60"
                     }`}
                     onClick={() => handlePreview(f.full_path)}
                     onKeyDown={(e) => {
@@ -488,7 +489,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
                     {f.full_path}
                   </button>
                   {f.size_formatted ? (
-                    <span className="ml-2 text-slate-500">
+                    <span className="ml-2 opacity-60">
                       {f.size_formatted}
                     </span>
                   ) : null}
@@ -499,7 +500,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
         </div>
       )}
       <div className={showFileList ? "mt-6 md:ml-0" : "mt-4"}>
-        <div className="code-block font-mono text-sm bg-gray-900 rounded p-4 overflow-x-auto min-h-[200px]">
+        <div className="code-block font-mono text-sm bg-base-300 rounded p-4 overflow-x-auto min-h-[200px]">
           {renderFilePreview(
             loading,
             previewedFile,
@@ -508,6 +509,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
             imageBlob || undefined
           )}
         </div>
+      </div>
       </div>
     </section>
   );

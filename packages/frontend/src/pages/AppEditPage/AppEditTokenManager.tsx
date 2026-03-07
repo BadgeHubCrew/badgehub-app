@@ -152,7 +152,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
       <div className="card-body">
       <h2 className="card-title text-2xl mb-2">API Token</h2>
       <div className="space-y-4">
-        {error && <p className="text-red-400">{error}</p>}
+        {error && <p className="text-error">{error}</p>}
 
         {newToken && (
           <div className="bg-base-300 p-4 rounded-lg">

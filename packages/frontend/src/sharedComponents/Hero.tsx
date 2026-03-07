@@ -3,10 +3,10 @@ import { MLink } from "@sharedComponents/MLink.tsx";
 
 const Hero: React.FC = () => (
   <section className="text-center mb-12 pt-8">
-    <h1 className="text-4xl sm:text-5xl font-bold text-slate-100 mb-4">
+    <h1 className="text-4xl sm:text-5xl font-bold mb-4">
       Share. Build. Innovate.
     </h1>
-    <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+    <p className="text-lg opacity-60 mb-8 max-w-2xl mx-auto">
       Badge applications at your fingertips. Discover projects or contribute
       your own.
     </p>

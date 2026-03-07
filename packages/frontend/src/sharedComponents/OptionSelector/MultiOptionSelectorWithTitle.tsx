@@ -59,7 +59,7 @@ export const MultiOptionSelectorWithTitle: React.FC<{
       </div>
       {selectedEntries.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+          <p className="text-xs uppercase tracking-wide opacity-60 mb-2">
             Selected
           </p>
           <div className="flex flex-wrap gap-2">
@@ -91,15 +91,15 @@ export const MultiOptionSelectorWithTitle: React.FC<{
               checked={selectedValues.includes(option)}
               onChange={() => toggleValue(option)}
             />
-            <span className="text-slate-300">{label}</span>
+            <span>{label}</span>
           </label>
         ))}
         {options.length === 0 && (
-          <p className="text-xs text-slate-500">{noValueSetName}</p>
+          <p className="text-xs opacity-60">{noValueSetName}</p>
         )}
       </div>
       {selectedValues.length === 0 && options.length > 0 && (
-        <p className="text-xs text-slate-500 mt-1">{noValueSetName}</p>
+        <p className="text-xs opacity-60 mt-1">{noValueSetName}</p>
       )}
     </div>
   );

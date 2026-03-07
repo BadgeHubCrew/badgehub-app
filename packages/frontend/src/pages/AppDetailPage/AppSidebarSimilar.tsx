@@ -35,7 +35,7 @@ const ProjectItem: React.FC<{ project: ProjectSummary }> = ({ project }) => (
         {project.name}
       </Link>
       {project.categories && project.categories.length > 0 && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs opacity-60">
           {project.categories.join(", ")}
         </p>
       )}

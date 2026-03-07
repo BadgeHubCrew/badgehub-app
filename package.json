@@ -30,7 +30,8 @@
     "lint:fix": "pretty-quick",
     "test:e2e": "npx playwright test",
     "test:e2e:ui": "npx playwright test --ui",
-    "validate": "npm run lint && npm run check:ts && npm run build && npm run test"
+    "check:colors": "bash -c 'result=$(grep -rn --include=\"*.tsx\" -E \"\\b(bg|text|border|ring)-(gray|slate|zinc|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]+\" packages/frontend/src); if [ -n \"$result\" ]; then echo \"$result\"; echo \"\nERROR: Hardcoded Tailwind color classes found. Use DaisyUI semantic tokens instead.\"; exit 1; fi'",
+    "validate": "npm run lint && npm run check:ts && npm run check:colors && npm run build && npm run test"
   },
   "dependencies": {
     "@ts-rest/core": "^3.53.0-rc.1",

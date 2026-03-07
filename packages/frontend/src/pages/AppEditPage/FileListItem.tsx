@@ -66,7 +66,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
     false;
 
   return (
-    <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-gray-700/50">
+    <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-base-300/50">
       {/* Download Button */}
       <button
         type="button"
@@ -99,15 +99,15 @@ export const FileListItem: React.FC<FileListItemProps> = ({
           {file.full_path}
         </button>
       ) : (
-        <p className="flex-grow font-mono text-slate-400">{file.full_path}</p>
+        <p className="flex-grow font-mono opacity-60">{file.full_path}</p>
       )}
       {file.size_formatted && (
-        <span className="ml-2 text-slate-500 text-xs">
+        <span className="ml-2 opacity-60 text-xs">
           {file.size_formatted}
         </span>
       )}{" "}
       {widthXHeight && (
-        <span className="ml-2 text-slate-500 text-xs">{widthXHeight}px</span>
+        <span className="ml-2 opacity-60 text-xs">{widthXHeight}px</span>
       )}
       {/* "Set as Main" Button */}
       {isSelectableAsMain && (
