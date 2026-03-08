@@ -34,7 +34,7 @@ const SearchField: React.FC<SearchProps> = ({
   setSearchQuery,
 }) => {
   return (
-    <div className="relative hidden sm:block">
+    <div className="relative hidden lg:block">
       <input
         type="search"
         placeholder="Search apps..."
