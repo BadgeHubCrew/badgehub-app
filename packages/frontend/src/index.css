@@ -61,22 +61,6 @@
 }
 
 @font-face {
-    font-family: Inter;
-    src: url("/fonts/Inter/Inter-VariableFont_opsz,wght.woff2") format("woff2-variations");
-    font-weight: 100 900; /* min and max weights */
-    font-style: normal; /* italic for the italic font */
-    font-display: swap;
-}
-
-@font-face {
-    font-family: Inter;
-    src: url("/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.woff2") format("woff2-variations");
-    font-weight: 100 900; /* min and max weights */
-    font-style: italic; /* italic for the italic font */
-    font-display: swap;
-}
-
-@font-face {
     font-family: "Roboto Mono";
     src: url("/fonts/Roboto_Mono/RobotoMono-VariableFont_wght.woff2") format("woff2-variations");
     font-weight: 100 900; /* min and max weights */
@@ -118,16 +102,18 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--color-gray-800);
+    background: var(--color-base-300);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #4a5568;
+    background: var(--color-base-content);
+    opacity: 0.35;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #718096;
+    background: var(--color-base-content);
+    opacity: 0.55;
 }
 
 body {
@@ -221,4 +207,3 @@ body {
         opacity: 0;
     }
 }
-
