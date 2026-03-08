@@ -81,7 +81,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
           <span>BadgeHub</span>
         </MLink>
 
-        <nav className="hidden md:flex gap-1 items-center">
+        <nav className="hidden lg:flex gap-1 items-center">
           {navLinks.map((link) => (
             <MLink
               to={link.to}
@@ -102,16 +102,16 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
           {checkedSearchProps && (
             <SearchField {...checkedSearchProps} />
           )}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <ThemePicker />
           </div>
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <ThemePicker />
           </div>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <ProfileIcon />
           </div>
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               id="mobile-menu-button"
               className="btn btn-ghost btn-sm"
@@ -157,7 +157,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden absolute top-full left-0 right-0 bg-base-200 shadow-md${mobileOpen ? "" : " hidden"}`}
+        className={`lg:hidden absolute top-full left-0 right-0 bg-base-200 shadow-md${mobileOpen ? "" : " hidden"}`}
         id="mobile-menu"
       >
         <div className="flex flex-col p-2">

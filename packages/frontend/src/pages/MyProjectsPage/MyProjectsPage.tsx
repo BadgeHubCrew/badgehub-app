@@ -31,6 +31,7 @@ const MyProjectsPage = memo(
           <AppGridWithFilterAndPagination
             appFetcher={appFetcher}
             searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
             editable={true}
           />
         ) : (

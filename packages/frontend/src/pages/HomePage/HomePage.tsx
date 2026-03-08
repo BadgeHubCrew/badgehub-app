@@ -21,6 +21,7 @@ const HomePage = memo(({ tsRestClient = defaultTsRestClient }: AppProps) => {
       <AppGridWithFilterAndPagination
         appFetcher={appFetcher}
         searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
     </PageLayout>
   );
