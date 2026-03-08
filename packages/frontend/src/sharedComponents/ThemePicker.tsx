@@ -25,7 +25,7 @@ const ThemeSwatches: React.FC<{ theme: string }> = ({ theme }) => (
 
 const ThemePicker: React.FC = () => {
   const [theme, setTheme] = useState(
-    () => localStorage.getItem("theme") ?? "dark"
+    () => localStorage.getItem("theme") ?? "badgehub"
   );
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
