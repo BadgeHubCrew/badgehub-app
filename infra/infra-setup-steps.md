@@ -23,12 +23,12 @@ Note that none of these steps were optional, they were all required to get the a
   - In the server container settings, we set the domain to `badgehub.eu`
 
 ## Keycloak
-- Keycloak was set up as a separate service in Dokploy, and in the current setup, we have used Dokploy UIto set up a postgresql database for Keycloak to use and then we used the credentials and hostname of that in a separate Keycloak service.
+- Keycloak was set up as a separate service in Dokploy, and in the current setup, we have used Dokploy UI to set up a postgresql database for Keycloak to use and then we used the credentials and hostname of that in a separate Keycloak service.
 - This keycloak service is currently set up with a hardcoded docker compose file which was then copied to infra/keycloak/docker-compose.yml.
 - We set the Postgres Hostname, port username and password in the Environment settings for that service in Dokploy.
 - After we started keycloak, we still had to do some manual config:
  - We logged in and created a new admin user and deleted the bootstrap admin user (with the same username (we temporarily enabled username edit in the realm settings) and password as the one used in the docker compose file).
-- We imported the client config (infra/keycloak/badgehub-eu-client.json).
+- We imported the client config [infra/keycloak/badgehub-eu-client.json](keycloak/badgehub-eu-client.json).
 - We set up the email settings after setting up Brevo as described below.
 - We enabled email verification for the realm after verifying that it really can send emails in the email settings with the test button.
   - This test email arrived in the spam folder, but actual registration emails seam to arrive in the inbox luckily on gmail.
