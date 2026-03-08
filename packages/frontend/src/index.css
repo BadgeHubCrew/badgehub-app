@@ -27,13 +27,20 @@
   --color-error: oklch(71% 0.194 13);
   --color-error-content: oklch(27% 0.105 12);
   --radius-selector: 0.5rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+/* BadgeHub theme: tone down badge-success (badge tags) to use primary color */
+[data-theme="badgehub"] .badge-success {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-content);
 }
 
 /* BadgeHub theme: restore primary green on the hero CTA button */
