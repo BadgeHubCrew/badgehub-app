@@ -88,7 +88,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
           {checkedSearchProps && (
             <SearchField {...checkedSearchProps} />
           )}
-          <div className="hidden lg:block">
+          <div className="hidden md:block">
             <ThemePicker />
           </div>
           <ProfileIcon />
@@ -152,6 +152,10 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               {link.label}
             </MLink>
           ))}
+          <div className="divider my-1" />
+          <div className="px-2 pb-1">
+            <ThemePicker />
+          </div>
         </div>
       </div>
     </header>
