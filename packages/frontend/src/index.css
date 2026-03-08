@@ -36,11 +36,22 @@
   --noise: 0;
 }
 
-/* BadgeHub theme: tone down badge-success (badge tags) to use primary color */
+/* BadgeHub theme: titles/logo use emerald-400 (brighter) like main branch,
+   while buttons/backgrounds keep the darker primary */
+[data-theme="badgehub"] .text-primary {
+  color: oklch(79% 0.17 162);
+}
+[data-theme="badgehub"] .text-primary\/80,
+[data-theme="badgehub"] .hover\:text-primary\/80:hover {
+  color: oklch(79% 0.17 162 / 0.8);
+}
+
+/* BadgeHub theme: tone down badge-success (badge tags) — mid-tone green,
+   distinct from primary (titles/logo) and lighter than bright success */
 [data-theme="badgehub"] .badge-success {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-primary-content);
+  background-color: oklch(36% 0.09 162);
+  border-color: oklch(36% 0.09 162);
+  color: oklch(85% 0.06 162);
 }
 
 /* BadgeHub theme: restore primary green on the hero CTA button */

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const THEMES = [
-  "badgehub",
   "dark",
   "light",
+  "badgehub",
   "dracula",
   "synthwave",
   "cyberpunk",
