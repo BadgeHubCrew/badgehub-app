@@ -57,7 +57,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
     : undefined;
 
   return (
-    <header className="bg-base-200 shadow-md sticky top-0 z-50">
+    <header className="bg-base-200 shadow-md sticky top-0 z-50 min-w-[320px]">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between w-full min-h-16">
         <MLink
           to="/"
