@@ -150,7 +150,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               to={link.to}
               external={link.external}
               key={link.label}
-              className="btn btn-ghost btn-sm justify-start"
+              className="text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-left w-full"
             >
               {link.label}
             </MLink>
