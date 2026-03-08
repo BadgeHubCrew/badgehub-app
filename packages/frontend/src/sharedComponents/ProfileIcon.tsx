@@ -40,13 +40,20 @@ const ProfileIcon: React.FC = () => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <div className="inline-block align-top p-2 pr-3">{user?.name}</div>
+      <div className="hidden md:inline-block align-top p-2 pr-3">{user?.name}</div>
       <button
-        className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors"
+        className="btn btn-ghost btn-circle relative"
         aria-label="Profile"
         onClick={() => setMenuOpen((v) => !v)}
         data-testid="profile-icon"
       >
+        {user && (
+          <span
+            className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-base-200"
+            aria-label="Logged in"
+            title="Logged in"
+          />
+        )}
         <svg
           className="h-6 w-6"
           fill="none"
@@ -62,42 +69,26 @@ const ProfileIcon: React.FC = () => {
         </svg>
       </button>
       {menuOpen && (
-        <div
-          className="absolute right-0 mt-2 w-48 border border-gray-700 rounded-md shadow-lg py-2 z-50"
-          style={{ backgroundColor: "#1f2937" }}
-        >
+        <ul className="absolute right-0 mt-2 w-48 menu menu-sm bg-base-200 border border-base-300 rounded-box shadow-lg z-50 p-2">
           {user ? (
-            <div className="px-4 py-2 text-gray-200 text-sm">
-              <div className="font-semibold">{user.name}</div>
-              <div className="text-gray-400 text-xs">{user.email}</div>
-              <button
-                className="bg-gray-700 text-left px-4 py-2 text-gray-200 hover:bg-gray-600 rounded-md text-sm transition-colors mt-2"
-                style={{ width: "calc(100% - 1rem)" }}
-                onClick={account}
-                data-testid="logout-button"
-              >
-                Account
-              </button>
-              <button
-                className="bg-gray-700 text-left px-4 py-2 text-gray-200 hover:bg-gray-600 rounded-md text-sm transition-colors mt-2"
-                style={{ width: "calc(100% - 1rem)" }}
-                onClick={logout}
-                data-testid="logout-button"
-              >
-                Logout
-              </button>
-            </div>
+            <>
+              <li className="menu-title">
+                <span>{user.name}</span>
+                <span className="text-xs opacity-60">{user.email}</span>
+              </li>
+              <li>
+                <button onClick={account} data-testid="logout-button">Account</button>
+              </li>
+              <li>
+                <button onClick={logout} data-testid="logout-button">Logout</button>
+              </li>
+            </>
           ) : (
-            <button
-              className="bg-gray-700 text-left px-4 py-2 text-gray-200 hover:bg-gray-600 rounded-md text-sm transition-colors mx-2"
-              style={{ width: "calc(100% - 1rem)" }}
-              onClick={login}
-              data-testid="login-button"
-            >
-              Login / Register
-            </button>
+            <li>
+              <button onClick={login} data-testid="login-button">Login / Register</button>
+            </li>
           )}
-        </div>
+        </ul>
       )}
     </div>
   );

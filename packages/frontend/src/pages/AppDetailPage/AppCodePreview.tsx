@@ -8,6 +8,21 @@ import { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts"
 import { assertDefined } from "@shared/util/assertions.ts";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import { atomOneLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+
+function useIsDarkTheme() {
+  const [isDark, setIsDark] = useState(() =>
+    getComputedStyle(document.documentElement).colorScheme === "dark"
+  );
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(getComputedStyle(document.documentElement).colorScheme === "dark");
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
 import Keycloak from "keycloak-js";
 import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
@@ -15,7 +30,7 @@ import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 const DownloadIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4 text-slate-300 hover:text-slate-100"
+    className="w-4 h-4 text-base-content/80 hover:text-base-content"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -31,7 +46,7 @@ const DownloadIcon = () => (
 );
 
 // JSON Preview Component with pretty print option and syntax highlighting
-const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
+const JsonPreview: React.FC<{ content: string; isDark: boolean }> = ({ content, isDark }) => {
   const [isPretty, setIsPretty] = useState(false);
 
   const formatJson = (jsonStr: string): string => {
@@ -49,11 +64,11 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-slate-300 text-sm">JSON file</span>
+        <span className="text-base-content/80 text-sm">JSON file</span>
         <button
           type="button"
           onClick={() => setIsPretty(!isPretty)}
-          className="px-2 py-1 bg-slate-700 text-slate-200 rounded text-xs hover:bg-slate-600"
+          className="btn btn-xs btn-ghost"
         >
           {isPretty ? "Show Raw" : "Pretty Print"}
         </button>
@@ -61,9 +76,8 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language="json"
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -81,18 +95,17 @@ const JsonPreview: React.FC<{ content: string }> = ({ content }) => {
 };
 
 // Python Preview Component with syntax highlighting
-const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
+const PythonPreview: React.FC<{ content: string; isDark: boolean }> = ({ content, isDark }) => {
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">Python file</span>
+        <span className="text-base-content/80 text-sm">Python file</span>
       </div>
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language="python"
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -110,9 +123,10 @@ const PythonPreview: React.FC<{ content: string }> = ({ content }) => {
 };
 
 // Text Preview Component with syntax highlighting for recognized file types
-const TextPreview: React.FC<{ content: string; filename: string }> = ({
+const TextPreview: React.FC<{ content: string; filename: string; isDark: boolean }> = ({
   content,
   filename,
+  isDark,
 }) => {
   const language = getLanguageFromFile(filename);
 
@@ -121,9 +135,9 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
     return (
       <div>
         <div className="mb-2">
-          <span className="text-slate-300 text-sm">Text file</span>
+          <span className="text-base-content/80 text-sm">Text file</span>
         </div>
-        <pre className="text-slate-300 whitespace-pre-wrap break-words">
+        <pre className="text-base-content/80 whitespace-pre-wrap break-words">
           <code>{content}</code>
         </pre>
       </div>
@@ -134,14 +148,13 @@ const TextPreview: React.FC<{ content: string; filename: string }> = ({
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">{language} file</span>
+        <span className="text-base-content/80 text-sm">{language} file</span>
       </div>
       <div className="rounded overflow-hidden">
         <SyntaxHighlighter
           language={language}
-          style={atomOneDark}
+          style={isDark ? atomOneDark : atomOneLight}
           customStyle={{
-            background: "#1e293b", // Slate-800 to match app theme
             padding: "1rem",
             margin: 0,
             fontSize: "0.875rem",
@@ -178,7 +191,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
   return (
     <div>
       <div className="mb-2">
-        <span className="text-slate-300 text-sm">
+        <span className="text-base-content/80 text-sm">
           Image file{" "}
           {file.image_width &&
             file.image_height &&
@@ -190,7 +203,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
           <img
             src={imageUrl}
             alt={file.full_path}
-            className="max-w-full max-h-96 rounded border border-slate-600"
+            className="max-w-full max-h-96 rounded border border-base-300"
             style={{ maxHeight: "400px" }}
           />
         )}
@@ -202,7 +215,7 @@ const ImagePreview: React.FC<{ file: FileMetadata; imageBlob?: Blob }> = ({
 // No Preview Component for unsupported types
 const NoPreview: React.FC<{ mimetype: string }> = ({ mimetype }) => {
   return (
-    <div className="text-center py-8 text-slate-400">
+    <div className="text-center py-8 opacity-60">
       <p>Preview not available for this file type.</p>
       <p className="text-sm mt-2">MIME type: {mimetype}</p>
       <p className="text-sm">Use the download button to view the file.</p>
@@ -216,18 +229,19 @@ const renderFilePreview = (
   previewedFile: string | null,
   currentFile: FileMetadata | null,
   fileContent: string | null,
+  isDark: boolean,
   imageBlob?: Blob
 ): React.ReactElement => {
   if (loading) {
-    return <div className="text-slate-400">Loading file...</div>;
+    return <div className="opacity-60">Loading file...</div>;
   }
 
   if (!previewedFile) {
-    return <div className="text-slate-400">No file selected</div>;
+    return <div className="opacity-60">No file selected</div>;
   }
 
   if (!currentFile) {
-    return <div className="text-slate-400">File not found</div>;
+    return <div className="opacity-60">File not found</div>;
   }
 
   const previewType = getPreviewType(
@@ -240,26 +254,26 @@ const renderFilePreview = (
       return <ImagePreview file={currentFile} imageBlob={imageBlob} />;
     case "json":
       return fileContent ? (
-        <JsonPreview content={fileContent} />
+        <JsonPreview content={fileContent} isDark={isDark} />
       ) : (
-        <div className="text-slate-400">Loading JSON...</div>
+        <div className="opacity-60">Loading JSON...</div>
       );
     case "python":
       return fileContent ? (
-        <PythonPreview content={fileContent} />
+        <PythonPreview content={fileContent} isDark={isDark} />
       ) : (
-        <div className="text-slate-400">Loading Python file...</div>
+        <div className="opacity-60">Loading Python file...</div>
       );
     case "text":
       return fileContent ? (
-        <TextPreview content={fileContent} filename={currentFile.full_path} />
+        <TextPreview content={fileContent} filename={currentFile.full_path} isDark={isDark} />
       ) : (
-        <div className="text-slate-400">Loading text file...</div>
+        <div className="opacity-60">Loading text file...</div>
       );
     case "unsupported":
       return <NoPreview mimetype={currentFile.mimetype} />;
     default:
-      return <div className="text-slate-400">Unknown file type</div>;
+      return <div className="opacity-60">Unknown file type</div>;
   }
 };
 
@@ -282,6 +296,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
     () => project?.version?.files ?? [],
     [project?.version?.files]
   );
+  const isDark = useIsDarkTheme();
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
@@ -431,24 +446,25 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
 
   return (
     <section
-      className="bg-gray-800 p-6 rounded-lg shadow-lg text-left"
+      className="card bg-base-200 shadow-lg text-left"
       data-testid="code-preview-section"
     >
-      <h2 className="text-2xl font-semibold text-slate-100 mb-4">
+      <div className="card-body">
+      <h2 className="card-title text-2xl mb-4">
         Code Preview / Files
       </h2>
       {showFileList && (
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/3 w-full">
-            <h3 className="text-lg font-medium text-slate-200 mb-2">
+            <h3 className="text-lg font-medium text-base-content mb-2">
               Project Files:
             </h3>
-            <ul className="list-none text-slate-400 text-sm space-y-1">
+            <ul className="list-none text-sm space-y-1">
               {files.map((f, i: number) => (
                 <li key={i} className="flex items-center gap-2">
                   <button
                     type="button"
-                    className="px-1 py-1 bg-slate-700 rounded hover:bg-slate-600"
+                    className="btn btn-xs btn-ghost"
                     onClick={() => handleDownload(f)}
                     title="Download file"
                     style={{
@@ -466,8 +482,8 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
                     type="button"
                     className={`text-left hover:underline font-mono ${
                       previewedFile === f.full_path
-                        ? "text-slate-100 font-bold"
-                        : "text-slate-400"
+                        ? "text-base-content font-bold"
+                        : "opacity-60"
                     }`}
                     onClick={() => handlePreview(f.full_path)}
                     onKeyDown={(e) => {
@@ -488,7 +504,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
                     {f.full_path}
                   </button>
                   {f.size_formatted ? (
-                    <span className="ml-2 text-slate-500">
+                    <span className="ml-2 opacity-60">
                       {f.size_formatted}
                     </span>
                   ) : null}
@@ -499,15 +515,17 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
         </div>
       )}
       <div className={showFileList ? "mt-6 md:ml-0" : "mt-4"}>
-        <div className="code-block font-mono text-sm bg-gray-900 rounded p-4 overflow-x-auto min-h-[200px]">
+        <div className="code-block font-mono text-sm bg-base-300 rounded p-4 overflow-x-auto min-h-[200px]">
           {renderFilePreview(
             loading,
             previewedFile,
             currentFile,
             fileContent,
+            isDark,
             imageBlob || undefined
           )}
         </div>
+      </div>
       </div>
     </section>
   );

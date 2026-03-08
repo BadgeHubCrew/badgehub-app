@@ -38,7 +38,7 @@ export const MultiCategorySelector: React.FC<{
         onValueSelection={handleSelection}
       />
       {limitError && (
-        <p className="text-xs text-red-400 mt-2">{limitError}</p>
+        <p className="text-xs text-error mt-2">{limitError}</p>
       )}
     </div>
   );

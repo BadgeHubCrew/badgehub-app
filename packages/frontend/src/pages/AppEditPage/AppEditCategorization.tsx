@@ -7,44 +7,41 @@ const AppEditCategorization: React.FC<{
   form: ProjectEditFormData;
   onChange: (changes: Partial<ProjectEditFormData>) => void;
 }> = ({ form, onChange }) => (
-  <section className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h2 className="text-2xl font-semibold text-slate-100 mb-4">
-      Categorization
-    </h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <MultiBadgeSelector
-        noValueSetName="Please select"
-        badges={form.badges}
-        onBadgeChange={(newValue) =>
-          onChange({
-            badges: newValue.length === 0 ? undefined : newValue,
-          })
-        }
-      />
-      <MultiCategorySelector
-        noValueSetName="Please select"
-        categories={form.categories}
-        onCategoryChange={(newValue) =>
-          onChange({
-            categories: newValue.length === 0 ? undefined : newValue,
-          })
-        }
-      />
-      <div>
-        <label
-          htmlFor="licenseType"
-          className="block text-sm font-medium text-slate-300 mb-1"
-        >
-          License Type
-        </label>
-        <p className="text-xs text-slate-500 mb-1">License Type, eg. MIT</p>
-        <input
-          type="text"
-          className="w-full form-input p-2"
-          id="licenseType"
-          value={form.license_type || ""}
-          onChange={(e) => onChange({ license_type: e.target.value })}
+  <section className="card bg-base-200 shadow-lg">
+    <div className="card-body">
+      <h2 className="card-title text-2xl mb-2">Categorization</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <MultiBadgeSelector
+          noValueSetName="Please select"
+          badges={form.badges}
+          onBadgeChange={(newValue) =>
+            onChange({
+              badges: newValue.length === 0 ? undefined : newValue,
+            })
+          }
         />
+        <MultiCategorySelector
+          noValueSetName="Please select"
+          categories={form.categories}
+          onCategoryChange={(newValue) =>
+            onChange({
+              categories: newValue.length === 0 ? undefined : newValue,
+            })
+          }
+        />
+        <div className="form-control">
+          <label htmlFor="licenseType" className="label">
+            <span className="label-text">License Type</span>
+            <span className="label-text-alt whitespace-normal break-words">e.g., MIT</span>
+          </label>
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            id="licenseType"
+            value={form.license_type || ""}
+            onChange={(e) => onChange({ license_type: e.target.value })}
+          />
+        </div>
       </div>
     </div>
   </section>

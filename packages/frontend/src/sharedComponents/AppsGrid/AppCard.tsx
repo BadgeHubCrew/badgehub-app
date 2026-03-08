@@ -8,7 +8,7 @@ import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx
 
 const AppCard: React.FC<
   AppCardProps & {
-    git_url?: string; // Add git_url to props
+    git_url?: string;
   }
 > = ({
   name,
@@ -81,7 +81,6 @@ const AppCard: React.FC<
 
     return () => {
       isCanceled = true;
-      // Revoke the blob URL created by this effect to prevent memory leaks
       if (currentBlobUrl) {
         URL.revokeObjectURL(currentBlobUrl);
       }
@@ -91,14 +90,14 @@ const AppCard: React.FC<
   return (
     <div
       data-testid="AppCard"
-      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden card-hover-effect flex flex-col h-60"
+      className="card bg-base-200 shadow-lg overflow-hidden card-hover-effect flex flex-col h-60"
     >
-      <div className="p-5 flex flex-col flex-grow">
+      <div className="card-body p-5 flex flex-col flex-grow">
         {/* Header with icon, title, and Git link */}
         <div className="flex items-center mb-3">
-          <div className="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center mr-4 flex-shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-lg bg-base-300 flex items-center justify-center mr-4 flex-shrink-0 overflow-hidden">
             {isLoadingIcon || !authenticatedIconSrc ? (
-              <div className="w-8 h-8 bg-gray-600 animate-pulse rounded"></div>
+              <div className="skeleton w-8 h-8 rounded"></div>
             ) : (
               <img
                 src={authenticatedIconSrc}
@@ -118,9 +117,9 @@ const AppCard: React.FC<
                   ? `/page/project/${slug}/edit`
                   : `/page/project/${slug}`
               }
-              className="min-w-0" // Prevents the link from pushing other elements
+              className="min-w-0"
             >
-              <h3 className="text-xl font-semibold text-emerald-400 hover:text-emerald-300 transition-colors truncate">
+              <h3 className="text-xl font-semibold text-primary hover:text-primary/80 transition-colors truncate">
                 {name}
               </h3>
             </MLink>
@@ -129,7 +128,7 @@ const AppCard: React.FC<
         </div>
 
         {/* Description with line clamp */}
-        <p className="text-sm text-slate-400 leading-relaxed line-clamp-2">
+        <p className="text-sm opacity-70 leading-relaxed line-clamp-2">
           {description}
         </p>
 
@@ -158,15 +157,15 @@ const AppCard: React.FC<
                   <span
                     key={tag.id}
                     className={`${
-                      tag.type === "category" ? "tag" : "tag-mcu"
-                    } text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full`}
+                      tag.type === "category" ? "badge badge-neutral" : "badge badge-success"
+                    } text-xs font-semibold mr-2`}
                   >
                     {tag.text}
                   </span>
                 ))}
                 {hiddenCount > 0 && (
                   <span
-                    className="text-xs text-slate-500 font-medium cursor-help"
+                    className="text-xs opacity-50 font-medium cursor-help"
                     title={allTags
                       .slice(MAX_VISIBLE_TAGS)
                       .map((tag) => tag.text)
@@ -182,14 +181,14 @@ const AppCard: React.FC<
       </div>
 
       {/* Footer with stats */}
-      <div className="px-5 py-3 bg-gray-700 border-t border-gray-700 flex justify-between items-center">
-        <p className="text-sm text-slate-400">Revision: {revision ?? "-"}</p>
-        <p className="text-sm text-slate-400">
+      <div className="px-5 py-3 bg-base-300 border-t border-base-300 flex justify-between items-center">
+        <p className="text-sm opacity-70">Revision: {revision ?? "-"}</p>
+        <p className="text-sm opacity-70">
           Published:{" "}
           {published_at ? new Date(published_at).toLocaleDateString() : "-"}
         </p>
         {installs !== undefined && (
-          <p className="text-sm text-slate-400 flex items-center">
+          <p className="text-sm opacity-70 flex items-center">
             <DownloadIcon />
             <span className="ml-1">{installs}</span>
           </p>

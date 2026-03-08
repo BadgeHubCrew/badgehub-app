@@ -1,25 +1,23 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <script type="module">import { injectIntoGlobalHook } from "http://localhost:5173/@react-refresh";
-
+  <script type="module">
+  const viteBase = `${window.location.protocol}//${window.location.hostname}:5173`;
+  const { injectIntoGlobalHook } = await import(viteBase + '/@react-refresh');
   injectIntoGlobalHook(window);
-  window.$RefreshReg$ = () => {
-  };
+  window.$RefreshReg$ = () => {};
   window.$RefreshSig$ = () => (type) => type;
+  await import(viteBase + '/@vite/client');
+  await import(viteBase + '/src/main.tsx');
   </script>
 
-  <script type="module" src="http://localhost:5173/@vite/client"></script>
-
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="http://localhost:5173/assets/badgehub.svg" />
+  <link rel="icon" type="image/svg+xml" href="/assets/badgehub.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BadgeHub Indirect Dev Mode</title>
-  <script src="/scripts/tailwind.js"></script>
   <!-- __SHARED_CONFIG_SCRIPT_PLACEHOLDER__ -->
 </head>
 <body>
 <div id="root"></div>
-<script type="module" src="http://localhost:5173/src/main.tsx"></script>
 </body>
 </html>

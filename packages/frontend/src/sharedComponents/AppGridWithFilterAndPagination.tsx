@@ -18,10 +18,12 @@ export type AppFetcher = (
 export const AppGridWithFilterAndPagination = ({
   appFetcher,
   searchQuery,
+  setSearchQuery,
   editable = false,
 }: {
   appFetcher: AppFetcher;
   searchQuery: string;
+  setSearchQuery?: (q: string) => void;
   editable?: boolean;
 }) => {
   const [apps, setApps] = useState<AppCardProps[]>([]);
@@ -105,12 +107,26 @@ export const AppGridWithFilterAndPagination = ({
       ) : error ? (
         <div
           data-testid="error-message"
-          className="text-center py-10 text-red-400"
+          className="text-center py-10 text-error"
         >
           {error}
         </div>
       ) : (
-        <AppsGrid apps={paginatedApps} editable={editable} />
+        <>
+          {setSearchQuery && (
+            <div className="lg:hidden mb-4">
+              <input
+                type="search"
+                placeholder="Search apps..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                data-testid="mobile-search-bar"
+                className="input input-bordered input-sm w-full"
+              />
+            </div>
+          )}
+          <AppsGrid apps={paginatedApps} editable={editable} />
+        </>
       )}
       {/* show pagination if more than one page */}
       {Math.ceil(filteredSortedApps.length / pageSize) > 1 && (

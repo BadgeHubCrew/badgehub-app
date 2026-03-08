@@ -51,7 +51,7 @@ const AppEditForm: React.FC<{
   return (
     <>
       <AppEditBreadcrumb project={project} />
-      <h1 className="text-3xl font-bold text-slate-100 mb-6">
+      <h1 className="text-3xl font-bold mb-6">
         Editing {project.slug}/rev{project.version.revision}
       </h1>
       <div className="space-y-8">

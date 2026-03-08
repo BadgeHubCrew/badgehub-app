@@ -1,21 +1,63 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@font-face {
-    font-family: Inter;
-    src: url("/fonts/Inter/Inter-VariableFont_opsz,wght.woff2") format("woff2-variations");
-    font-weight: 100 900; /* min and max weights */
-    font-style: normal; /* italic for the italic font */
-    font-display: swap;
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: light, dark, dracula, synthwave, cyberpunk, nord, forest, aqua, luxury, coffee;
 }
 
-@font-face {
-    font-family: Inter;
-    src: url("/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.woff2") format("woff2-variations");
-    font-weight: 100 900; /* min and max weights */
-    font-style: italic; /* italic for the italic font */
-    font-display: swap;
+/* BadgeHub original theme — dark navy bg (#111827) with emerald-green primary (#047857) */
+[data-theme="badgehub"] {
+  color-scheme: dark;
+  --color-base-100: oklch(21% 0.030 264);
+  --color-base-200: oklch(28% 0.030 264);
+  --color-base-300: oklch(35% 0.025 264);
+  --color-base-content: oklch(97% 0.004 264);
+  --color-primary: oklch(44% 0.13 162);
+  --color-primary-content: oklch(97% 0 0);
+  --color-secondary: oklch(52% 0.13 162);
+  --color-secondary-content: oklch(97% 0 0);
+  --color-accent: oklch(70% 0.15 162);
+  --color-accent-content: oklch(10% 0 0);
+  --color-neutral: oklch(25% 0.016 252);
+  --color-neutral-content: oklch(92% 0.004 286);
+  --color-info: oklch(74% 0.16 232);
+  --color-info-content: oklch(29% 0.066 243);
+  --color-success: oklch(76% 0.177 163);
+  --color-success-content: oklch(37% 0.077 169);
+  --color-warning: oklch(82% 0.189 84);
+  --color-warning-content: oklch(41% 0.112 46);
+  --color-error: oklch(71% 0.194 13);
+  --color-error-content: oklch(27% 0.105 12);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* BadgeHub theme: titles/logo use emerald-400 (brighter) like main branch,
+   while buttons/backgrounds keep the darker primary */
+[data-theme="badgehub"] .text-primary {
+  color: oklch(79% 0.17 162);
+}
+[data-theme="badgehub"] .text-primary\/80,
+[data-theme="badgehub"] .hover\:text-primary\/80:hover {
+  color: oklch(79% 0.17 162 / 0.8);
+}
+
+/* BadgeHub theme: tone down badge-success (badge tags) — mid-tone green,
+   distinct from primary (titles/logo) and lighter than bright success */
+[data-theme="badgehub"] .badge-success {
+  background-color: oklch(36% 0.09 162);
+  border-color: oklch(36% 0.09 162);
+  color: oklch(85% 0.06 162);
+}
+
+/* BadgeHub theme: restore primary green on the hero CTA button */
+[data-theme="badgehub"] .btn-explore {
+  --btn-color: var(--color-primary);
+  color: var(--color-primary-content);
 }
 
 @font-face {
@@ -39,17 +81,10 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    --bg-gray-700: #2d3748;
-    --bg-gray-600: #4a5568;
-    --slate-200: #e2e8f0;
 }
 
 html {
@@ -67,26 +102,18 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--color-gray-800);
+    background: var(--color-base-300);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #4a5568;
+    background: var(--color-base-content);
+    opacity: 0.35;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #718096;
-}
-
-a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-}
-
-a:hover {
-    color: #535bf2;
+    background: var(--color-base-content);
+    opacity: 0.55;
 }
 
 body {
@@ -96,32 +123,6 @@ body {
     place-items: center; */
     min-width: 320px;
     min-height: 100vh;
-}
-
-h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
-}
-
-button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-}
-
-button:hover {
-    border-color: #646cff;
-}
-
-button:focus,
-button:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
 }
 
 /* Card hover effect */
@@ -134,36 +135,6 @@ button:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2),
     0 4px 6px -2px rgba(0, 0, 0, 0.1);
-}
-
-/* Tag styles */
-.tag {
-    background-color: #374151;
-    color: #d1d5db;
-}
-
-.tag-mcu {
-    background-color: #047857;
-    color: #d1fae5;
-}
-
-/* Button variants */
-.btn-primary {
-    background-color: #047857;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #059669;
-}
-
-.btn-secondary {
-    background-color: #4b5563;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #52525b;
 }
 
 /* Icon utility */
@@ -235,30 +206,4 @@ button:focus-visible {
     100% {
         opacity: 0;
     }
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        color: #213547;
-        background-color: #ffffff;
-    }
-
-    a:hover {
-        color: #747bff;
-    }
-
-    button {
-        background-color: #f9f9f9;
-    }
-}
-
-input, textarea, select {
-    line-height: 1.25;
-    color: var(--slate-200);
-    background-color: var(--bg-gray-700);
-}
-
-input, textarea {
-    border: 1px solid var(--bg-gray-600);
-    border-radius: 0.375rem;
 }

@@ -28,7 +28,7 @@ const Filters: React.FC<FiltersProps> = ({
 }) => {
   return (
     <section
-      className="mb-8 p-4 bg-gray-800 rounded-lg shadow"
+      className="card bg-base-200 shadow mb-8 p-4"
       data-testid="filter-bar"
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProps> = ({
 
         <div className="flex items-end">
           <button
-            className="w-full btn-primary px-4 py-2 rounded-md text-sm font-semibold flex items-center justify-center"
+            className="w-full btn btn-primary btn-sm flex items-center justify-center"
             type="button"
             onClick={onResetFilters}
           >

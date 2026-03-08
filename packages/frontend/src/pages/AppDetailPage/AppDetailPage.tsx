@@ -9,8 +9,7 @@ import AppSidebarAuthor from "./AppSidebarAuthor.tsx";
 import AppSidebarSimilar from "./AppSidebarSimilar.tsx";
 import AppBreadcrumb from "./AppBreadcrumb.tsx";
 import { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
-import Header from "@sharedComponents/Header.tsx";
-import Footer from "@sharedComponents/Footer.tsx";
+import PageLayout from "@sharedComponents/PageLayout.tsx";
 import { useTitle } from "@hooks/useTitle.ts";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
 import {
@@ -41,7 +40,7 @@ const AppDetailPage: React.FunctionComponent<{
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64 text-slate-400 bg-gray-900 min-h-screen">
+      <div className="flex justify-center items-center h-64 min-h-screen">
         Loading...
       </div>
     );
@@ -50,7 +49,7 @@ const AppDetailPage: React.FunctionComponent<{
     return (
       <div
         data-testid="app-detail-error"
-        className="flex justify-center items-center h-64 text-red-400 bg-gray-900 min-h-screen"
+        className="flex justify-center items-center h-64 text-error min-h-screen"
       >
         {errorMessage}
       </div>
@@ -60,7 +59,7 @@ const AppDetailPage: React.FunctionComponent<{
     return (
       <div
         data-testid="app-detail-error"
-        className="flex justify-center items-center h-64 text-red-400 bg-gray-900 min-h-screen"
+        className="flex justify-center items-center h-64 text-error min-h-screen"
       >
         App not found.
       </div>
@@ -68,29 +67,22 @@ const AppDetailPage: React.FunctionComponent<{
   }
   const appMetadata = project.version.app_metadata;
   return (
-    <div
-      data-testid={"app-detail-page"}
-      className="min-h-screen flex flex-col bg-gray-900 text-slate-200"
-    >
-      <Header />
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
-        <AppBreadcrumb projectName={appMetadata.name ?? project.slug} />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <AppDetailHeader project={project} />
-            <AppDescription project={project} />
-            <AppCodePreview project={project} />
-            {/*<AppReviews project={project} />*/}
-          </div>
-          <aside className="lg:col-span-1 space-y-8">
-            <AppSidebarDetails project={project} />
-            <AppSidebarAuthor project={project} />
-            <AppSidebarSimilar project={project} tsRestClient={tsRestClient} />
-          </aside>
+    <PageLayout data-testid="app-detail-page">
+      <AppBreadcrumb projectName={appMetadata.name ?? project.slug} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <AppDetailHeader project={project} />
+          <AppDescription project={project} />
+          <AppCodePreview project={project} />
+          {/*<AppReviews project={project} />*/}
         </div>
-      </main>
-      <Footer />
-    </div>
+        <aside className="lg:col-span-1 space-y-8">
+          <AppSidebarDetails project={project} />
+          <AppSidebarAuthor project={project} />
+          <AppSidebarSimilar project={project} tsRestClient={tsRestClient} />
+        </aside>
+      </div>
+    </PageLayout>
   );
 };
 
