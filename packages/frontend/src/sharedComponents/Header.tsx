@@ -57,19 +57,17 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
     : undefined;
 
   return (
-    <header className="navbar bg-base-200 shadow-md sticky top-0 z-50 px-4">
-      <div className="navbar-start">
+    <header className="navbar bg-base-200 shadow-md sticky top-0 z-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between w-full min-h-16">
         <MLink
           to="/"
-          className="btn btn-ghost text-xl font-semibold text-primary flex items-center gap-2"
+          className="btn btn-ghost text-xl font-semibold text-primary flex items-center gap-2 flex-shrink-0"
         >
           <BadgeHubIcon />
           <span>BadgeHub</span>
         </MLink>
-      </div>
 
-      <div className="navbar-center hidden md:flex">
-        <nav className="flex gap-1 items-center">
+        <nav className="hidden md:flex gap-1 items-center">
           {navLinks.map((link) => (
             <MLink
               to={link.to}
@@ -78,29 +76,30 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               data-testid={"Header/Link/" + link.testId}
               className={
                 (link.to.endsWith("/todo") ? "todoElement " : "") +
-                "btn btn-ghost btn-sm"
+                "text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-center"
               }
             >
               {link.label}
             </MLink>
           ))}
         </nav>
-      </div>
 
-      <div className="navbar-end flex items-center gap-3">
-        {checkedSearchProps && (
-          <SearchField {...checkedSearchProps} />
-        )}
-        <ThemePicker />
-        <ProfileIcon />
-        <div className="md:hidden">
-          <button
-            id="mobile-menu-button"
-            className="btn btn-ghost btn-sm"
-            aria-label="Open main menu"
-            aria-expanded={mobileOpen}
-            onClick={() => setMobileOpen((v) => !v)}
-          >
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {checkedSearchProps && (
+            <SearchField {...checkedSearchProps} />
+          )}
+          <div className="hidden lg:block">
+            <ThemePicker />
+          </div>
+          <ProfileIcon />
+          <div className="md:hidden">
+            <button
+              id="mobile-menu-button"
+              className="btn btn-ghost btn-sm"
+              aria-label="Open main menu"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen((v) => !v)}
+            >
             <span className="sr-only">Open main menu</span>
             <svg
               className={`${mobileOpen ? "hidden" : "block"} h-6 w-6`}
@@ -133,6 +132,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               />
             </svg>
           </button>
+          </div>
         </div>
       </div>
 
