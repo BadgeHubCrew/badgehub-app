@@ -29,7 +29,7 @@ export const OptionSelectorWithTitle: React.FC<
         id={selectionId}
         name={selectionId}
         data-testid={selectionId}
-        className="select select-bordered w-full"
+        className="select select-sm select-bordered w-full"
         value={value === undefined ? NO_FILTER_OPTION_VALUE : String(value)}
         onChange={(e) =>
           onValueSelection(

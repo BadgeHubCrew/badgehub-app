@@ -3,6 +3,39 @@
   themes: light, dark, dracula, synthwave, cyberpunk, nord, forest, aqua, luxury, coffee;
 }
 
+/* BadgeHub original theme — dark navy bg (#111827) with emerald-green primary (#047857) */
+[data-theme="badgehub"] {
+  color-scheme: dark;
+  --color-base-100: oklch(21% 0.030 264);
+  --color-base-200: oklch(28% 0.030 264);
+  --color-base-300: oklch(35% 0.025 264);
+  --color-base-content: oklch(97% 0.004 264);
+  --color-primary: oklch(44% 0.13 162);
+  --color-primary-content: oklch(97% 0 0);
+  --color-secondary: oklch(52% 0.13 162);
+  --color-secondary-content: oklch(97% 0 0);
+  --color-accent: oklch(70% 0.15 162);
+  --color-accent-content: oklch(10% 0 0);
+  --color-neutral: oklch(25% 0.016 252);
+  --color-neutral-content: oklch(92% 0.004 286);
+  --color-info: oklch(74% 0.16 232);
+  --color-info-content: oklch(29% 0.066 243);
+  --color-success: oklch(76% 0.177 163);
+  --color-success-content: oklch(37% 0.077 169);
+  --color-warning: oklch(82% 0.189 84);
+  --color-warning-content: oklch(41% 0.112 46);
+  --color-error: oklch(71% 0.194 13);
+  --color-error-content: oklch(27% 0.105 12);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
 @font-face {
     font-family: Inter;
     src: url("/fonts/Inter/Inter-VariableFont_opsz,wght.woff2") format("woff2-variations");
