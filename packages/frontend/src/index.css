@@ -36,6 +36,12 @@
   --noise: 0;
 }
 
+/* BadgeHub theme: restore primary green on the hero CTA button */
+[data-theme="badgehub"] .btn-explore {
+  --btn-color: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
 @font-face {
     font-family: Inter;
     src: url("/fonts/Inter/Inter-VariableFont_opsz,wght.woff2") format("woff2-variations");

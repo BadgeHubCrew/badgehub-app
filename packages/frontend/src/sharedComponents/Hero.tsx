@@ -19,7 +19,7 @@ const Hero: React.FC = () => (
             .getElementById("apps-grid")
             ?.scrollIntoView({ behavior: "smooth" });
         }}
-        className="btn btn-lg"
+        className="btn btn-lg btn-explore"
       >
         Explore Projects
       </a>
