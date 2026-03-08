@@ -13,6 +13,11 @@ import MyProjectsPage from "@pages/MyProjectsPage/MyProjectsPage.tsx";
 import { IS_DEV_ENVIRONMENT } from "@config.ts";
 import { useTitle } from "@hooks/useTitle.ts";
 
+document.documentElement.setAttribute(
+  "data-theme",
+  localStorage.getItem("theme") ?? "badgehub"
+);
+
 const AppDetailWrapper = () => {
   const { slug } = useParams<{ slug: string }>();
   if (!slug) {
