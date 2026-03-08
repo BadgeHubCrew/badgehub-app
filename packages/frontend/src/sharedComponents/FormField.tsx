@@ -15,7 +15,7 @@ const FormField: React.FC<FormFieldProps> = ({ label, htmlFor, hint, children })
     {children}
     {hint && (
       <label className="label">
-        <span className="label-text-alt">{hint}</span>
+        <span className="label-text-alt whitespace-normal break-words">{hint}</span>
       </label>
     )}
   </div>

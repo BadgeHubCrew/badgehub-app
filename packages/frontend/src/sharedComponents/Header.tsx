@@ -3,6 +3,7 @@ import { BadgeHubIcon } from "@sharedComponents/BadgeHubIcon.tsx";
 import ProfileIcon from "@sharedComponents/ProfileIcon";
 import { MLink } from "@sharedComponents/MLink.tsx";
 import ThemePicker from "@sharedComponents/ThemePicker.tsx";
+import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 
 const navLinks = [
   { label: "Browse Projects", to: "/", testId: "BrowseProjects" },
@@ -49,12 +50,25 @@ const SearchField: React.FC<SearchProps> = ({
 
 const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, keycloak } = useSession();
   const searchEnabled =
     searchProps.searchQuery !== undefined &&
     searchProps.setSearchQuery !== undefined;
   const checkedSearchProps: SearchProps | undefined = searchEnabled
     ? (searchProps as SearchProps)
     : undefined;
+
+  async function login() {
+    await keycloak?.login();
+  }
+
+  async function logout() {
+    await keycloak?.logout();
+  }
+
+  async function account() {
+    await keycloak?.accountManagement();
+  }
 
   return (
     <header className="bg-base-200 shadow-md sticky top-0 z-50 min-w-[320px]">
@@ -94,7 +108,9 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
           <div className="md:hidden">
             <ThemePicker />
           </div>
-          <ProfileIcon />
+          <div className="hidden md:block">
+            <ProfileIcon />
+          </div>
           <div className="md:hidden">
             <button
               id="mobile-menu-button"
@@ -155,6 +171,37 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               {link.label}
             </MLink>
           ))}
+          <div className="divider my-1" />
+          {user ? (
+            <>
+              <div className="px-3 py-2">
+                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-xs opacity-60 truncate">{user.email}</p>
+              </div>
+              <button
+                onClick={account}
+                className="text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-left w-full"
+                data-testid="mobile-account-button"
+              >
+                Account
+              </button>
+              <button
+                onClick={logout}
+                className="text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-left w-full"
+                data-testid="mobile-logout-button"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={login}
+              className="text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-left w-full"
+              data-testid="mobile-login-button"
+            >
+              Login / Register
+            </button>
+          )}
         </div>
       </div>
     </header>

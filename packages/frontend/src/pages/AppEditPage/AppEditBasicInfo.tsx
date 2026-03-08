@@ -101,7 +101,7 @@ const AppEditBasicInfo: React.FC<{
                 onChange={(e) => onChange({ hidden: e.target.checked })}
               />
               <span className="label-text">Hidden</span>
-              <span className="label-text-alt">
+              <span className="label-text-alt whitespace-normal break-words">
                 If checked, this app will not appear in public listings.
               </span>
             </label>

@@ -32,7 +32,7 @@ const AppEditCategorization: React.FC<{
         <div className="form-control">
           <label htmlFor="licenseType" className="label">
             <span className="label-text">License Type</span>
-            <span className="label-text-alt">e.g., MIT</span>
+            <span className="label-text-alt whitespace-normal break-words">e.g., MIT</span>
           </label>
           <input
             type="text"

@@ -45,7 +45,7 @@ export const MultiOptionSelectorWithTitle: React.FC<{
       </label>
       <div className="mb-2">
         <label htmlFor={searchId} className="label">
-          <span className="label-text-alt">Search {title}</span>
+          <span className="label-text-alt whitespace-normal break-words">Search {title}</span>
         </label>
         <input
           id={searchId}

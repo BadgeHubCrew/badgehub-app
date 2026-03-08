@@ -83,7 +83,7 @@ const AppEditFileUpload: React.FC<{
             onChange={handleFileChange}
           />
           <label className="label">
-            <span className="label-text-alt">
+            <span className="label-text-alt whitespace-normal break-words">
               You can upload any file type (e.g., code, images, docs). Executable
               file types will be selectable as "Main".
             </span>

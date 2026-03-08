@@ -37,7 +37,7 @@ const AppCreationBasicInfo: React.FC<{
               autoComplete="off"
             />
             <label className="label">
-              <span className="label-text-alt">
+              <span className="label-text-alt whitespace-normal break-words">
                 Lowercase letters, numbers, and underscores only. Should start
                 with a letter and contain at least 3 characters.
               </span>
