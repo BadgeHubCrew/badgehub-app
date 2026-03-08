@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "mkdir -p dist && cp index-indirect-dev.html dist/index.html && vite",
+    "sync:theme-bootstrap": "node dev/sync-theme-bootstrap.mjs",
+    "dev": "npm run sync:theme-bootstrap && mkdir -p dist && cp index-indirect-dev.html dist/index.html && vite",
     "check:ts": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
-    "build": "vite build",
+    "build": "npm run sync:theme-bootstrap && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run"
