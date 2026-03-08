@@ -40,13 +40,20 @@ const ProfileIcon: React.FC = () => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <div className="inline-block align-top p-2 pr-3">{user?.name}</div>
+      <div className="hidden md:inline-block align-top p-2 pr-3">{user?.name}</div>
       <button
-        className="btn btn-ghost btn-circle"
+        className="btn btn-ghost btn-circle relative"
         aria-label="Profile"
         onClick={() => setMenuOpen((v) => !v)}
         data-testid="profile-icon"
       >
+        {user && (
+          <span
+            className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-base-200"
+            aria-label="Logged in"
+            title="Logged in"
+          />
+        )}
         <svg
           className="h-6 w-6"
           fill="none"

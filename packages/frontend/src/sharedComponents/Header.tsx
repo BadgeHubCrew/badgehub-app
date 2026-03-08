@@ -91,6 +91,9 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
           <div className="hidden md:block">
             <ThemePicker />
           </div>
+          <div className="md:hidden">
+            <ThemePicker />
+          </div>
           <ProfileIcon />
           <div className="md:hidden">
             <button
@@ -152,10 +155,6 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               {link.label}
             </MLink>
           ))}
-          <div className="divider my-1" />
-          <div className="px-2 pb-1">
-            <ThemePicker />
-          </div>
         </div>
       </div>
     </header>
