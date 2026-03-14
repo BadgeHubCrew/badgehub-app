@@ -728,7 +728,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                               "type": "array",
                             },
                             "description": {
-                              "description": "Some more details about the app. Allows users to decide whether they want to install the app.",
+                              "description": "Short description of the app. Used in compact layouts and as a fallback when long_description is empty.",
                               "type": "string",
                             },
                             "git_url": {
@@ -763,6 +763,10 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                             },
                             "license_type": {
                               "description": "Short description of the license type, eg. 'MIT'",
+                              "type": "string",
+                            },
+                            "long_description": {
+                              "description": "Long-form app description. When present, this replaces description in layouts with enough space, such as the detail page.",
                               "type": "string",
                             },
                             "name": {
@@ -1235,7 +1239,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                               "type": "array",
                             },
                             "description": {
-                              "description": "Some more details about the app. Allows users to decide whether they want to install the app.",
+                              "description": "Short description of the app. Used in compact layouts and as a fallback when long_description is empty.",
                               "type": "string",
                             },
                             "git_url": {
@@ -1270,6 +1274,10 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                             },
                             "license_type": {
                               "description": "Short description of the license type, eg. 'MIT'",
+                              "type": "string",
+                            },
+                            "long_description": {
+                              "description": "Long-form app description. When present, this replaces description in layouts with enough space, such as the detail page.",
                               "type": "string",
                             },
                             "name": {
@@ -1965,7 +1973,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                     "type": "array",
                   },
                   "description": {
-                    "description": "Some more details about the app. Allows users to decide whether they want to install the app.",
+                    "description": "Short description of the app. Used in compact layouts and as a fallback when long_description is empty.",
                     "type": "string",
                   },
                   "git_url": {
@@ -2000,6 +2008,10 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                   },
                   "license_type": {
                     "description": "Short description of the license type, eg. 'MIT'",
+                    "type": "string",
+                  },
+                  "long_description": {
+                    "description": "Long-form app description. When present, this replaces description in layouts with enough space, such as the detail page.",
                     "type": "string",
                   },
                   "name": {
@@ -2382,7 +2394,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                               "type": "array",
                             },
                             "description": {
-                              "description": "Some more details about the app. Allows users to decide whether they want to install the app.",
+                              "description": "Short description of the app. Used in compact layouts and as a fallback when long_description is empty.",
                               "type": "string",
                             },
                             "git_url": {
@@ -2417,6 +2429,10 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                             },
                             "license_type": {
                               "description": "Short description of the license type, eg. 'MIT'",
+                              "type": "string",
+                            },
+                            "long_description": {
+                              "description": "Long-form app description. When present, this replaces description in layouts with enough space, such as the detail page.",
                               "type": "string",
                             },
                             "name": {

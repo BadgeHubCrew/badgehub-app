@@ -21,11 +21,28 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     await screen.findByTestId("app-detail-page");
 
     expect(screen.getByTestId("app-detail-name")).toHaveTextContent(app.name!);
-    expect(await screen.findByText(app.description!)).toBeInTheDocument();
+    expect(
+      await screen.findByText("This is a longer test app description.")
+    ).toBeInTheDocument();
+    expect(screen.queryByText(app.description!)).not.toBeInTheDocument();
     expect(screen.getAllByText(app.categories![0]!).length).toBeGreaterThan(0);
     if (app.badges && app.badges.length > 0) {
       expect(screen.queryAllByText(app.badges[0]!).length).toBeGreaterThan(0);
     }
+  });
+
+  it("falls back to the short description when long description is empty", async () => {
+    const app = dummyApps[1]!.summary;
+    render(
+      <AppDetailPage
+        tsRestClient={tsRestClientWithApps(dummyApps)}
+        slug={"dummy-app-2"}
+      />
+    );
+
+    await screen.findByTestId("app-detail-page");
+
+    expect(await screen.findByText(app.description!)).toBeInTheDocument();
   });
 
   it("renders the app revision", async () => {

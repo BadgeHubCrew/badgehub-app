@@ -5,6 +5,7 @@ type DummyData = {
   slug: string;
   name: string;
   description: string;
+  long_description?: string;
   categories: string[];
   revision: number;
   badges: string[];
@@ -15,6 +16,7 @@ const dummyData: DummyData[] = [
     slug: "dummy-app-1",
     name: "Dummy App 1",
     description: "A test app",
+    long_description: "This is a longer test app description.",
     categories: ["Silly"],
     revision: 1,
     badges: ["mch2022", "why2025"],

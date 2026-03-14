@@ -77,17 +77,44 @@ const AppEditBasicInfo: React.FC<{
           </div>
 
           {/* Description */}
-          <div className="form-control">
-            <label htmlFor="description" className="label">
-              <span className="label-text">Description</span>
-            </label>
-            <textarea
-              id="description"
-              rows={4}
-              className="textarea textarea-bordered w-full"
-              value={form.description || ""}
-              onChange={(e) => onChange({ description: e.target.value })}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="form-control">
+              <label htmlFor="description" className="label">
+                <span className="label-text">Short Description</span>
+              </label>
+              <textarea
+                id="description"
+                rows={4}
+                className="textarea textarea-bordered w-full"
+                value={form.description || ""}
+                onChange={(e) => onChange({ description: e.target.value })}
+              />
+              <div className="label">
+                <span className="label-text-alt whitespace-normal break-words">
+                  Used where space is limited. Hidden on the detail page when a
+                  long description is provided.
+                </span>
+              </div>
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="longDescription" className="label">
+                <span className="label-text">Long Description</span>
+              </label>
+              <textarea
+                id="longDescription"
+                rows={4}
+                className="textarea textarea-bordered w-full"
+                value={form.long_description || ""}
+                onChange={(e) => onChange({ long_description: e.target.value })}
+              />
+              <div className="label">
+                <span className="label-text-alt whitespace-normal break-words">
+                  Preferred on the detail page and other layouts with enough
+                  room. Falls back to the short description when empty.
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Hidden Toggle */}
