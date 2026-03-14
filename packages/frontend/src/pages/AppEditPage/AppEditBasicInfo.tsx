@@ -77,17 +77,32 @@ const AppEditBasicInfo: React.FC<{
           </div>
 
           {/* Description */}
-          <div className="form-control">
-            <label htmlFor="description" className="label">
-              <span className="label-text">Description</span>
-            </label>
-            <textarea
-              id="description"
-              rows={4}
-              className="textarea textarea-bordered w-full"
-              value={form.description || ""}
-              onChange={(e) => onChange({ description: e.target.value })}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="form-control">
+              <label htmlFor="description" className="label">
+                <span className="label-text">Description</span>
+              </label>
+              <textarea
+                id="description"
+                rows={4}
+                className="textarea textarea-bordered w-full"
+                value={form.description || ""}
+                onChange={(e) => onChange({ description: e.target.value })}
+              />
+            </div>
+
+            <div className="form-control">
+              <label htmlFor="longDescription" className="label">
+                <span className="label-text">Long Description</span>
+              </label>
+              <textarea
+                id="longDescription"
+                rows={4}
+                className="textarea textarea-bordered w-full"
+                value={form.long_description || ""}
+                onChange={(e) => onChange({ long_description: e.target.value })}
+              />
+            </div>
           </div>
 
           {/* Hidden Toggle */}

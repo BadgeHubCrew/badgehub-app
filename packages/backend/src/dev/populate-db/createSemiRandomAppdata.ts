@@ -62,6 +62,7 @@ export async function createSemiRandomAppdata(
   const semiRandomNumber = await stringToSemiRandomNumber(projectName);
   const projectSlug = projectName.toLowerCase();
   const description = await getDescription(projectName);
+  const longDescription = getLongDescription(projectName, semiRandomNumber);
   const userId = semiRandomNumber % USERS.length;
 
   const { created_at, updated_at } = await getSemiRandomDates(projectName);
@@ -97,7 +98,9 @@ export async function createSemiRandomAppdata(
   const appMetadata: AppMetadataJSON = {
     name: projectName,
     description,
+    long_description: longDescription,
     author: USERS[userId]!,
+
     license_type: "MIT",
     badges,
     categories,
@@ -138,4 +141,17 @@ async function getDescription(appName: string) {
     case 3:
       return `${appName} is just some silly test app.`;
   }
+}
+
+function getLongDescription(appName: string, semiRandomNumber: number) {
+  // Deterministic 50% coverage, similar to the rest of the semirandom fixtures.
+  if (semiRandomNumber % 2 !== 0) {
+    return undefined;
+  }
+
+  return `Lorem ipsum dolor sit amet, consectetur adipiscing elit. ${appName} posuere orci sed odio faucibus, vitae varius velit faucibus. Integer tempus, nisl eu porttitor fermentum, purus nibh hendrerit velit, quis volutpat dolor felis eu sem.
+
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. ${appName} facilisis nunc id lorem bibendum, non congue neque elementum.
+
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`;
 }
