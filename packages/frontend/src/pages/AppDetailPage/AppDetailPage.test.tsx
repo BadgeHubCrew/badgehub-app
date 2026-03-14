@@ -22,6 +22,9 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
 
     expect(screen.getByTestId("app-detail-name")).toHaveTextContent(app.name!);
     expect(await screen.findByText(app.description!)).toBeInTheDocument();
+    expect(
+      await screen.findByText("This is a longer test app description.")
+    ).toBeInTheDocument();
     expect(screen.getAllByText(app.categories![0]!).length).toBeGreaterThan(0);
     if (app.badges && app.badges.length > 0) {
       expect(screen.queryAllByText(app.badges[0]!).length).toBeGreaterThan(0);
