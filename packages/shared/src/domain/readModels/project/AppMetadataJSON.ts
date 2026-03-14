@@ -20,6 +20,7 @@ export interface AppMetadataJSON {
   project_type?: "app" | "library" | "firmware" | "other";
   hidden?: boolean;
   description?: string;
+  long_description?: string;
   git_url?: string;
   version?: string;
   categories?: CategoryName[];
@@ -88,6 +89,10 @@ export const appMetadataJSONSchema = z.object({
     .describe(
       "Some more details about the app. Allows users to decide whether they want to install the app."
     ),
+  long_description: z
+    .string()
+    .optional()
+    .describe("Longer description with more detailed app information."),
   categories: z
     .array(categoryNameSchema)
     .optional()

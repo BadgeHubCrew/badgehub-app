@@ -9,6 +9,7 @@ const baseForm: ProjectEditFormData = {
   name: "Demo",
   author: "Author",
   description: "Desc",
+  long_description: "Long Desc",
   git_url: "https://github.com/demo/repo",
   version: "1.0.0",
   hidden: false,
@@ -24,7 +25,8 @@ describe("AppEditBasicInfo", () => {
       "https://github.com/demo/repo"
     );
     expect(screen.getByLabelText(/version/i)).toHaveValue("1.0.0");
-    expect(screen.getByLabelText(/description/i)).toHaveValue("Desc");
+    expect(screen.getByLabelText(/^description$/i)).toHaveValue("Desc");
+    expect(screen.getByLabelText(/long description/i)).toHaveValue("Long Desc");
     expect(screen.getByLabelText(/hidden/i)).not.toBeChecked();
   });
 
@@ -73,10 +75,16 @@ describe("AppEditBasicInfo", () => {
     expect(onChange).toHaveBeenLastCalledWith({ version: "2.1.0" });
     onChange.mockClear();
 
-    await user.clear(screen.getByLabelText(/description/i));
-    await user.type(screen.getByLabelText(/description/i), "New Desc");
-    expect(screen.getByLabelText(/description/i)).toHaveValue("New Desc");
+    await user.clear(screen.getByLabelText(/^description$/i));
+    await user.type(screen.getByLabelText(/^description$/i), "New Desc");
+    expect(screen.getByLabelText(/^description$/i)).toHaveValue("New Desc");
     expect(onChange).toHaveBeenLastCalledWith({ description: "New Desc" });
+    onChange.mockClear();
+
+    await user.clear(screen.getByLabelText(/long description/i));
+    await user.type(screen.getByLabelText(/long description/i), "New Long Desc");
+    expect(screen.getByLabelText(/long description/i)).toHaveValue("New Long Desc");
+    expect(onChange).toHaveBeenLastCalledWith({ long_description: "New Long Desc" });
     onChange.mockClear();
 
     await user.click(screen.getByLabelText(/hidden/i));
