@@ -2,7 +2,7 @@ services:
   db:
     container_name: badgehub-db
     image: postgres:16
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -18,6 +18,7 @@ services:
     build: ../..
     ports:
       - "${EXPOSED_PORT}:8081"
+    restart: unless-stopped
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_DB: ${POSTGRES_DB}
