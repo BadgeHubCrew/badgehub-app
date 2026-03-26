@@ -140,8 +140,9 @@ data
 # intellij IDE
 .idea
 
-# Claude local documentation
-CLAUDE.local.md
+# local files
+*.local.*
 
 # Playwright temp files
 .playwright-mcp
+
