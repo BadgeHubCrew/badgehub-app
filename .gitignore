@@ -142,3 +142,6 @@ data
 
 # Claude local documentation
 CLAUDE.local.md
+
+# Playwright temp files
+.playwright-mcp
