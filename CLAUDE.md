@@ -74,8 +74,8 @@ Swagger UI is served by the backend at runtime, generated from ts-rest contracts
 Docker + PM2. The `Dockerfile` is multi-stage; the backend serves the built frontend static assets. Deployed via GitHub Actions on push to `main`.
 
 ## Commit Convention
-Follow [Conventional Commits](https://www.conventionalcommits.org/) (Angular style):
-`build`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `style`, `test`, `devex`, `clean`, `chore`, `revert`, `wip`, `deps`, `types`, `config`
+Follow [Conventional Commits](https://www.conventionalcommits.org/) with these types:
+`build`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `style`, `test`, `devex`, `clean`, `chore`, `revert`, `wip`, `deps`, `types`, `config`, `claude`
 
 ## Node Version
 It's Node 24.4.1 but should already be correctly set up in the environment. If not, ask the user to fix it.
