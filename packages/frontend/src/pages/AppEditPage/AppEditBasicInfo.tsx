@@ -84,7 +84,7 @@ const AppEditBasicInfo: React.FC<{
             </label>
             <textarea
               id="description"
-              rows={4}
+              rows={2}
               className="textarea textarea-bordered w-full"
               value={form.description || ""}
               onChange={(e) => onChange({ description: e.target.value })}

@@ -42,18 +42,16 @@ describe("MarkdownText", () => {
     expect(screen.getByText(/First line\s+second line/)).toBeInTheDocument();
   });
 
-  it("resets inline code decoration inside fenced code blocks", () => {
+  it("renders fenced code blocks with syntax highlighting", () => {
     const { container } = render(
       <MarkdownText>{"```ts\nconst ready = true;\n```"}</MarkdownText>
     );
-    const codeBlock = container.querySelector("pre");
 
-    expect(codeBlock).toHaveClass(
-      "[&_code]:rounded-none",
-      "[&_code]:bg-transparent",
-      "[&_code]:p-0"
-    );
-    expect(codeBlock?.querySelector("code")).toBeInTheDocument();
+    // Syntax highlighting splits the code into separate tokens.
+    expect(screen.getByText("const")).toBeInTheDocument();
+    expect(screen.getByText("ready")).toBeInTheDocument();
+    expect(screen.getByText("true")).toBeInTheDocument();
+    expect(container.querySelector("pre code")).toBeInTheDocument();
   });
 
   it("handles empty content gracefully", () => {
