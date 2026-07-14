@@ -5,6 +5,7 @@ import {
 import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
+import { useIsDarkTheme } from "@hooks/useIsDarkTheme.ts";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -12,26 +13,6 @@ import {
   atomOneDark,
   atomOneLight,
 } from "react-syntax-highlighter/dist/cjs/styles/hljs";
-
-function useIsDarkTheme() {
-  const [isDark, setIsDark] = useState(
-    () => getComputedStyle(document.documentElement).colorScheme === "dark"
-  );
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(
-        getComputedStyle(document.documentElement).colorScheme === "dark"
-      );
-    });
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-    return () => observer.disconnect();
-  }, []);
-  return isDark;
-}
-
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
 import type Keycloak from "keycloak-js";

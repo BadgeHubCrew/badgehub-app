@@ -77,39 +77,40 @@ const AppEditBasicInfo: React.FC<{
             />
           </div>
 
-          {/* Description */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label htmlFor="description" className="label">
-                <span className="label-text">Short Description</span>
-              </label>
-              <textarea
-                id="description"
-                rows={4}
-                className="textarea textarea-bordered w-full"
-                value={form.description || ""}
-                onChange={(e) => onChange({ description: e.target.value })}
-              />
-              <div className="label">
-                <span className="label-text-alt whitespace-normal break-words">
-                  Used where space is limited. Hidden on the detail page when a
-                  long description is provided.
-                </span>
-              </div>
+          {/* Short Description */}
+          <div className="form-control">
+            <label htmlFor="description" className="label">
+              <span className="label-text">Short Description</span>
+            </label>
+            <textarea
+              id="description"
+              rows={4}
+              className="textarea textarea-bordered w-full"
+              value={form.description || ""}
+              onChange={(e) => onChange({ description: e.target.value })}
+            />
+            <div className="label">
+              <span className="label-text-alt whitespace-normal break-words">
+                Used where space is limited. Hidden on the detail page when a
+                long description is provided.
+              </span>
             </div>
+          </div>
 
-            <div className="form-control">
-              <div className="label">
-                <label htmlFor="longDescription" className="label-text">
-                  Long Description
-                </label>
-                <span className="label-text-alt">
-                  Markdown · {form.long_description?.length || 0} characters
-                </span>
-              </div>
+          {/* Long Description */}
+          <div className="form-control">
+            <div className="label">
+              <label htmlFor="longDescription" className="label-text">
+                Long Description
+              </label>
+              <span className="label-text-alt">
+                Markdown · {form.long_description?.length || 0} characters
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <textarea
                 id="longDescription"
-                rows={8}
+                rows={16}
                 className="textarea textarea-bordered w-full font-mono"
                 value={form.long_description || ""}
                 placeholder="Enter a long description using Markdown formatting."
@@ -117,20 +118,24 @@ const AppEditBasicInfo: React.FC<{
                   onChange({ long_description: event.target.value })
                 }
               />
-              {form.long_description?.trim() && (
-                <div className="mt-3 rounded-box border border-base-300 bg-base-100 p-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-60">
-                    Preview
-                  </p>
+              <div className="rounded-box border border-base-300 bg-base-100 p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-60">
+                  Preview
+                </p>
+                {form.long_description?.trim() ? (
                   <MarkdownText>{form.long_description}</MarkdownText>
-                </div>
-              )}
-              <div className="label">
-                <span className="label-text-alt whitespace-normal break-words">
-                  Preferred on the detail page and other layouts with enough
-                  room. Falls back to the short description when empty.
-                </span>
+                ) : (
+                  <p className="text-sm opacity-60">
+                    Nothing to preview yet.
+                  </p>
+                )}
               </div>
+            </div>
+            <div className="label">
+              <span className="label-text-alt whitespace-normal break-words">
+                Preferred on the detail page and other layouts with enough
+                room. Falls back to the short description when empty.
+              </span>
             </div>
           </div>
 

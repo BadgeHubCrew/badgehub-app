@@ -1,5 +1,9 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import { atomOneLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import { useIsDarkTheme } from "@hooks/useIsDarkTheme.ts";
 
 interface MarkdownTextProps {
   children: string;
@@ -13,6 +17,7 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
   children,
   className = "",
 }) => {
+  const isDark = useIsDarkTheme();
   return (
     <div className={`space-y-3 ${className}`.trim()}>
       <ReactMarkdown
@@ -43,16 +48,33 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
               {children}
             </a>
           ),
-          code: ({ children }) => (
-            <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
-              {children}
-            </code>
-          ),
-          pre: ({ children }) => (
-            <pre className="overflow-x-auto rounded-box bg-base-300 p-3 text-sm [&_code]:rounded-none [&_code]:bg-transparent [&_code]:p-0">
-              {children}
-            </pre>
-          ),
+          code: ({ className: codeClassName, children }) => {
+            const languageMatch = /language-(\w+)/.exec(codeClassName || "");
+            if (!languageMatch) {
+              return (
+                <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <div className="rounded-box overflow-hidden">
+                <SyntaxHighlighter
+                  language={languageMatch[1]}
+                  style={isDark ? atomOneDark : atomOneLight}
+                  customStyle={{
+                    margin: 0,
+                    padding: "0.75rem",
+                    fontSize: "0.875rem",
+                  }}
+                  wrapLongLines={true}
+                >
+                  {String(children).replace(/\n$/, "")}
+                </SyntaxHighlighter>
+              </div>
+            );
+          },
+          pre: ({ children }) => <>{children}</>,
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary pl-4 italic text-base-content/70">
               {children}
