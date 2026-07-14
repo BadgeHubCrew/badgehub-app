@@ -48,8 +48,8 @@ export const FileListItem: React.FC<FileListItemProps> = ({
   const isSelectableAsMain =
     deletable &&
     onSetMainExecutable &&
-    !NON_EXECUTABLE_EXTENSIONS.some((ext) =>
-      file.full_path.toLowerCase().endsWith(ext)
+    !(NON_EXECUTABLE_EXTENSIONS as readonly string[]).includes(
+      `.${file.ext.toLowerCase()}`
     );
   const isCurrentMain = mainExecutable === file.full_path;
 

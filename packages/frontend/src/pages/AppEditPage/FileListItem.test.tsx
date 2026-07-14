@@ -64,6 +64,27 @@ describe("FileListItem", () => {
     expect(onSetMainExecutable).toHaveBeenCalledWith("main.py");
   });
 
+  it("does not offer Set as Main for audio files", () => {
+    const onSetMainExecutable = vi.fn();
+    const file = {
+      ...baseFile,
+      full_path: "theme.wav",
+      ext: "wav",
+      mimetype: "audio/wav",
+    };
+
+    render(
+      <FileListItem
+        file={file}
+        slug="demo"
+        keycloak={keycloak}
+        onSetMainExecutable={onSetMainExecutable}
+      />
+    );
+
+    expect(screen.queryByText("Set as Main")).not.toBeInTheDocument();
+  });
+
   it("shows and triggers icon action for image files", async () => {
     const user = userEvent.setup();
     const onSetIcon = vi.fn();
