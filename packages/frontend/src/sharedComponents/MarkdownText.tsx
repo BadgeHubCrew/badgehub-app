@@ -1,9 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { atomOneDark } from "react-syntax-highlighter/dist/cjs/styles/hljs";
-import { atomOneLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
-import { useIsDarkTheme } from "@hooks/useIsDarkTheme.ts";
+import CodeBlock from "@sharedComponents/CodeBlock.tsx";
 
 interface MarkdownTextProps {
   children: string;
@@ -32,7 +29,6 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
   children,
   className = "",
 }) => {
-  const isDark = useIsDarkTheme();
   return (
     <div className={`space-y-3 ${className}`.trim()}>
       <ReactMarkdown
@@ -78,20 +74,12 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
               : "";
             const languageMatch = /language-(\w+)/.exec(codeClassName);
             return (
-              <div className="rounded-box overflow-hidden">
-                <SyntaxHighlighter
-                  language={languageMatch?.[1]}
-                  style={isDark ? atomOneDark : atomOneLight}
-                  customStyle={{
-                    margin: 0,
-                    padding: "0.75rem",
-                    fontSize: "0.875rem",
-                  }}
-                  wrapLongLines={true}
-                >
-                  {hastToText(codeNode).replace(/\n$/, "")}
-                </SyntaxHighlighter>
-              </div>
+              <CodeBlock
+                language={languageMatch?.[1]}
+                wrapperClassName="rounded-box overflow-hidden"
+              >
+                {hastToText(codeNode).replace(/\n$/, "")}
+              </CodeBlock>
             );
           },
           blockquote: ({ children }) => (
