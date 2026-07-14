@@ -118,7 +118,7 @@ const AppEditBasicInfo: React.FC<{
                   onChange({ long_description: event.target.value })
                 }
               />
-              <div className="rounded-box border border-base-300 bg-base-100 p-4">
+              <div className="rounded-box border border-base-300 bg-base-100 p-4 max-h-96 overflow-y-auto">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-60">
                   Preview
                 </p>

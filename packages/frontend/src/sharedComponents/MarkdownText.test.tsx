@@ -54,6 +54,15 @@ describe("MarkdownText", () => {
     expect(container.querySelector("pre code")).toBeInTheDocument();
   });
 
+  it("renders fenced code blocks without a language as a block, not inline", () => {
+    const { container } = render(
+      <MarkdownText>{"```\nplain block\n```"}</MarkdownText>
+    );
+
+    expect(container.querySelector("pre code")).toBeInTheDocument();
+    expect(screen.getByText(/plain block/)).toBeInTheDocument();
+  });
+
   it("handles empty content gracefully", () => {
     const { container } = render(<MarkdownText>{""}</MarkdownText>);
 

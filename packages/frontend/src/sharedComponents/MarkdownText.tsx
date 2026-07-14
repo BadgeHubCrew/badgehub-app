@@ -10,6 +10,21 @@ interface MarkdownTextProps {
   className?: string;
 }
 
+interface HastNodeLike {
+  type: string;
+  value?: string;
+  children?: HastNodeLike[];
+}
+
+// Fenced code blocks without a language (e.g. plain ```) get no `language-x`
+// className on their <code> node, so we can't rely on that alone. Read the
+// raw hast tree instead, which is reliable regardless of language presence.
+const hastToText = (node: HastNodeLike): string => {
+  if (node.type === "text") return node.value ?? "";
+  if (node.children) return node.children.map(hastToText).join("");
+  return "";
+};
+
 /**
  * Render trusted project metadata as Markdown without enabling raw HTML.
  */
@@ -48,19 +63,24 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
               {children}
             </a>
           ),
-          code: ({ className: codeClassName, children }) => {
-            const languageMatch = /language-(\w+)/.exec(codeClassName || "");
-            if (!languageMatch) {
-              return (
-                <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
-                  {children}
-                </code>
-              );
-            }
+          code: ({ children }) => (
+            <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
+              {children}
+            </code>
+          ),
+          pre: ({ node }) => {
+            const codeNode = node?.children.find(
+              (child) => child.type === "element" && child.tagName === "code"
+            );
+            if (!codeNode || codeNode.type !== "element") return null;
+            const codeClassName = Array.isArray(codeNode.properties?.className)
+              ? codeNode.properties.className.join(" ")
+              : "";
+            const languageMatch = /language-(\w+)/.exec(codeClassName);
             return (
               <div className="rounded-box overflow-hidden">
                 <SyntaxHighlighter
-                  language={languageMatch[1]}
+                  language={languageMatch?.[1]}
                   style={isDark ? atomOneDark : atomOneLight}
                   customStyle={{
                     margin: 0,
@@ -69,12 +89,11 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
                   }}
                   wrapLongLines={true}
                 >
-                  {String(children).replace(/\n$/, "")}
+                  {hastToText(codeNode).replace(/\n$/, "")}
                 </SyntaxHighlighter>
               </div>
             );
           },
-          pre: ({ children }) => <>{children}</>,
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary pl-4 italic text-base-content/70">
               {children}
