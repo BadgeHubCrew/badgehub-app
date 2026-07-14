@@ -33,6 +33,29 @@ describe("MarkdownText", () => {
     expect(screen.getByText(/script.*unsafe.*script/i)).toBeInTheDocument();
   });
 
+  it("uses standard Markdown wrapping for soft line breaks", () => {
+    const { container } = render(
+      <MarkdownText>{"First line\nsecond line"}</MarkdownText>
+    );
+
+    expect(container.querySelector("p")).not.toHaveClass("whitespace-pre-wrap");
+    expect(screen.getByText(/First line\s+second line/)).toBeInTheDocument();
+  });
+
+  it("resets inline code decoration inside fenced code blocks", () => {
+    const { container } = render(
+      <MarkdownText>{"```ts\nconst ready = true;\n```"}</MarkdownText>
+    );
+    const codeBlock = container.querySelector("pre");
+
+    expect(codeBlock).toHaveClass(
+      "[&_code]:rounded-none",
+      "[&_code]:bg-transparent",
+      "[&_code]:p-0"
+    );
+    expect(codeBlock?.querySelector("code")).toBeInTheDocument();
+  });
+
   it("handles empty content gracefully", () => {
     const { container } = render(<MarkdownText>{""}</MarkdownText>);
 

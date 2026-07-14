@@ -26,9 +26,7 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
           h3: ({ children }) => (
             <h3 className="text-lg font-semibold">{children}</h3>
           ),
-          p: ({ children }) => (
-            <p className="whitespace-pre-wrap leading-relaxed">{children}</p>
-          ),
+          p: ({ children }) => <p className="leading-relaxed">{children}</p>,
           ul: ({ children }) => (
             <ul className="list-disc space-y-1 pl-6">{children}</ul>
           ),
@@ -51,7 +49,7 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
             </code>
           ),
           pre: ({ children }) => (
-            <pre className="overflow-x-auto rounded-box bg-base-300 p-3 text-sm">
+            <pre className="overflow-x-auto rounded-box bg-base-300 p-3 text-sm [&_code]:rounded-none [&_code]:bg-transparent [&_code]:p-0">
               {children}
             </pre>
           ),
