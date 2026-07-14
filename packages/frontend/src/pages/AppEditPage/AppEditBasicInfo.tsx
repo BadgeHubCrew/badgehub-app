@@ -1,6 +1,6 @@
 import type { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import GitLink from "@sharedComponents/GitLink.tsx";
-import MDEditor from "@uiw/react-md-editor";
+import MarkdownText from "@sharedComponents/MarkdownText.tsx";
 import type React from "react";
 
 /**
@@ -104,25 +104,27 @@ const AppEditBasicInfo: React.FC<{
                   Long Description
                 </label>
                 <span className="label-text-alt">
-                  Markdown · {form.long_description?.length || 0}/2000
+                  Markdown · {form.long_description?.length || 0} characters
                 </span>
               </div>
-              <div data-color-mode="dark">
-                <MDEditor
-                  value={form.long_description || ""}
-                  onChange={(value) =>
-                    onChange({ long_description: value || "" })
-                  }
-                  visibleDragbar={false}
-                  textareaProps={{
-                    id: "longDescription",
-                    placeholder:
-                      "Enter a long description using Markdown formatting.",
-                    maxLength: 2000,
-                  }}
-                  height={300}
-                />
-              </div>
+              <textarea
+                id="longDescription"
+                rows={8}
+                className="textarea textarea-bordered w-full font-mono"
+                value={form.long_description || ""}
+                placeholder="Enter a long description using Markdown formatting."
+                onChange={(event) =>
+                  onChange({ long_description: event.target.value })
+                }
+              />
+              {form.long_description?.trim() && (
+                <div className="mt-3 rounded-box border border-base-300 bg-base-100 p-4">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-60">
+                    Preview
+                  </p>
+                  <MarkdownText>{form.long_description}</MarkdownText>
+                </div>
+              )}
               <div className="label">
                 <span className="label-text-alt whitespace-normal break-words">
                   Preferred on the detail page and other layouts with enough

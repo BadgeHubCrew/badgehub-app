@@ -9,7 +9,6 @@ describe("MarkdownText", () => {
 
     render(<MarkdownText>{markdownContent}</MarkdownText>);
 
-    // Check that markdown is rendered as HTML
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Hello World"
     );
@@ -19,19 +18,19 @@ describe("MarkdownText", () => {
       "href",
       "https://example.com"
     );
+    expect(screen.getByRole("link", { name: "link" })).toHaveAttribute(
+      "target",
+      "_blank"
+    );
   });
 
-  it("strips markdown when plainText is true", () => {
-    const markdownContent =
-      "# Hello World\n\nThis is **bold** and *italic* text with a [link](https://example.com).";
+  it("does not render raw HTML", () => {
+    const { container } = render(
+      <MarkdownText>{"<script>alert('unsafe')</script>"}</MarkdownText>
+    );
 
-    render(<MarkdownText plainText>{markdownContent}</MarkdownText>);
-
-    // Check that markdown is stripped and rendered as plain text
-    const textContent = screen.getByText(/Hello World.*bold.*italic.*link/);
-    expect(textContent).toBeInTheDocument();
-    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(container.querySelector("script")).not.toBeInTheDocument();
+    expect(screen.getByText(/script.*unsafe.*script/i)).toBeInTheDocument();
   });
 
   it("handles empty content gracefully", () => {

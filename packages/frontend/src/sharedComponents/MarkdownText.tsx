@@ -4,76 +4,59 @@ import ReactMarkdown from "react-markdown";
 interface MarkdownTextProps {
   children: string;
   className?: string;
-  /**
-   * Whether to strip markdown for plain text display (useful for previews)
-   */
-  plainText?: boolean;
 }
 
 /**
- * Component for rendering markdown text with consistent styling.
- * Can be used for both full markdown rendering and plain text extraction.
+ * Render trusted project metadata as Markdown without enabling raw HTML.
  */
 const MarkdownText: React.FC<MarkdownTextProps> = ({
   children,
   className = "",
-  plainText = false,
 }) => {
-  if (plainText) {
-    // Strip markdown syntax for plain text display (e.g., in cards)
-    const plainContent = children
-      .replace(/#+\s/g, "") // Remove headers
-      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
-      .replace(/\*(.*?)\*/g, "$1") // Remove italic
-      .replace(/`(.*?)`/g, "$1") // Remove inline code
-      .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links but keep text
-      .replace(/^\s*[-*+]\s/gm, "") // Remove list markers
-      .replace(/^\s*\d+\.\s/gm, "") // Remove numbered list markers
-      .replace(/\n\s*\n/g, " ") // Replace double newlines with space
-      .replace(/\n/g, " ") // Replace single newlines with space
-      .trim();
-
-    return <span className={className}>{plainContent}</span>;
-  }
-
   return (
-    <div className={className}>
+    <div className={`space-y-3 ${className}`.trim()}>
       <ReactMarkdown
         components={{
-          // Customize link rendering to open in new tab and style appropriately
-          a: ({ href, children, ...props }) => (
+          h1: ({ children }) => (
+            <h1 className="text-2xl font-bold">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-xl font-semibold">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-lg font-semibold">{children}</h3>
+          ),
+          p: ({ children }) => (
+            <p className="whitespace-pre-wrap leading-relaxed">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc space-y-1 pl-6">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal space-y-1 pl-6">{children}</ol>
+          ),
+          a: ({ href, children }) => (
             <a
               href={href}
               target="_blank"
               rel="noopener noreferrer"
               className="link link-primary"
-              {...props}
             >
               {children}
             </a>
           ),
-          // Customize code block styling
-          code: ({ className, children, ...props }) => {
-            const isInline = !className;
-            return (
-              <code
-                className={
-                  isInline
-                    ? "bg-base-300 px-1 py-0.5 rounded text-sm font-mono"
-                    : "block bg-base-300 p-3 rounded text-sm font-mono overflow-x-auto"
-                }
-                {...props}
-              >
-                {children}
-              </code>
-            );
-          },
-          // Customize blockquote styling
-          blockquote: ({ children, ...props }) => (
-            <blockquote
-              className="border-l-4 border-primary pl-4 italic text-base-content/70"
-              {...props}
-            >
+          code: ({ children }) => (
+            <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
+              {children}
+            </code>
+          ),
+          pre: ({ children }) => (
+            <pre className="overflow-x-auto rounded-box bg-base-300 p-3 text-sm">
+              {children}
+            </pre>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-primary pl-4 italic text-base-content/70">
               {children}
             </blockquote>
           ),
