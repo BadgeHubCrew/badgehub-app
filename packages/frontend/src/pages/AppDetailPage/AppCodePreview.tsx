@@ -377,9 +377,9 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
               setFileContent(text);
               setPreviewBlob(null);
             } else if (res.body !== undefined) {
-              // The ts-rest client auto-parses JSON responses (e.g. for
-              // .json files, which now get a proper Content-Type per #398),
-              // so the body arrives already parsed rather than as text/Blob.
+              // The API client may return already-parsed JSON (e.g. for
+              // .json files with a proper Content-Type per #398),
+              // so the body can arrive as an object rather than as text/Blob.
               // Stringify compactly (no indent) so JsonPreview's raw/pretty
               // toggle still has an actual formatting difference to show.
               setFileContent(JSON.stringify(res.body));

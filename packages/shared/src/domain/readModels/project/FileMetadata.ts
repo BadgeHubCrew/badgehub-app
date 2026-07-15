@@ -1,5 +1,5 @@
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { type DatedData, datedDataSchema } from "./DatedData";
 
 export interface FileMetadata extends DatedData {

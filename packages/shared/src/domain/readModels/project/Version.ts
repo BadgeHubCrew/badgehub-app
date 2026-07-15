@@ -4,7 +4,7 @@ import {
 } from "@shared/domain/readModels/ISODateString";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 import { type AppMetadataJSON, appMetadataJSONSchema } from "./AppMetadataJSON";
 import { type FileMetadata, fileMetadataSchema } from "./FileMetadata";
 

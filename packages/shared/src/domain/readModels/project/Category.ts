@@ -1,5 +1,5 @@
 import { getSharedConfig } from "@shared/config/sharedConfig";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 const sharedConfig = getSharedConfig();
 // TODO this could cause issues if imported too early (before dotenv config)

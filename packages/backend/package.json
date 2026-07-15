@@ -25,9 +25,10 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
-    "@ts-rest/core": "3.53.0-rc.1",
-    "@ts-rest/express": "3.53.0-rc.1",
-    "@ts-rest/open-api": "3.53.0-rc.1",
+    "@orpc/contract": "^1.14.8",
+    "@orpc/openapi": "^1.14.8",
+    "@orpc/server": "^1.14.8",
+    "@orpc/zod": "^1.14.8",
     "@types/lodash": "^4.17.24",
     "blurhash": "^2.0.5",
     "cors": "^2.8.6",
@@ -54,7 +55,7 @@
     "tslib": "^2.8.1",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

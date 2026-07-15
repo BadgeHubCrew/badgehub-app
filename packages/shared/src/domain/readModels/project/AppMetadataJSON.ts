@@ -16,7 +16,7 @@ import {
   variantJSONSchema,
 } from "@shared/domain/readModels/project/VariantJSON";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 export interface AppMetadataJSON {
   name?: string;

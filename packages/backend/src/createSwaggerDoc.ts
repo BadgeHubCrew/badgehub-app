@@ -1,153 +1,47 @@
 import { EXPRESS_PORT } from "@config";
-import { monkeyPatchDraftFileUploadSwagger } from "@monkeyPatchDraftFileUploadSwagger";
-import {
-  nonScriptablePrivateContracts,
-  scriptablePrivateProjectContracts,
-} from "@shared/contracts/privateRestContracts";
+import { OpenAPIGenerator } from "@orpc/openapi";
+import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
+import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import { publicRestContracts } from "@shared/contracts/publicRestContracts";
-import { NO_BODY_DESCRIPTION } from "@shared/contracts/tsRestNoBodyPatch";
-import { initContract } from "@ts-rest/core";
-import { generateOpenApi } from "@ts-rest/open-api";
-import _ from "lodash";
-import type {
-  OpenAPIObject,
-  OperationObject,
-  ParameterObject,
-  PathsObject,
-  ReferenceObject,
-  SecurityRequirementObject,
-} from "openapi3-ts";
+import type { OpenAPIObject, PathsObject } from "openapi3-ts";
 
-const c = initContract();
-export const swaggerJsonContract = c.router({
-  getSwaggerDoc: {
-    method: "GET",
-    path: "/api-docs/swagger.json",
-    responses: {
-      200: c.type<OpenAPIObject>(),
-    },
-  },
+const generator = new OpenAPIGenerator({
+  schemaConverters: [new ZodToJsonSchemaConverter()],
 });
 
-function withPrefix(prefix: string, paths: PathsObject): PathsObject {
-  const prefixedPaths: PathsObject = {};
-  for (const [path, value] of Object.entries(paths)) {
-    prefixedPaths[`${prefix}${path}`] = value;
-  }
-  return prefixedPaths;
-}
-
-const withTag = (operation: OperationObject, tag: string) => ({
-  ...operation,
-  tags: [...(operation.tags ?? []), tag],
-});
-
-// Helper functions to identify authentication headers
-const isAuthorizationHeader = (p: ParameterObject | ReferenceObject) =>
-  "in" in p && p.in === "header" && p.name?.toLowerCase() === "authorization";
-
-const isApiTokenHeader = (p: ParameterObject | ReferenceObject) =>
-  "in" in p &&
-  p.in === "header" &&
-  p.name?.toLowerCase() === "badgehub-api-token";
-
-const withSecurity = (
-  operation: OperationObject,
-  security: SecurityRequirementObject[]
-): OperationObject => ({
-  ...operation,
-  parameters: operation.parameters?.filter(
-    (p) => !isAuthorizationHeader(p) && !isApiTokenHeader(p)
-  ),
-  security: security,
-});
-
-function isEmptyRequestBody(
-  requestBody: OperationObject["requestBody"] | undefined
-) {
-  if (!requestBody || !("content" in requestBody)) {
-    return false;
-  }
-  return (
-    requestBody.content?.["application/json"]?.schema &&
-    "description" in requestBody.content["application/json"].schema &&
-    requestBody.content["application/json"].schema.description ===
-      NO_BODY_DESCRIPTION
-  );
-}
-
-function removeRequestBodyIfEmpty(details: OperationObject): OperationObject {
-  const { requestBody, ...detailsWithoutRequestBody } = details;
-  if (!isEmptyRequestBody(requestBody)) {
-    return details;
-  }
-  return detailsWithoutRequestBody;
-}
-
-function removeEmptyBodiesFromMethods(paths: PathsObject) {
-  return Object.fromEntries(
-    Object.entries(paths).map(([method, details]) => [
-      method,
-      removeRequestBodyIfEmpty(details),
-    ])
-  );
-}
-
-function removeEmptyBodiesFromPaths(paths: PathsObject) {
+function withApiPrefix(paths: PathsObject | undefined): PathsObject {
+  if (!paths) return {};
   return Object.fromEntries(
     Object.entries(paths).map(([path, methods]) => {
-      return [path, removeEmptyBodiesFromMethods(methods)];
+      // Document public URLs as /revN (legacy), even though the handler rewrites to /revisions/N
+      const legacyPath = path.replace(
+        /\/revisions\/\{revision\}/g,
+        "/rev{revision}"
+      );
+      return [
+        legacyPath.startsWith("/api/") ? legacyPath : `/api/v3${legacyPath}`,
+        methods,
+      ];
     })
   );
 }
 
-export const createSwaggerDoc = () => {
-  const apiDoc = { info: { title: "BadgeHub API", version: "1.0.0" } };
-  const jsonSwagger = generateOpenApi(swaggerJsonContract, apiDoc, {
-    setOperationId: true,
-    operationMapper: (op) => withTag(op, "Open API"),
-  });
-  const publicSwagger = generateOpenApi(publicRestContracts, apiDoc, {
-    setOperationId: true,
-    operationMapper: (op) => withTag(op, "Public"),
-  });
-  const privateScriptableSwagger = generateOpenApi(
-    scriptablePrivateProjectContracts,
-    apiDoc,
-    {
-      setOperationId: true,
-      operationMapper: (op) =>
-        withSecurity(withTag(op, "Private Scriptable"), [
-          { bearerAuth: [] },
-          { apiTokenAuth: [] },
-        ]),
-    }
-  );
+export async function createSwaggerDoc(): Promise<OpenAPIObject> {
+  const contract = {
+    ...publicRestContracts,
+    ...privateRestContracts,
+  };
 
-  const privateNonScriptableSwagger = generateOpenApi(
-    nonScriptablePrivateContracts,
-    apiDoc,
-    {
-      setOperationId: true,
-      operationMapper: (op) =>
-        withSecurity(withTag(op, "Private Non Scriptable"), [
-          { bearerAuth: [] },
-        ]),
-    }
-  );
-
-  return {
-    ...jsonSwagger,
-    paths: monkeyPatchDraftFileUploadSwagger(
-      removeEmptyBodiesFromPaths(
-        _.merge(
-          jsonSwagger.paths,
-          withPrefix("/api/v3", publicSwagger.paths),
-          withPrefix("/api/v3", privateScriptableSwagger.paths),
-          withPrefix("/api/v3", privateNonScriptableSwagger.paths)
-        )
-      )
-    ),
+  const spec = await generator.generate(contract, {
+    info: {
+      title: "BadgeHub API",
+      version: "1.0.0",
+    },
+    servers: [
+      { url: "/" },
+      { url: "https://badgehub-api.p1m.nl/" },
+      { url: `http://localhost:${EXPRESS_PORT}/` },
+    ],
     tags: [
       {
         name: "Open API",
@@ -168,14 +62,7 @@ export const createSwaggerDoc = () => {
           "Operations available to authenticated users via JWT Bearer token only.",
       },
     ],
-    servers: [
-      { url: "/" },
-      { url: "https://badgehub-api.p1m.nl/" },
-      { url: `http://localhost:${EXPRESS_PORT}/` },
-    ],
-    // Define the security schemes
     components: {
-      ...jsonSwagger.components,
       securitySchemes: {
         bearerAuth: {
           type: "http",
@@ -191,5 +78,29 @@ export const createSwaggerDoc = () => {
         },
       },
     },
-  } as const satisfies OpenAPIObject;
-};
+  });
+
+  return {
+    ...spec,
+    paths: {
+      ...withApiPrefix(spec.paths as PathsObject | undefined),
+      "/api-docs/swagger.json": {
+        get: {
+          tags: ["Open API"],
+          summary: "Get OpenAPI document",
+          operationId: "getSwaggerDoc",
+          responses: {
+            "200": {
+              description: "OpenAPI specification",
+              content: {
+                "application/json": {
+                  schema: { type: "object", additionalProperties: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  } as OpenAPIObject;
+}

@@ -80,7 +80,9 @@ const AppSidebarSimilar: React.FC<{
       },
     });
     if (result.status === 200) {
-      return result.body.filter((p) => p.slug !== project.slug).slice(0, 3);
+      return (result.body as ProjectSummary[])
+        .filter((p) => p.slug !== project.slug)
+        .slice(0, 3);
     }
     throw new Error(publicProjectErrorFromStatus(result.status));
   }, [project.idp_user_id, project.slug, tsRestClient]);
@@ -97,7 +99,7 @@ const AppSidebarSimilar: React.FC<{
       );
     }
     if (similarProjects && similarProjects.length > 0) {
-      return similarProjects.map((p) => (
+      return similarProjects.map((p: ProjectSummary) => (
         <ProjectItem key={p.slug} project={p} />
       ));
     }

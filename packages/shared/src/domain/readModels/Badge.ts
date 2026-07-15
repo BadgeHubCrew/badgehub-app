@@ -1,6 +1,6 @@
 import { getSharedConfig } from "@shared/config/sharedConfig";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 export type BadgeSlug = string;
 

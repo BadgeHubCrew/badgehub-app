@@ -1,18 +1,22 @@
-import { createSwaggerDoc, swaggerJsonContract } from "@createSwaggerDoc";
-import { createExpressEndpoints, initServer } from "@ts-rest/express";
+import { createSwaggerDoc } from "@createSwaggerDoc";
 import type { Express } from "express";
 import swaggerUi from "swagger-ui-express";
 
-const swaggerDoc = createSwaggerDoc();
-
 export default function serveApiDocs(app: Express) {
-  const swaggerJsonRouter = initServer().router(swaggerJsonContract, {
-    getSwaggerDoc: async () => ({
-      status: 200,
-      body: swaggerDoc,
-    }),
+  // Lazy-generate once; generation is async
+  let swaggerDocPromise = createSwaggerDoc();
+
+  app.get("/api-docs/swagger.json", async (_req, res, next) => {
+    try {
+      const doc = await swaggerDocPromise;
+      res.json(doc);
+    } catch (err) {
+      // Retry next request if generation failed once
+      swaggerDocPromise = createSwaggerDoc();
+      next(err);
+    }
   });
-  createExpressEndpoints(swaggerJsonContract, swaggerJsonRouter, app);
+
   const options = {
     swaggerOptions: { url: "/api-docs/swagger.json" },
   };

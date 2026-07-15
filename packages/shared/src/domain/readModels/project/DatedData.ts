@@ -3,7 +3,7 @@ import {
   isoDateStringSchema,
 } from "@shared/domain/readModels/ISODateString";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 export interface DatedData {
   created_at: ISODateString; // Creation date

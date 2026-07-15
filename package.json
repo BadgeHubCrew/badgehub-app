@@ -31,8 +31,8 @@
     "validate": "pnpm run lint && pnpm run check:ts && pnpm run build && pnpm run test"
   },
   "dependencies": {
-    "@ts-rest/core": "3.53.0-rc.1",
-    "zod": "^3.25.76"
+    "@orpc/contract": "^1.14.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.3",

@@ -1,43 +1,106 @@
-import { dummyApps } from "@__test__/fixtures";
-import { matchRoute } from "@__test__/routeContractMatch.ts";
-import type { publicTsRestClient as defaultPrivateTsRestClient } from "@api/tsRestClient.ts";
-import { tsRestApiContracts } from "@shared/contracts/restContracts.ts";
-import { type ApiFetcherArgs, initClient } from "@ts-rest/core";
+import { type DummyApp, dummyApps } from "@__test__/fixtures";
+import type { TsRestClient } from "@api/tsRestClient.ts";
+import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 
-export function privateTsRestClientBuilder(apps = dummyApps) {
-  return initClient(tsRestApiContracts, {
-    baseUrl: "",
-    api: async (args: ApiFetcherArgs) => {
-      if (!matchRoute(args, tsRestApiContracts.getUserDraftProjects)) {
+export function privateTsRestClientBuilder(apps: DummyApp[] = dummyApps) {
+  return {
+    getUserDraftProjects: async () => ({
+      status: 200,
+      body: apps.map((a) => a.summary),
+      headers: new Headers(),
+    }),
+    getDraftProject: async (args?: {
+      params?: { slug?: string };
+      slug?: string;
+    }) => {
+      const slug = args?.params?.slug ?? args?.slug;
+      const app = apps.find((a) => a.summary.slug === slug);
+      if (!app) {
         return {
           status: 404,
           body: { reason: "Not found" },
           headers: new Headers(),
         };
       }
-
-      // Optionally filter by userId if needed
-      return {
-        status: 200,
-        body: apps.map((a) => a.summary),
-        headers: new Headers(),
-      };
+      return { status: 200, body: app.details, headers: new Headers() };
     },
-  }) as typeof defaultPrivateTsRestClient;
+  } as unknown as TsRestClient;
 }
 
 export function privateTsRestClientWithError() {
-  return initClient(tsRestApiContracts, {
-    baseUrl: "",
-    api: async (args: ApiFetcherArgs) => {
-      if (!matchRoute(args, tsRestApiContracts.getUserDraftProjects)) {
-        return {
-          status: 404,
-          body: { reason: "Not found" },
-          headers: new Headers(),
-        };
-      }
+  return {
+    getUserDraftProjects: async () => {
       throw new Error("API error");
     },
-  }) as typeof defaultPrivateTsRestClient;
+    getDraftProject: async () => ({
+      status: 403,
+      body: { reason: "Forbidden" },
+      headers: new Headers(),
+    }),
+  } as unknown as TsRestClient;
+}
+
+export function privateTsRestClientWithDraft(project: ProjectDetails) {
+  return {
+    getDraftProject: async () => ({
+      status: 200,
+      body: project,
+      headers: new Headers(),
+    }),
+    changeDraftAppMetadata: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    publishVersion: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    deleteProject: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    deleteDraftFile: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    writeDraftFile: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    setDraftIconFromFile: async () => ({
+      status: 200,
+      body: { iconPaths: {} },
+      headers: new Headers(),
+    }),
+    createProjectAPIToken: async () => ({
+      status: 200,
+      body: { token: "test-token" },
+      headers: new Headers(),
+    }),
+    getProjectApiTokenMetadata: async () => ({
+      status: 404,
+      body: { reason: "No Project API" },
+      headers: new Headers(),
+    }),
+    revokeProjectAPIToken: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+  } as unknown as TsRestClient;
+}
+
+export function privateTsRestClientUnauthorized() {
+  return {
+    getDraftProject: async () => ({
+      status: 403,
+      body: { reason: "Forbidden" },
+      headers: new Headers(),
+    }),
+  } as unknown as TsRestClient;
 }

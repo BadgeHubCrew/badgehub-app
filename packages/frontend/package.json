@@ -11,6 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@orpc/client": "^1.14.8",
+    "@orpc/contract": "^1.14.8",
+    "@orpc/openapi-client": "^1.14.8",
     "keycloak-js": "^26.2.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -18,7 +21,7 @@
     "react-router-dom": "^7.18.1",
     "react-syntax-highlighter": "^15.6.6",
     "shared": "workspace:*",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.2",

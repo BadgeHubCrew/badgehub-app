@@ -52,9 +52,9 @@ pnpm run lint:fix           # Auto-fix with Biome (format + safe lint fixes)
 ### Monorepo Structure
 - `packages/frontend` — React 19 + Vite + Tailwind CSS v4 + DaisyUI v5
 - `packages/backend` — Express + PostgreSQL REST API
-- `packages/shared` — Shared TypeScript types, Zod schemas, and **ts-rest API contracts**
+- `packages/shared` — Shared TypeScript types, Zod v4 schemas, and **oRPC API contracts**
 
-The key architectural pattern is **ts-rest**: API contracts are defined once in `packages/shared/src/contracts/` and consumed by both frontend (as typed API client) and backend (as route definitions). This ensures end-to-end type safety without code generation.
+The key architectural pattern is **oRPC + Zod v4**: API contracts live in `packages/shared/src/contracts/` and are implemented on the backend with `OpenAPIHandler` and consumed on the frontend via `OpenAPILink`. OpenAPI/Swagger is generated from the same contracts (`@orpc/openapi` + `@orpc/zod/zod4`).
 
 ### Frontend Dev Mode (Important)
 The frontend dev script copies `index-indirect-dev.html` → `dist/index.html` before starting Vite. The backend serves `dist/index.html` (not the Vite dev server directly). This indirect HTML loads Vite assets dynamically via `@vite/client`, allowing the backend URL to serve the app in development.
@@ -74,7 +74,7 @@ Keycloak + JWT. The frontend uses `keycloak-js` wrapped in a `SessionProvider`. 
 PostgreSQL with `db-migrate` for migrations. Migration files are in `packages/backend/src/db/migrations/`. SQL queries use `sql-template-tag` for tagged template literals.
 
 ### API Documentation
-Swagger UI is served by the backend at runtime, generated from ts-rest contracts via `@ts-rest/open-api`.
+Swagger UI is served by the backend at runtime, generated from oRPC contracts via `@orpc/openapi` + `@orpc/zod/zod4`.
 
 ### Production
 Docker + PM2. The `Dockerfile` is multi-stage; the backend serves the built frontend static assets. Deployed via GitHub Actions on push to `main`.

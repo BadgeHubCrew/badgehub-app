@@ -2,15 +2,11 @@ packages:
   - 'packages/*'
 
 overrides:
-  '@ts-rest/core': 3.53.0-rc.1
-  '@ts-rest/express': 3.53.0-rc.1
-  '@ts-rest/open-api': 3.53.0-rc.1
-  '@ts-rest/*>@ts-rest/core': 3.53.0-rc.1
   esbuild: ^0.27.7
 
 hoistPattern:
-  - '@ts-rest/*'
   - 'zod'
+  - '@orpc/*'
 
 dedupePeerDependents: true
 

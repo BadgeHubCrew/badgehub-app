@@ -1,4 +1,5 @@
-import { NO_BODY_SCHEMA } from "@shared/contracts/tsRestNoBodyPatch";
+import { oc } from "@orpc/contract";
+import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectSummarySchema } from "@shared/domain/readModels/project/ProjectSummaries";
@@ -8,13 +9,8 @@ import {
   createProjectPropsSchema,
 } from "@shared/domain/writeModels/project/WriteProject";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { initContract } from "@ts-rest/core";
-import { z } from "zod/v3";
+import { z } from "zod";
 
-const c = initContract();
-
-// Schemas for private endpoints.
-// Replace these with more specific schemas from your domain if available.
 const createProjectBodySchema = createProjectPropsSchema
   .omit({ slug: true, idp_user_id: true })
   .describe("Schema request body for creating or updating a project");
@@ -26,273 +22,227 @@ __tsCheckSame<
   z.infer<typeof createProjectBodySchema>
 >(true);
 
-const errorResponseSchema = z.object({ reason: z.string() });
-
-const authorizationHeaderSchema = z.object({
-  authorization: z.string().optional(),
-});
-
-const authorizationOrTokenHeaderSchema = z.union([
-  z.object({
-    "badgehub-api-token": z.string().optional(),
-  }),
-  authorizationHeaderSchema,
-]);
-
 const iconSizeSchema = z.enum(["8x8", "16x16", "32x32", "64x64"]);
 
-const setDraftIconBodySchema = z.object({
-  filePath: z.string(),
-  sizes: z
-    .array(iconSizeSchema)
-    .min(1)
-    .describe("The sizes that the icon should be available in."),
-});
+const privateErrors = {
+  NOT_FOUND: { status: 404 as const, data: errorResponseSchema },
+  FORBIDDEN: { status: 403 as const, data: errorResponseSchema },
+  CONFLICT: { status: 409 as const, data: errorResponseSchema },
+  BAD_REQUEST: { status: 400 as const, data: errorResponseSchema },
+  UNAUTHORIZED: { status: 401 as const, data: errorResponseSchema },
+};
 
-const setDraftIconResponseSchema = z.object({
-  iconPaths: z.record(iconSizeSchema, z.string()),
-});
+const withSecurity = (
+  base: ReturnType<typeof oc.errors>,
+  security: Array<Record<string, string[]>>
+) =>
+  base.route({
+    spec: (spec) => ({
+      ...spec,
+      security,
+    }),
+  });
 
-export const scriptablePrivateProjectContracts = c.router(
-  {
-    updateProject: {
+const scriptable = withSecurity(oc.errors(privateErrors), [
+  { bearerAuth: [] },
+  { apiTokenAuth: [] },
+]);
+
+const jwtOnly = withSecurity(oc.errors(privateErrors), [{ bearerAuth: [] }]);
+
+export const scriptablePrivateProjectContracts = {
+  updateProject: scriptable
+    .route({
       method: "PATCH",
-      path: "/projects/:slug",
-      pathParams: z.object({ slug: z.string() }),
-      body: createProjectBodySchema,
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
+      path: "/projects/{slug}",
       summary: "Update an existing project",
-    },
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(createProjectBodySchema.extend({ slug: z.string() }))
+    .output(z.void()),
 
-    deleteProject: {
+  deleteProject: scriptable
+    .route({
       method: "DELETE",
-      path: "/projects/:slug",
-      pathParams: z.object({ slug: z.string() }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
+      path: "/projects/{slug}",
       summary: "Delete an existing project",
-    },
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(z.void()),
 
-    writeDraftFile: {
+  writeDraftFile: scriptable
+    .route({
       method: "POST",
-      path: "/projects/:slug/draft/files/:filePath",
-      contentType: "multipart/form-data",
-      body: z.any(),
-      pathParams: z.object({
+      path: "/projects/{slug}/draft/files/{+filePath}",
+      summary: "Upload a file to the latest draft version of a project",
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(
+      z.object({
         slug: z.string(),
         filePath: z.string(),
-      }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-      summary: "Upload a file to the latest draft version of a project",
-    },
+        file: z.file(),
+      })
+    )
+    .output(z.void()),
 
-    setDraftIconFromFile: {
+  setDraftIconFromFile: scriptable
+    .route({
       method: "POST",
-      path: "/projects/:slug/draft/icon",
-      pathParams: z.object({ slug: z.string() }),
-      body: setDraftIconBodySchema,
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        200: setDraftIconResponseSchema,
-        400: errorResponseSchema,
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
+      path: "/projects/{slug}/draft/icon",
       summary:
         "Set the draft icon by converting the existing project file into standard icon sizes",
-    },
+      tags: ["Private Scriptable"],
+    })
+    .input(
+      z.object({
+        slug: z.string(),
+        filePath: z.string(),
+        sizes: z.array(iconSizeSchema).min(1),
+      })
+    )
+    .output(
+      z.object({
+        iconPaths: z.record(z.string(), z.string()),
+      })
+    ),
 
-    deleteDraftFile: {
+  deleteDraftFile: scriptable
+    .route({
       method: "DELETE",
-      path: "/projects/:slug/draft/files/:filePath",
-      pathParams: z.object({
-        slug: z.string(),
-        filePath: z.string(),
-      }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
+      path: "/projects/{slug}/draft/files/{+filePath}",
       summary: "Delete a file from the latest draft version of a project",
-    },
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(z.object({ slug: z.string(), filePath: z.string() }))
+    .output(z.void()),
 
-    changeDraftAppMetadata: {
+  changeDraftAppMetadata: scriptable
+    .route({
       method: "PATCH",
-      path: "/projects/:slug/draft/metadata",
-      pathParams: z.object({ slug: z.string() }),
-      body: writeAppMetadataJSONSchema,
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-      summary: `Overwrite the metadata of the latest draft version of a project. 
-This is actually just an alias for a post to /projects/:slug/draft/files/metadata.json`,
-    },
-
-    getDraftFile: {
-      method: "GET",
-      path: "/projects/:slug/draft/files/:filePath",
-      pathParams: z.object({
-        slug: z.string(),
-        filePath: z.string(),
-      }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        200: z.unknown().describe("File content as a stream"),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-      summary: "Get a file from the draft version of a project",
-    },
-
-    getDraftProject: {
-      method: "GET",
-      path: "/projects/:slug/draft",
-      pathParams: z.object({ slug: z.string() }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        200: detailedProjectSchema,
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-      summary: "Get project details for the draft version of a project",
-    },
-
-    publishVersion: {
-      method: "PATCH",
-      path: "/projects/:slug/publish",
-      pathParams: z.object({ slug: z.string() }),
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-        404: errorResponseSchema,
-      },
-      body: NO_BODY_SCHEMA,
-      summary: "Publish the current draft as a new version",
-    },
-    createProjectAPIToken: {
-      method: "POST",
-      path: "/projects/:slug/token",
-      body: NO_BODY_SCHEMA,
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        200: z
-          .object({ token: z.string() })
-          .describe(`An object containing the API token for the project.`),
-        403: errorResponseSchema,
-      },
+      path: "/projects/{slug}/draft/metadata",
       summary:
-        "Create a new API token for the project (and invalidate the old one if there was one).\n" +
-        "This is an api key that can be used in the 'badgehub-api-token' header. Eg. set this header: 'badgehub-api-token:{token}'.",
-    },
-    getProjectApiTokenMetadata: {
+        "Overwrite the metadata of the latest draft version of a project.",
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(writeAppMetadataJSONSchema.and(z.object({ slug: z.string() })))
+    .output(z.void()),
+
+  getDraftFile: scriptable
+    .route({
       method: "GET",
-      path: "/projects/:slug/token",
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        200: projectApiTokenMetadataSchema,
-        404: errorResponseSchema,
-        403: errorResponseSchema,
-      },
+      path: "/projects/{slug}/draft/files/{+filePath}",
+      summary: "Get a file from the draft version of a project",
+      tags: ["Private Scriptable"],
+      outputStructure: "detailed",
+    })
+    .input(z.object({ slug: z.string(), filePath: z.string() }))
+    .output(
+      z.object({
+        headers: z.record(z.string(), z.string()).optional(),
+        body: z.unknown().describe("File content"),
+      })
+    ),
+
+  getDraftProject: scriptable
+    .route({
+      method: "GET",
+      path: "/projects/{slug}/draft",
+      summary: "Get project details for the draft version of a project",
+      tags: ["Private Scriptable"],
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(detailedProjectSchema),
+
+  publishVersion: scriptable
+    .route({
+      method: "PATCH",
+      path: "/projects/{slug}/publish",
+      summary: "Publish the current draft as a new version",
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(z.void()),
+
+  createProjectAPIToken: scriptable
+    .route({
+      method: "POST",
+      path: "/projects/{slug}/token",
+      summary:
+        "Create a new API token for the project (and invalidate the old one if there was one).",
+      tags: ["Private Scriptable"],
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(z.object({ token: z.string() })),
+
+  getProjectApiTokenMetadata: scriptable
+    .route({
+      method: "GET",
+      path: "/projects/{slug}/token",
       summary:
         "Allow to check if there is an API token for the project and when it was last used and created.",
-    },
-    revokeProjectAPIToken: {
+      tags: ["Private Scriptable"],
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(projectApiTokenMetadataSchema),
+
+  revokeProjectAPIToken: scriptable
+    .route({
       method: "DELETE",
-      path: "/projects/:slug/token",
-      headers: authorizationOrTokenHeaderSchema,
-      responses: {
-        204: z.void(),
-        403: errorResponseSchema,
-      },
+      path: "/projects/{slug}/token",
       summary: "Delete the API token for the project",
-    },
-  },
-  {
-    baseHeaders: {
-      authorization: z.string(),
-    },
-  }
-);
+      tags: ["Private Scriptable"],
+      successStatus: 204,
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(z.void()),
+};
 
-export const nonScriptablePrivateProjectContracts = c.router(
-  {
-    createProject: {
+export const nonScriptablePrivateProjectContracts = {
+  createProject: jwtOnly
+    .route({
       method: "POST",
-      path: "/projects/:slug",
-      pathParams: z.object({ slug: z.string() }),
-      body: createProjectBodySchema,
-      responses: {
-        204: z.void(),
-        409: errorResponseSchema,
-        403: errorResponseSchema,
-      },
+      path: "/projects/{slug}",
       summary: "Create a new project",
-      headers: authorizationHeaderSchema,
-    },
-  },
-  {
-    baseHeaders: {
-      authorization: z.string(),
-    },
-  }
-);
+      tags: ["Private Non Scriptable"],
+      successStatus: 204,
+    })
+    .input(createProjectBodySchema.partial().extend({ slug: z.string() }))
+    .output(z.void()),
+};
 
-const nonScriptablePrivateUserContracts = c.router(
-  {
-    getUserDraftProjects: {
+export const nonScriptablePrivateUserContracts = {
+  getUserDraftProjects: jwtOnly
+    .route({
       method: "GET",
-      path: "/users/:userId/drafts",
-      pathParams: z.object({ userId: z.string() }),
-      query: z.object({
+      path: "/users/{userId}/drafts",
+      summary: "Get all draft projects for a user",
+      tags: ["Private Non Scriptable"],
+    })
+    .input(
+      z.object({
+        userId: z.string(),
         pageStart: z.coerce.number().optional(),
         pageLength: z.coerce.number().optional(),
-      }),
-      responses: {
-        200: z.array(projectSummarySchema),
-        403: errorResponseSchema,
-      },
-      summary: "Get all draft projects for a user",
-      headers: authorizationHeaderSchema,
-    },
-  },
-  {
-    baseHeaders: {
-      authorization: z.string(),
-    },
-  }
-);
+      })
+    )
+    .output(z.array(projectSummarySchema)),
+};
 
 export const nonScriptablePrivateContracts = {
   ...nonScriptablePrivateProjectContracts,
   ...nonScriptablePrivateUserContracts,
 };
-export const privateProjectContracts = {
-  ...nonScriptablePrivateProjectContracts,
-  ...scriptablePrivateProjectContracts,
-};
 
-export const privateRestContracts = c.router({
+export const privateRestContracts = {
   ...nonScriptablePrivateProjectContracts,
   ...scriptablePrivateProjectContracts,
   ...nonScriptablePrivateUserContracts,
-});
+};
