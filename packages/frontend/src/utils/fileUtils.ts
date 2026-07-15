@@ -69,11 +69,8 @@ export const AUDIO_FILE_EXTENSIONS = [
 ] as const;
 
 export const NON_EXECUTABLE_EXTENSIONS = [
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".gif",
-  ".svg",
+  ...IMAGE_FILE_EXTENSIONS.map((ext) => `.${ext}`),
+  ...AUDIO_FILE_EXTENSIONS.map((ext) => `.${ext}`),
   ".md",
   ".txt",
   ".json",
