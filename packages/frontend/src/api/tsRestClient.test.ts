@@ -112,4 +112,32 @@ describe("API client thenable / createProject", () => {
     const request = requestFromFetchCall(fetchMock.mock.calls[0] ?? []);
     expect(request.url).toContain("/projects/my-app/draft");
   });
+
+  it("unwraps detailed file responses so body is a Blob with .text()", async () => {
+    const fileText = "print('hello from draft')\n";
+    const fetchMock = vi.fn(async () => {
+      return new Response(fileText, {
+        status: 200,
+        headers: {
+          "content-type": "text/x-python",
+          "content-disposition": 'attachment; filename="__init__.py"',
+        },
+      });
+    });
+
+    const client = createApiClientForTests({
+      url: "http://api.test/api/v3",
+      fetch: fetchMock as unknown as typeof fetch,
+    });
+
+    const result = await client.getDraftFile({
+      params: { slug: "my-app", filePath: "__init__.py" },
+      headers: { authorization: "Bearer t" },
+    });
+
+    expect(result.status).toBe(200);
+    expect(result.body).toBeInstanceOf(Blob);
+    expect(typeof (result.body as Blob).text).toBe("function");
+    expect(await (result.body as Blob).text()).toBe(fileText);
+  });
 });

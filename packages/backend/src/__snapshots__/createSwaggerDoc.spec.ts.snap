@@ -4370,21 +4370,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {
-                "examples": undefined,
-                "properties": {
-                  "file": {
-                    "contentMediaType": "*/*",
-                    "type": "string",
-                  },
-                },
-                "required": [
-                  "file",
-                ],
-                "type": "object",
-              },
-            },
             "multipart/form-data": {
               "schema": {
                 "examples": undefined,

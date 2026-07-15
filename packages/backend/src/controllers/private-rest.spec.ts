@@ -185,6 +185,45 @@ describe("Authenticated API Routes", () => {
         expect(getRes2.statusCode).toBe(404);
       });
 
+      test("POST application/json body is rejected for file upload", async () => {
+        const jsonStringFile = await request(app)
+          .post(
+            `/api/v3/projects/${user1AppId}/draft/files/json-string-body.txt`
+          )
+          .auth(USER1_TOKEN, { type: "bearer" })
+          .set("Content-Type", "application/json")
+          .send({ file: "not a real file" });
+        expect(jsonStringFile.statusCode).toBeGreaterThanOrEqual(400);
+        expect(jsonStringFile.statusCode).toBeLessThan(500);
+
+        const jsonObjectFile = await request(app)
+          .post(
+            `/api/v3/projects/${user1AppId}/draft/files/json-object-body.txt`
+          )
+          .auth(USER1_TOKEN, { type: "bearer" })
+          .set("Content-Type", "application/json")
+          .send({
+            file: {
+              name: "json-object-body.txt",
+              type: "text/plain",
+              data: Buffer.from("hello").toString("base64"),
+            },
+          });
+        expect(jsonObjectFile.statusCode).toBeGreaterThanOrEqual(400);
+        expect(jsonObjectFile.statusCode).toBeLessThan(500);
+
+        // Ensure neither body form created a file
+        for (const name of [
+          "json-string-body.txt",
+          "json-object-body.txt",
+        ] as const) {
+          const getRes = await request(app)
+            .get(`/api/v3/projects/${user1AppId}/draft/files/${name}`)
+            .auth(USER1_TOKEN, { type: "bearer" });
+          expect(getRes.statusCode).toBe(404);
+        }
+      });
+
       test("POST /projects/{slug}/draft/icon converts and sets icons", async () => {
         const pngBuffer = Buffer.from(
           "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+qLkAAAAASUVORK5CYII=",

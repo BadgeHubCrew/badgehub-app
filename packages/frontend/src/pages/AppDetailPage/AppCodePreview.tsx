@@ -330,21 +330,29 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
             params: { slug: project.slug, filePath: previewedFile },
           });
 
-          if (response.status === 200 && response.body) {
-            const blob = response.body as Blob;
-
-            // Binary previews need an object URL for authenticated draft blobs.
+          if (response.status === 200 && response.body !== undefined) {
+            // Binary previews need an object URL for authenticated draft files.
             const previewType = getPreviewType(
               currentFile.mimetype,
               currentFile.full_path
             );
             if (previewType === "image" || previewType === "audio") {
-              setPreviewBlob(blob);
-              setFileContent(null);
+              if (response.body instanceof Blob) {
+                setPreviewBlob(response.body);
+                setFileContent(null);
+              } else {
+                setFileContent("// Unable to display file content");
+                setPreviewBlob(null);
+              }
+            } else if (typeof response.body === "string") {
+              setFileContent(response.body);
+              setPreviewBlob(null);
+            } else if (response.body instanceof Blob) {
+              setFileContent(await response.body.text());
+              setPreviewBlob(null);
             } else {
-              // For text files, convert blob to text
-              const text = await blob.text();
-              setFileContent(text);
+              // Already-parsed JSON or other non-blob bodies
+              setFileContent(JSON.stringify(response.body));
               setPreviewBlob(null);
             }
           } else {

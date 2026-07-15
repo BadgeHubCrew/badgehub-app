@@ -74,6 +74,59 @@ function isOrpcError(
   );
 }
 
+function toResultHeaders(
+  headers: Headers | Record<string, unknown> | undefined
+): Headers {
+  if (headers instanceof Headers) return headers;
+  const result = new Headers();
+  if (!headers) return result;
+  for (const [key, value] of Object.entries(headers)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) result.append(key, String(item));
+    } else {
+      result.set(key, String(value));
+    }
+  }
+  return result;
+}
+
+/**
+ * Normalize oRPC procedure output to the legacy `{ status, body, headers }` shape.
+ *
+ * Compact procedures return the body directly (or `undefined` for 204).
+ * Detailed procedures (`outputStructure: "detailed"`, e.g. file downloads)
+ * already return `{ status, headers, body }` — unwrap so callers get the
+ * File/Blob as `body`, not a nested object (which broke `blob.text()`).
+ */
+function toTsRestStyleResult(output: unknown): TsRestStyleResult {
+  if (output === undefined) {
+    return { status: 204, body: undefined, headers: new Headers() };
+  }
+  if (
+    output !== null &&
+    typeof output === "object" &&
+    "body" in output &&
+    ("status" in output || "headers" in output)
+  ) {
+    const detailed = output as {
+      status?: number;
+      headers?: Headers | Record<string, unknown>;
+      body: unknown;
+    };
+    return {
+      status: typeof detailed.status === "number" ? detailed.status : 200,
+      body: detailed.body,
+      headers: toResultHeaders(detailed.headers),
+    };
+  }
+  return {
+    status: 200,
+    body: output,
+    headers: new Headers(),
+  };
+}
+
 /**
  * Wrap oRPC client procedures with a ts-rest-like `{ status, body }` surface.
  *
@@ -99,7 +152,7 @@ function wrapClient(client: OrpcClient): TsRestClient {
       return async (args?: CallArgs): Promise<TsRestStyleResult> => {
         try {
           const requestHeaders = perRequestHeaders(args);
-          const body = await (
+          const output = await (
             value as (
               input: unknown,
               options?: { context?: ApiClientContext }
@@ -110,11 +163,7 @@ function wrapClient(client: OrpcClient): TsRestClient {
               ? { context: { headers: requestHeaders } }
               : undefined
           );
-          return {
-            status: body === undefined ? 204 : 200,
-            body,
-            headers: new Headers(),
-          };
+          return toTsRestStyleResult(output);
         } catch (error) {
           if (isOrpcError(error)) {
             return {

@@ -3,7 +3,13 @@ import { OpenAPIGenerator } from "@orpc/openapi";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import { publicRestContracts } from "@shared/contracts/publicRestContracts";
-import type { OpenAPIObject, PathsObject } from "openapi3-ts";
+import type {
+  OpenAPIObject,
+  OperationObject,
+  PathItemObject,
+  PathsObject,
+  RequestBodyObject,
+} from "openapi3-ts";
 
 const generator = new OpenAPIGenerator({
   schemaConverters: [new ZodToJsonSchemaConverter()],
@@ -24,6 +30,43 @@ function withApiPrefix(paths: PathsObject | undefined): PathsObject {
       ];
     })
   );
+}
+
+/**
+ * oRPC documents nested `z.file()` fields as both application/json and
+ * multipart/form-data. Our runtime only accepts multipart uploads (FormData),
+ * so drop the misleading JSON request content type when multipart is present.
+ */
+function multipartOnlyForFileUploads(paths: PathsObject): PathsObject {
+  for (const pathItem of Object.values(paths)) {
+    if (!pathItem || typeof pathItem !== "object") continue;
+    for (const method of [
+      "get",
+      "put",
+      "post",
+      "delete",
+      "options",
+      "head",
+      "patch",
+      "trace",
+    ] as const) {
+      const operation = (pathItem as PathItemObject)[method] as
+        | OperationObject
+        | undefined;
+      const requestBody = operation?.requestBody as
+        | RequestBodyObject
+        | undefined;
+      const content = requestBody?.content;
+      if (
+        content?.["multipart/form-data"] &&
+        content["application/json"] !== undefined
+      ) {
+        const { "application/json": _json, ...rest } = content;
+        requestBody.content = rest;
+      }
+    }
+  }
+  return paths;
 }
 
 export async function createSwaggerDoc(): Promise<OpenAPIObject> {
@@ -80,10 +123,14 @@ export async function createSwaggerDoc(): Promise<OpenAPIObject> {
     },
   });
 
+  const paths = multipartOnlyForFileUploads(
+    withApiPrefix(spec.paths as PathsObject | undefined)
+  );
+
   return {
     ...spec,
     paths: {
-      ...withApiPrefix(spec.paths as PathsObject | undefined),
+      ...paths,
       "/api-docs/swagger.json": {
         get: {
           tags: ["Open API"],
