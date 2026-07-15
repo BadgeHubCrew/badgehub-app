@@ -1,14 +1,14 @@
 import { render, screen } from "@__test__";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import AppEditTokenManager from "./AppEditTokenManager.tsx";
 
-vi.mock("@api/tsRestClient.ts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@api/tsRestClient.ts")>();
+vi.mock("@api/apiClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedTsRestClient: vi.fn(),
+    getFreshAuthorizedApiClient: vi.fn(),
   };
 });
 
@@ -24,10 +24,10 @@ const baseClient = {
 
 describe("AppEditTokenManager", () => {
   it("renders empty state when no token exists", async () => {
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       ...baseClient,
       getProjectApiTokenMetadata: vi.fn().mockResolvedValue({ status: 404 }),
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppEditTokenManager slug="demo" keycloak={keycloak} />);
 
@@ -36,7 +36,7 @@ describe("AppEditTokenManager", () => {
 
   it("creates a new token and shows it", async () => {
     const user = userEvent.setup();
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       ...baseClient,
       getProjectApiTokenMetadata: vi.fn().mockResolvedValue({
         status: 404,
@@ -45,7 +45,7 @@ describe("AppEditTokenManager", () => {
         status: 200,
         body: { token: "new-token-value" },
       }),
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppEditTokenManager slug="demo" keycloak={keycloak} />);
 

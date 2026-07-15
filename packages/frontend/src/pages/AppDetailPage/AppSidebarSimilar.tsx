@@ -9,7 +9,7 @@ import {
 } from "@utils/publicProjectErrors.ts";
 import type React from "react";
 import { Link } from "react-router-dom";
-import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
+import { publicApiClient as defaultApiClient } from "../../api/apiClient.ts";
 
 /**
  * Renders a single project item in the list.
@@ -63,8 +63,8 @@ const SkeletonLoader: React.FC = () => (
  */
 const AppSidebarSimilar: React.FC<{
   project: ProjectDetails;
-  tsRestClient: typeof defaultTsRestClient;
-}> = ({ project, tsRestClient = defaultTsRestClient }) => {
+  apiClient: typeof defaultApiClient;
+}> = ({ project, apiClient = defaultApiClient }) => {
   const {
     data: similarProjects,
     error,
@@ -73,17 +73,19 @@ const AppSidebarSimilar: React.FC<{
     if (!project.idp_user_id) {
       return [];
     }
-    const result = await tsRestClient.getProjectSummaries({
+    const result = await apiClient.getProjectSummaries({
       query: {
         userId: project.idp_user_id,
         pageLength: 4,
       },
     });
     if (result.status === 200) {
-      return result.body.filter((p) => p.slug !== project.slug).slice(0, 3);
+      return (result.body as ProjectSummary[])
+        .filter((p) => p.slug !== project.slug)
+        .slice(0, 3);
     }
     throw new Error(publicProjectErrorFromStatus(result.status));
-  }, [project.idp_user_id, project.slug, tsRestClient]);
+  }, [project.idp_user_id, project.slug, apiClient]);
 
   const renderContent = () => {
     if (loading) {
@@ -97,7 +99,7 @@ const AppSidebarSimilar: React.FC<{
       );
     }
     if (similarProjects && similarProjects.length > 0) {
-      return similarProjects.map((p) => (
+      return similarProjects.map((p: ProjectSummary) => (
         <ProjectItem key={p.slug} project={p} />
       ));
     }

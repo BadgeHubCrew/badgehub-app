@@ -1,4 +1,4 @@
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import {
   type PossiblyStaleProject,
   useDraftProject,
@@ -77,7 +77,7 @@ const AppEditPage: React.FC<{
       return;
     }
     const updatedDraftProject = await (
-      await getFreshAuthorizedTsRestClient(keycloak)
+      await getFreshAuthorizedApiClient(keycloak)
     ).getDraftProject({
       params: { slug },
     });
@@ -108,7 +108,7 @@ const AppEditPage: React.FC<{
 
   const handleDeleteFile = async (filePath: string) => {
     assertDefined(keycloak);
-    await (await getFreshAuthorizedTsRestClient(keycloak)).deleteDraftFile({
+    await (await getFreshAuthorizedApiClient(keycloak)).deleteDraftFile({
       params: { slug, filePath },
     });
     setProject((p) => {
@@ -145,7 +145,7 @@ const AppEditPage: React.FC<{
 
     try {
       const changeAppMetdataResult = await (
-        await getFreshAuthorizedTsRestClient(keycloak)
+        await getFreshAuthorizedApiClient(keycloak)
       ).changeDraftAppMetadata({
         params: { slug },
         body: appMetadata,
@@ -156,7 +156,7 @@ const AppEditPage: React.FC<{
         return;
       }
       const publishResult = await (
-        await getFreshAuthorizedTsRestClient(keycloak)
+        await getFreshAuthorizedApiClient(keycloak)
       ).publishVersion({
         params: { slug },
         body: undefined,
@@ -183,7 +183,7 @@ const AppEditPage: React.FC<{
     try {
       assertDefined(keycloak);
       const response = await (
-        await getFreshAuthorizedTsRestClient(keycloak)
+        await getFreshAuthorizedApiClient(keycloak)
       ).deleteProject({
         params: { slug },
       });
@@ -203,7 +203,7 @@ const AppEditPage: React.FC<{
     assertDefined(keycloak);
     try {
       await keycloak.updateToken(30);
-      const client = await getFreshAuthorizedTsRestClient(keycloak);
+      const client = await getFreshAuthorizedApiClient(keycloak);
       const setIconResult = await client.setDraftIconFromFile({
         params: { slug },
         body: { filePath, sizes: ["64x64"] },

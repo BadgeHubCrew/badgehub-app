@@ -1,13 +1,13 @@
 import type { ProjectSlug } from "@shared/domain/readModels/project/ProjectDetails";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 export type ProjectLatestRevision = {
   slug: ProjectSlug;
   revision: number;
 };
 
-const projectLatestRevisionSchema = z.object({
+export const projectLatestRevisionSchema = z.object({
   slug: z.string(),
   revision: z.number(),
 });

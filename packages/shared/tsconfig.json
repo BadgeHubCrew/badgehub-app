@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
-    "strict": true, // Enable all strict type-checking options, required for Zod which we use for ts-rest
+    "strict": true, // Enable all strict type-checking options (Zod + oRPC contracts)
     "noUncheckedIndexedAccess": true,
     //    "erasableSyntaxOnly": true, // TODO enable this and refactor get rid of violations of this rule
     "noImplicitOverride": true,
@@ -25,5 +25,6 @@
       "@shared/*": ["./src/*"]
     }
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts"],
+  "exclude": ["./src/**/*.tstest.ts"]
 }

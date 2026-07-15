@@ -1,16 +1,13 @@
-import { NO_BODY_SCHEMA } from "@shared/contracts/tsRestNoBodyPatch";
+import { oc } from "@orpc/contract";
+import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { badgeSlugSchema } from "@shared/domain/readModels/Badge";
 import { badgeHubStatsSchema } from "@shared/domain/readModels/BadgeHubStats";
 import { categoryNameSchema } from "@shared/domain/readModels/project/Category";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectLatestRevisionsSchema } from "@shared/domain/readModels/project/ProjectRevision";
-import { projectSummarySchema } from "@shared/domain/readModels/project/ProjectSummaries";
-import { initContract } from "@ts-rest/core";
-import { z } from "zod/v3";
+import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { z } from "zod";
 
-const c = initContract();
-
-const errorResponseSchema = z.object({ reason: z.string() });
 export const getProjectsQuerySchema = z.object({
   pageStart: z.coerce.number().optional(),
   pageLength: z.coerce.number().optional(),
@@ -29,177 +26,221 @@ export const getProjectsQuerySchema = z.object({
   orderBy: z.enum(["published_at", "installs"]).optional(),
 });
 
-const projectRevisionParams = z.object({
-  slug: z.string(),
-  revision: z.coerce.number(),
-});
-export const publicProjectContracts = c.router({
-  getProject: {
-    method: "GET",
-    path: `/projects/:slug`,
-    pathParams: z.object({ slug: z.string() }),
-    responses: {
-      200: detailedProjectSchema,
-      404: errorResponseSchema,
-    },
-    summary: "Get (Latest) Project Details by Slug",
-  },
-  getProjectSummaries: {
-    method: "GET",
-    path: `/project-summaries`,
-    query: getProjectsQuerySchema,
-    responses: {
-      200: z.array(projectSummarySchema),
-    },
-    summary: "Get all Projects",
-  },
-  getProjectLatestRevisions: {
-    method: "GET",
-    path: `/project-latest-revisions`,
-    query: z.object({
-      slugs: z.string().optional(),
-    }),
-    responses: {
-      200: projectLatestRevisionsSchema,
-    },
-    summary:
-      "Get the latest revisions for a list of project slugs. Allows for quickly checking for updates.",
-  },
-  getProjectLatestRevision: {
-    method: "GET",
-    path: `/project-latest-revisions/:slug`,
-    pathParams: z.object({ slug: z.string() }),
-    responses: { 200: z.number() },
-    summary:
-      "Get the latest revision number for a project. Allows for quickly checking for updates.",
-  },
-  getProjectForRevision: {
-    method: "GET",
-    path: `/projects/:slug/rev:revision`,
-    pathParams: projectRevisionParams,
-    responses: {
-      200: detailedProjectSchema,
-      404: errorResponseSchema,
-    },
-    summary:
-      "Get project details for a specific published revision of the project",
-  },
-});
-
-export const publicFilesContracts = c.router({
-  getLatestPublishedFile: {
-    method: "GET",
-    path: `/projects/:slug/latest/files/:filePath`,
-    pathParams: z.object({
-      slug: z.string(),
-      filePath: z.string(),
-    }),
-    responses: {
-      200: z.unknown().describe("ReadableStream"), // ReadableStream
-      404: errorResponseSchema,
-    },
-    summary: "Get the latest published revision of a file in the project",
-  },
-  getFileForRevision: {
-    method: "GET",
-    path: `/projects/:slug/rev:revision/files/:filePath`,
-    pathParams: projectRevisionParams.extend({
-      filePath: z.string(),
-    }),
-    responses: {
-      200: z.unknown().describe("ReadableStream"), // ReadableStream,
-      404: errorResponseSchema,
-    },
-    summary: "Get a file for a specific revision of the project",
-  },
-});
-
 export const badgeIdentifiersSchema = z.object({
   mac: z.string().describe("the mac address of the badge").optional(),
   id: z.string().describe("the id of the badge").optional(),
 });
 
-export const publicOtherContracts = c.router({
-  getCategories: {
-    method: "GET",
-    path: `/categories`,
-    responses: {
-      200: z.array(categoryNameSchema),
-    },
-  },
-  getBadges: {
-    method: "GET",
-    path: `/badges`,
-    responses: {
-      200: z.array(badgeSlugSchema),
-    },
-  },
-  ping: {
-    method: "GET",
-    path: `/ping`,
-    query: badgeIdentifiersSchema,
-    responses: {
-      200: z.string().describe("Ping the server to check if it's alive"),
-    },
-  },
-  getStats: {
-    method: "GET",
-    path: `/stats`,
-    responses: {
-      200: badgeHubStatsSchema,
-    },
-  },
-});
-
-const crashReportBodySchema = z.object({
+export const crashReportBodySchema = z.object({
   reason: z
     .string()
     .describe("An optional reason for the app crash.")
     .optional(),
 });
 
-export const publicReportContracts = c.router({
-  reportInstall: {
-    method: "POST",
-    path: "/projects/:slug/rev:revision/report/install",
-    pathParams: projectRevisionParams,
-    query: badgeIdentifiersSchema,
-    body: NO_BODY_SCHEMA, // Needed for ts-rest
-    responses: {
-      204: z.void(),
-      404: errorResponseSchema,
-    },
-    summary: "Report an installation of an app.",
-  },
-  reportLaunch: {
-    method: "POST",
-    path: "/projects/:slug/rev:revision/report/launch",
-    pathParams: projectRevisionParams,
-    query: badgeIdentifiersSchema,
-    body: NO_BODY_SCHEMA, // Needed for ts-rest
-    responses: {
-      204: z.void(),
-      404: errorResponseSchema,
-    },
-    summary: "Report a launch of an app.",
-  },
-  reportCrash: {
-    method: "POST",
-    path: "/projects/:slug/rev:revision/report/crash",
-    pathParams: projectRevisionParams,
-    query: badgeIdentifiersSchema,
-    body: crashReportBodySchema,
-    responses: {
-      204: z.void(),
-      404: errorResponseSchema,
-    },
-    summary: "Report a crash of an app.",
+export const categoryNamesSchema = z.array(categoryNameSchema);
+export const badgeSlugsSchema = z.array(badgeSlugSchema);
+
+const publicBase = oc.errors({
+  NOT_FOUND: {
+    status: 404,
+    data: errorResponseSchema,
   },
 });
 
-export const publicRestContracts = c.router({
-  ...publicProjectContracts,
-  ...publicFilesContracts,
-  ...publicOtherContracts,
-  ...publicReportContracts,
-});
+export const publicRestContracts = {
+  getProject: publicBase
+    .route({
+      method: "GET",
+      path: "/projects/{slug}",
+      summary: "Get (Latest) Project Details by Slug",
+      tags: ["Public"],
+      successStatus: 200,
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(detailedProjectSchema),
+
+  getProjectSummaries: publicBase
+    .route({
+      method: "GET",
+      path: "/project-summaries",
+      summary: "Get all Projects",
+      tags: ["Public"],
+    })
+    .input(getProjectsQuerySchema)
+    .output(projectSummariesSchema),
+
+  getProjectLatestRevisions: publicBase
+    .route({
+      method: "GET",
+      path: "/project-latest-revisions",
+      summary:
+        "Get the latest revisions for a list of project slugs. Allows for quickly checking for updates.",
+      tags: ["Public"],
+    })
+    .input(z.object({ slugs: z.string().optional() }))
+    .output(projectLatestRevisionsSchema),
+
+  getProjectLatestRevision: publicBase
+    .route({
+      method: "GET",
+      path: "/project-latest-revisions/{slug}",
+      summary:
+        "Get the latest revision number for a project. Allows for quickly checking for updates.",
+      tags: ["Public"],
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(z.number()),
+
+  getProjectForRevision: publicBase
+    .route({
+      method: "GET",
+      // Public URL stays /projects/{slug}/rev{N}; Express rewrites revN → revisions/N
+      path: "/projects/{slug}/revisions/{revision}",
+      summary:
+        "Get project details for a specific published revision of the project",
+      tags: ["Public"],
+    })
+    .input(
+      z.object({
+        slug: z.string(),
+        revision: z.coerce.number(),
+      })
+    )
+    .output(detailedProjectSchema),
+
+  getLatestPublishedFile: publicBase
+    .route({
+      method: "GET",
+      path: "/projects/{slug}/latest/files/{+filePath}",
+      summary: "Get the latest published revision of a file in the project",
+      tags: ["Public"],
+      outputStructure: "detailed",
+    })
+    .input(z.object({ slug: z.string(), filePath: z.string() }))
+    .output(
+      z.object({
+        headers: z.record(z.string(), z.string()).optional(),
+        body: z.unknown().describe("File content"),
+      })
+    ),
+
+  getFileForRevision: publicBase
+    .route({
+      method: "GET",
+      path: "/projects/{slug}/revisions/{revision}/files/{+filePath}",
+      summary: "Get a file for a specific revision of the project",
+      tags: ["Public"],
+      outputStructure: "detailed",
+    })
+    .input(
+      z.object({
+        slug: z.string(),
+        revision: z.coerce.number(),
+        filePath: z.string(),
+      })
+    )
+    .output(
+      z.object({
+        headers: z.record(z.string(), z.string()).optional(),
+        body: z.unknown().describe("File content"),
+      })
+    ),
+
+  getCategories: publicBase
+    .route({
+      method: "GET",
+      path: "/categories",
+      tags: ["Public"],
+    })
+    .output(categoryNamesSchema),
+
+  getBadges: publicBase
+    .route({
+      method: "GET",
+      path: "/badges",
+      tags: ["Public"],
+    })
+    .output(badgeSlugsSchema),
+
+  ping: publicBase
+    .route({
+      method: "GET",
+      path: "/ping",
+      tags: ["Public"],
+    })
+    .input(badgeIdentifiersSchema)
+    .output(z.string().describe("Ping the server to check if it's alive")),
+
+  getStats: publicBase
+    .route({
+      method: "GET",
+      path: "/stats",
+      tags: ["Public"],
+    })
+    .output(badgeHubStatsSchema),
+
+  reportInstall: publicBase
+    .route({
+      method: "POST",
+      path: "/projects/{slug}/revisions/{revision}/report/install",
+      summary: "Report an installation of an app.",
+      tags: ["Public"],
+      successStatus: 204,
+      inputStructure: "detailed",
+    })
+    .input(
+      z.object({
+        params: z.object({
+          slug: z.string(),
+          revision: z.coerce.number(),
+        }),
+        query: badgeIdentifiersSchema,
+        // Allow empty body or any legacy payload (e.g. JSON string)
+        body: z.unknown().optional(),
+      })
+    )
+    .output(z.void()),
+
+  reportLaunch: publicBase
+    .route({
+      method: "POST",
+      path: "/projects/{slug}/revisions/{revision}/report/launch",
+      summary: "Report a launch of an app.",
+      tags: ["Public"],
+      successStatus: 204,
+      inputStructure: "detailed",
+    })
+    .input(
+      z.object({
+        params: z.object({
+          slug: z.string(),
+          revision: z.coerce.number(),
+        }),
+        query: badgeIdentifiersSchema,
+        body: z.unknown().optional(),
+      })
+    )
+    .output(z.void()),
+
+  reportCrash: publicBase
+    .route({
+      method: "POST",
+      path: "/projects/{slug}/revisions/{revision}/report/crash",
+      summary: "Report a crash of an app.",
+      tags: ["Public"],
+      successStatus: 204,
+      inputStructure: "detailed",
+    })
+    .input(
+      z.object({
+        params: z.object({
+          slug: z.string(),
+          revision: z.coerce.number(),
+        }),
+        query: badgeIdentifiersSchema,
+        body: crashReportBodySchema.optional(),
+      })
+    )
+    .output(z.void()),
+};

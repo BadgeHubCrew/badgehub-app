@@ -523,8 +523,8 @@ describe("Public API Routes", {
     );
     expect(getRes.statusCode).toBe(200);
     expect(getRes.text).toEqual("print('Hello world from the CodeCraft app')");
-    expect(getRes.headers["content-disposition"]).toEqual(
-      'attachment; filename="__init__.py"'
+    expect(getRes.headers["content-disposition"]).toMatch(
+      /attachment; filename="__init__\.py"/
     );
   });
 
@@ -537,8 +537,8 @@ describe("Public API Routes", {
     );
     expect(getRes.statusCode).toBe(200);
     expect(getRes.headers["content-type"]).toEqual("image/png");
-    expect(getRes.headers["content-disposition"]).toEqual(
-      'inline; filename="icon5.png"'
+    expect(getRes.headers["content-disposition"]).toMatch(
+      /inline; filename="icon5\.png"/
     );
   });
 
@@ -657,18 +657,18 @@ describe("Public API Routes", {
       // expect(stats.badges).toBeGreaterThan(0);
       expect(stats.authors).toBeGreaterThan(0);
       expect(Object.keys(stats)).toMatchInlineSnapshot(`
-          [
-            "crashed_projects",
-            "crashes",
-            "installed_projects",
-            "launched_projects",
-            "launches",
-            "projects",
-            "installs",
-            "authors",
-            "badges",
-          ]
-        `);
+        [
+          "projects",
+          "installs",
+          "crashes",
+          "launches",
+          "installed_projects",
+          "launched_projects",
+          "crashed_projects",
+          "authors",
+          "badges",
+        ]
+      `);
     });
   });
 });

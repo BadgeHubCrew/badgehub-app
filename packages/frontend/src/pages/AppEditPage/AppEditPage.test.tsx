@@ -1,14 +1,14 @@
 import { render, screen } from "@__test__";
 import { dummyApps } from "@__test__/fixtures";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppEditPage from "./AppEditPage.tsx";
 
-vi.mock("@api/tsRestClient.ts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@api/tsRestClient.ts")>();
+vi.mock("@api/apiClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedTsRestClient: vi.fn(),
+    getFreshAuthorizedApiClient: vi.fn(),
   };
 });
 
@@ -18,16 +18,16 @@ vi.mock("./AppEditTokenManager.tsx", () => ({
 
 describe("AppEditPage", () => {
   beforeEach(() => {
-    vi.mocked(getFreshAuthorizedTsRestClient).mockReset();
+    vi.mocked(getFreshAuthorizedApiClient).mockReset();
   });
 
   it("renders the edit view when the draft loads", async () => {
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       getDraftProject: vi.fn().mockResolvedValue({
         status: 200,
         body: dummyApps[0]?.details,
       }),
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppEditPage slug="dummy-app-1" />);
 
@@ -42,12 +42,12 @@ describe("AppEditPage", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       getDraftProject: vi.fn().mockResolvedValue({
         status: 401,
         body: { reason: "Unauthorized" },
       }),
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppEditPage slug="dummy-app-1" />);
 
@@ -61,12 +61,12 @@ describe("AppEditPage", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       getDraftProject: vi.fn().mockResolvedValue({
         status: 404,
         body: { reason: "Not found" },
       }),
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppEditPage slug="missing-app" />);
 

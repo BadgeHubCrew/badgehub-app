@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import AppCodePreview from "./AppCodePreview";
 
 // Mock the API client
-vi.mock("@api/tsRestClient.ts", () => ({
-  publicTsRestClient: {
+vi.mock("@api/apiClient.ts", () => ({
+  publicApiClient: {
     getLatestPublishedFile: vi.fn().mockImplementation(({ params }) => {
       // Mock different responses based on file path
       if (params.filePath === "test.json") {
@@ -27,8 +27,8 @@ vi.mock("@api/tsRestClient.ts", () => ({
         });
       }
       if (params.filePath === "parsed.json") {
-        // The real ts-rest client auto-parses application/json responses
-        // (see #398), so the body arrives as an object, not a string/Blob.
+        // The API client may return already-parsed application/json (see #398),
+        // so the body arrives as an object, not a string/Blob.
         return Promise.resolve({
           status: 200,
           body: { name: "parsed", version: "2.0.0" },

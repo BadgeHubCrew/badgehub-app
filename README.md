@@ -108,8 +108,8 @@ The docker compose files used for running BadgeHub in production are maintained 
 
 - [Express](https://expressjs.com/), a framework for Node.js
 - [pnpm](https://pnpm.io/) for package management
-- [ts-rest](https://ts-rest.com/) for a type safe http controller, contract and client without code generation
-- [zod](https://github.com/colinhacks/zod) for defining and checking json schemas
+- [oRPC](https://orpc.dev/) for type-safe API contracts, OpenAPI handler/client, and Swagger generation
+- [zod](https://github.com/colinhacks/zod) (v4) for defining and checking JSON schemas
 - [sql-template-tag](https://github.com/blakeembrey/sql-template-tag) for more easily writing SQL queries
 - [tsx](https://tsx.is/) for running TypeScript files in Node.js
 - [db-migrate](https://db-migrate.readthedocs.io/en/latest/) for database migrations

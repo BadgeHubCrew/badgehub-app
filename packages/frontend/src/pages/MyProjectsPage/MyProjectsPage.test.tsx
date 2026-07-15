@@ -1,7 +1,7 @@
 import {
   dummyApps,
-  privateTsRestClientBuilder,
-  privateTsRestClientWithError,
+  privateApiClientBuilder,
+  privateApiClientWithError,
   render,
   screen,
   waitFor,
@@ -11,9 +11,7 @@ import MyProjectsPage from "./MyProjectsPage.tsx";
 
 describe("MyProjectsPage", () => {
   it("renders the page with user draft projects", async () => {
-    render(
-      <MyProjectsPage tsRestClient={privateTsRestClientBuilder(dummyApps)} />
-    );
+    render(<MyProjectsPage apiClient={privateApiClientBuilder(dummyApps)} />);
     await waitFor(() => {
       const appCardElements = screen.getAllByTestId("AppCard");
       expect(appCardElements.length).toBeGreaterThan(0);
@@ -25,7 +23,7 @@ describe("MyProjectsPage", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
-    render(<MyProjectsPage tsRestClient={privateTsRestClientWithError()} />);
+    render(<MyProjectsPage apiClient={privateApiClientWithError()} />);
     expect(
       await screen.findByText(/Failed to fetch your draft projects.*/i, {
         exact: false,
@@ -35,7 +33,7 @@ describe("MyProjectsPage", () => {
   });
 
   it("shows a message or empty state when there are no draft projects", async () => {
-    render(<MyProjectsPage tsRestClient={privateTsRestClientBuilder([])} />);
+    render(<MyProjectsPage apiClient={privateApiClientBuilder([])} />);
     expect(screen.queryByTestId("app-cards-container")).not.toBeInTheDocument();
     expect(await screen.findByText(/No apps found\./i)).toBeInTheDocument();
   });

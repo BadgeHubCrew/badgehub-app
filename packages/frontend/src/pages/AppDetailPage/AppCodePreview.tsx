@@ -1,7 +1,7 @@
 import {
-  getFreshAuthorizedTsRestClient,
-  publicTsRestClient,
-} from "@api/tsRestClient.ts";
+  getFreshAuthorizedApiClient,
+  publicApiClient,
+} from "@api/apiClient.ts";
 import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
@@ -325,26 +325,34 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
         if (isDraft) {
           // Draft mode - use authenticated API
           assertDefined(keycloak);
-          const client = await getFreshAuthorizedTsRestClient(keycloak);
+          const client = await getFreshAuthorizedApiClient(keycloak);
           const response = await client.getDraftFile({
             params: { slug: project.slug, filePath: previewedFile },
           });
 
-          if (response.status === 200 && response.body) {
-            const blob = response.body as Blob;
-
-            // Binary previews need an object URL for authenticated draft blobs.
+          if (response.status === 200 && response.body !== undefined) {
+            // Binary previews need an object URL for authenticated draft files.
             const previewType = getPreviewType(
               currentFile.mimetype,
               currentFile.full_path
             );
             if (previewType === "image" || previewType === "audio") {
-              setPreviewBlob(blob);
-              setFileContent(null);
+              if (response.body instanceof Blob) {
+                setPreviewBlob(response.body);
+                setFileContent(null);
+              } else {
+                setFileContent("// Unable to display file content");
+                setPreviewBlob(null);
+              }
+            } else if (typeof response.body === "string") {
+              setFileContent(response.body);
+              setPreviewBlob(null);
+            } else if (response.body instanceof Blob) {
+              setFileContent(await response.body.text());
+              setPreviewBlob(null);
             } else {
-              // For text files, convert blob to text
-              const text = await blob.text();
-              setFileContent(text);
+              // Already-parsed JSON or other non-blob bodies
+              setFileContent(JSON.stringify(response.body));
               setPreviewBlob(null);
             }
           } else {
@@ -353,7 +361,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
           }
         } else {
           // Published mode - use public API
-          const res = await publicTsRestClient.getLatestPublishedFile({
+          const res = await publicApiClient.getLatestPublishedFile({
             params: {
               slug: project.slug,
               filePath: previewedFile,
@@ -377,9 +385,9 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
               setFileContent(text);
               setPreviewBlob(null);
             } else if (res.body !== undefined) {
-              // The ts-rest client auto-parses JSON responses (e.g. for
-              // .json files, which now get a proper Content-Type per #398),
-              // so the body arrives already parsed rather than as text/Blob.
+              // The API client may return already-parsed JSON (e.g. for
+              // .json files with a proper Content-Type per #398),
+              // so the body can arrive as an object rather than as text/Blob.
               // Stringify compactly (no indent) so JsonPreview's raw/pretty
               // toggle still has an actual formatting difference to show.
               setFileContent(JSON.stringify(res.body));

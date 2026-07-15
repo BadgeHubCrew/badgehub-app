@@ -1,19 +1,14 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { addAuthenticationMiddleware } from "@auth/jwt-decode";
-import { jwtVerifyTokenMiddleware } from "@auth/jwt-verify";
 import {
   FRONTEND_DIST_DIR,
   FRONTEND_PUBLIC_DIR,
   IS_DEV_ENVIRONMENT,
 } from "@config";
-import { createPrivateRestRouter } from "@controllers/ts-rest/privateRestRouter";
-import { createPublicRestRouter } from "@controllers/ts-rest/publicRestRouter";
+import { OpenAPIHandler } from "@orpc/openapi/node";
+import { onError } from "@orpc/server";
 import serveApiDocs from "@serveApiDocs";
 import { getSharedConfig } from "@shared/config/sharedConfig";
-import { privateRestContracts } from "@shared/contracts/privateRestContracts";
-import { publicRestContracts } from "@shared/contracts/publicRestContracts";
-import { createExpressEndpoints } from "@ts-rest/express";
 import cors from "cors";
 import express, {
   type ErrorRequestHandler,
@@ -23,6 +18,11 @@ import express, {
 } from "express";
 import rateLimit from "express-rate-limit";
 import { pinoHttp } from "pino-http";
+import { PostgreSQLBadgeHubFiles } from "./db/PostgreSQLBadgeHubFiles";
+import { PostgreSQLBadgeHubMetadata } from "./db/PostgreSQLBadgeHubMetadata";
+import { BadgeHubData } from "./domain/BadgeHubData";
+import type { AppContext } from "./orpc/context";
+import { createApiRouter } from "./orpc/router";
 
 function getIndexHtmlContents() {
   const indexPath = path.join(FRONTEND_DIST_DIR, "index.html");
@@ -36,8 +36,6 @@ function getIndexHtmlContents() {
       "code" in err &&
       err.code === "ENOENT"
     ) {
-      // Fallback for test runs or when frontend hasn't been built yet.
-      // Prefer the indirect-dev template (used by frontend dev mode) if available.
       const indirectDevPath = path.join(
         path.dirname(FRONTEND_DIST_DIR),
         "index-indirect-dev.html"
@@ -54,22 +52,32 @@ function getIndexHtmlContents() {
   );
 }
 
+function toHeaders(req: Request): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(req.headers)) {
+    if (value === undefined) continue;
+    if (Array.isArray(value)) {
+      for (const v of value) headers.append(key, v);
+    } else {
+      headers.set(key, value);
+    }
+  }
+  return headers;
+}
+
 export const createExpressServer = () => {
   const app = express();
   if (IS_DEV_ENVIRONMENT) {
     app.use((_req, res, next) => {
       res.header("Access-Control-Allow-Origin", "*");
-      next(); // for inspection during development
+      next();
     });
   }
 
   app.use(cors());
 
-  // Accept any valid JSON value (including primitives like JSON strings).
-  app.use(express.json({ strict: false }));
+  // Register body parsers AFTER oRPC so multipart/file uploads stay intact
   const indexHtmlContents = getIndexHtmlContents();
-  // Handle requests for the root and /page routes by sending the main HTML file.
-  // This is crucial for Single Page Applications (SPAs) that use client-side routing.
   app.get(["/", "/page", "/page/*"], (_req, res) => {
     res.setHeader("Content-Type", "text/html");
     res.send(indexHtmlContents);
@@ -83,30 +91,64 @@ export const createExpressServer = () => {
 
   serveApiDocs(app);
 
-  const apiV3Router = express.Router();
-  app.use("/api/v3", apiV3Router);
-  createExpressEndpoints(
-    publicRestContracts,
-    createPublicRestRouter(),
-    apiV3Router
+  const badgeHubData = new BadgeHubData(
+    new PostgreSQLBadgeHubMetadata(),
+    new PostgreSQLBadgeHubFiles()
   );
+  const router = createApiRouter(badgeHubData);
 
   const rateLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 500, // Limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 500,
   });
-  createExpressEndpoints(
-    privateRestContracts,
-    createPrivateRestRouter(),
-    apiV3Router,
-    {
-      globalMiddleware: [
-        rateLimiter,
-        jwtVerifyTokenMiddleware,
-        addAuthenticationMiddleware,
-      ],
+
+  const openApiHandler = new OpenAPIHandler(router, {
+    interceptors: [
+      onError((error) => {
+        console.warn(error);
+      }),
+    ],
+  });
+
+  // Legacy path: /projects/:slug/revN/... → /projects/:slug/revisions/N/...
+  // (oRPC/OpenAPI path params cannot encode the "rev" + number glued segment)
+  app.use("/api/v3", (req, _res, next) => {
+    const rewrite = (u: string) =>
+      u.replace(/\/rev(\d+)(?=\/|$|\?)/g, "/revisions/$1");
+    req.url = rewrite(req.url);
+    // OpenAPIHandler reads originalUrl for path matching
+    Object.defineProperty(req, "originalUrl", {
+      value: rewrite(req.originalUrl),
+      writable: true,
+      configurable: true,
+    });
+    next();
+  });
+
+  // Public + private API under /api/v3 — auth enforced per-procedure via oRPC middleware.
+  // Express 4: mount on /api/v3 (not Express-5-style /api/v3{/*path}).
+  app.use("/api/v3", rateLimiter, async (req, res, next) => {
+    try {
+      const headers = toHeaders(req);
+      const { matched } = await openApiHandler.handle(req, res, {
+        prefix: "/api/v3",
+        context: {
+          headers,
+          badgeHubData,
+          user: undefined,
+          apiToken: undefined,
+        } satisfies AppContext,
+      });
+      if (matched) return;
+      next();
+    } catch (err) {
+      next(err);
     }
-  );
+  });
+
+  // JSON body only for non-oRPC routes (if any)
+  app.use(express.json({ strict: false }));
+
   const errorLogger: ErrorRequestHandler = (
     err: unknown,
     _req: Request,

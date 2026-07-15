@@ -10,7 +10,7 @@ import Pagination from "@sharedComponents/AppsGrid/Pagination.tsx";
 import Spinner from "@sharedComponents/Spinner.tsx";
 import type { AppCardProps } from "@sharedComponents/types.ts";
 import { useEffect, useMemo, useState } from "react";
-import type { z } from "zod/v3";
+import type { z } from "zod";
 
 export type ProjectQueryParams = z.infer<typeof getProjectsQuerySchema>;
 export type AppFetcher = (

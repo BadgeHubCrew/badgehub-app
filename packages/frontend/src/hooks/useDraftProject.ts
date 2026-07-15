@@ -1,4 +1,4 @@
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import {
@@ -25,7 +25,7 @@ export const useDraftProject = (slug: string, keycloak?: Keycloak) => {
       }
       try {
         const res = await (
-          await getFreshAuthorizedTsRestClient(keycloak)
+          await getFreshAuthorizedApiClient(keycloak)
         ).getDraftProject({
           params: { slug },
         });

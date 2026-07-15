@@ -1,6 +1,5 @@
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { BADGHUB_API_V3_URL } from "@config.ts";
-import { privateProjectContracts } from "@shared/contracts/privateRestContracts.ts";
 import type { ProjectApiTokenMetadata } from "@shared/domain/readModels/project/ProjectApiToken";
 import { assertDefined } from "@shared/util/assertions";
 import { ClipboardCopyIcon } from "@sharedComponents/icons/ClipboardCopyIcon.tsx";
@@ -38,7 +37,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const client = await getFreshAuthorizedTsRestClient(keycloak);
+      const client = await getFreshAuthorizedApiClient(keycloak);
       const response = await client.getProjectApiTokenMetadata({
         params: { slug },
       });
@@ -68,7 +67,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
     setError(null);
     setNewToken(null);
     try {
-      const client = await getFreshAuthorizedTsRestClient(keycloak);
+      const client = await getFreshAuthorizedApiClient(keycloak);
       const response = await client.createProjectAPIToken({
         params: { slug },
         body: undefined,
@@ -101,7 +100,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
     setIsOperating(true);
     setError(null);
     try {
-      const client = await getFreshAuthorizedTsRestClient(keycloak);
+      const client = await getFreshAuthorizedApiClient(keycloak);
       const response = await client.revokeProjectAPIToken({ params: { slug } });
       if (response.status === 204) {
         setTokenMetadata(null);
@@ -125,10 +124,9 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
       setTimeout(() => setTokenCopied(false), 2000);
     }
   };
-  const draftContract = privateProjectContracts.getDraftProject;
   const tokenForCommand =
     newToken && showToken ? newToken : "YOUR_PROJECT_TOKEN";
-  const curlCommand = `curl -H "badgehub-api-token: ${tokenForCommand}" ${BADGHUB_API_V3_URL}${draftContract.path.replace(":slug", slug)}`;
+  const curlCommand = `curl -H "badgehub-api-token: ${tokenForCommand}" ${BADGHUB_API_V3_URL}/projects/${slug}/draft`;
 
   const handleCopyCommand = () => {
     navigator.clipboard.writeText(curlCommand);

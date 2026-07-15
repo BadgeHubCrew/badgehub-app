@@ -3,7 +3,7 @@ import {
   badgeSlugSchema,
 } from "@shared/domain/readModels/Badge";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
-import { z } from "zod/v3";
+import { z } from "zod";
 
 export const variantJSONSchema = z.object({
   revision: z.coerce
