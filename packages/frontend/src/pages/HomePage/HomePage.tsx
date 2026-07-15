@@ -4,15 +4,15 @@ import { AppGridWithFilterAndPagination } from "@sharedComponents/AppGridWithFil
 import Hero from "@sharedComponents/Hero.tsx";
 import PageLayout from "@sharedComponents/PageLayout.tsx";
 import { memo, useState } from "react";
-import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
+import { publicApiClient as defaultApiClient } from "../../api/apiClient.ts";
 
 interface AppProps {
-  tsRestClient?: typeof defaultTsRestClient;
+  apiClient?: typeof defaultApiClient;
 }
 
-const HomePage = memo(({ tsRestClient = defaultTsRestClient }: AppProps) => {
+const HomePage = memo(({ apiClient = defaultApiClient }: AppProps) => {
   useTitle("");
-  const appFetcher = useProjectSummariesFetcher(tsRestClient);
+  const appFetcher = useProjectSummariesFetcher(apiClient);
   const [searchQuery, setSearchQuery] = useState("");
 
   return (

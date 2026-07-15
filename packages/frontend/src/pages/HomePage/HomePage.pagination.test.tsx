@@ -1,9 +1,9 @@
 import {
+  apiClientWithApps,
   dummyApps,
   fireEvent,
   render,
   screen,
-  tsRestClientWithApps,
   waitFor,
 } from "@__test__";
 import { describe, expect, it } from "vitest";
@@ -11,7 +11,7 @@ import HomePage from "./HomePage.tsx";
 
 describe("HomePage Pagination", () => {
   it("shows first page of apps and paginates to next page", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     expect(
       await screen.findByTestId("app-cards-container")
     ).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("HomePage Pagination", () => {
   });
 
   it("disables previous button on first page", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     expect(
       await screen.findByTestId("app-cards-container")
     ).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe("HomePage Pagination", () => {
   });
 
   it("disables next button on last page", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     let nextButton = (await screen.findByTestId(
       "pagination-next"
     )) as HTMLButtonElement;
@@ -64,7 +64,7 @@ describe("HomePage Pagination", () => {
   });
 
   it("can go back to previous page", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     const nextButton = (await screen.findByTestId(
       "pagination-next"
     )) as HTMLButtonElement;

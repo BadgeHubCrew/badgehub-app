@@ -7,7 +7,7 @@ import {
   publicProjectErrorMessage,
 } from "@utils/publicProjectErrors.ts";
 import type React from "react";
-import { publicTsRestClient as defaultTsRestClient } from "../../api/tsRestClient.ts";
+import { publicApiClient as defaultApiClient } from "../../api/apiClient.ts";
 import AppBreadcrumb from "./AppBreadcrumb.tsx";
 import AppCodePreview from "./AppCodePreview.tsx";
 import AppDescription from "./AppDescription.tsx";
@@ -18,21 +18,21 @@ import AppSidebarDetails from "./AppSidebarDetails.tsx";
 import AppSidebarSimilar from "./AppSidebarSimilar.tsx";
 
 const AppDetailPage: React.FunctionComponent<{
-  tsRestClient?: typeof defaultTsRestClient;
+  apiClient?: typeof defaultApiClient;
   slug: string;
-}> = ({ tsRestClient = defaultTsRestClient, slug }) => {
+}> = ({ apiClient = defaultApiClient, slug }) => {
   useTitle(slug);
   const {
     data: project,
     error,
     loading,
   } = useAsyncResource(async () => {
-    const res = await tsRestClient.getProject({ params: { slug } });
+    const res = await apiClient.getProject({ params: { slug } });
     if (res.status === 200) {
       return res.body;
     }
     throw new Error(publicProjectErrorFromStatus(res.status));
-  }, [slug, tsRestClient]);
+  }, [slug, apiClient]);
 
   const errorMessage = error
     ? publicProjectErrorMessage(normalizePublicProjectError(error))
@@ -79,7 +79,7 @@ const AppDetailPage: React.FunctionComponent<{
         <aside className="lg:col-span-1 space-y-8">
           <AppSidebarDetails project={project} />
           <AppSidebarAuthor project={project} />
-          <AppSidebarSimilar project={project} tsRestClient={tsRestClient} />
+          <AppSidebarSimilar project={project} apiClient={apiClient} />
         </aside>
       </div>
     </PageLayout>

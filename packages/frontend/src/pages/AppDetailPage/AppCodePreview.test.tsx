@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from "vitest";
 import AppCodePreview from "./AppCodePreview";
 
 // Mock the API client
-vi.mock("@api/tsRestClient.ts", () => ({
-  publicTsRestClient: {
+vi.mock("@api/apiClient.ts", () => ({
+  publicApiClient: {
     getLatestPublishedFile: vi.fn().mockImplementation(({ params }) => {
       // Mock different responses based on file path
       if (params.filePath === "test.json") {

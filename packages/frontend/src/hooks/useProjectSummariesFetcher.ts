@@ -1,13 +1,13 @@
-import { publicTsRestClient as defaultTsRestClient } from "@api/tsRestClient.ts";
+import { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
 import type { AppFetcher } from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
 import { useCallback } from "react";
 
 export const useProjectSummariesFetcher = (
-  tsRestClient: typeof defaultTsRestClient = defaultTsRestClient
+  apiClient: typeof defaultApiClient = defaultApiClient
 ): AppFetcher => {
   return useCallback(
     async (filters) => {
-      const result = await tsRestClient?.getProjectSummaries({
+      const result = await apiClient?.getProjectSummaries({
         query: {
           category: filters.category,
           badge: filters.badge,
@@ -23,6 +23,6 @@ export const useProjectSummariesFetcher = (
           );
       }
     },
-    [tsRestClient]
+    [apiClient]
   );
 };

@@ -1,4 +1,4 @@
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import { extractFilename } from "@utils/fileUtils.ts";
@@ -11,7 +11,7 @@ export async function downloadProjectFile(
 ) {
   try {
     assertDefined(keycloak);
-    const client = await getFreshAuthorizedTsRestClient(keycloak);
+    const client = await getFreshAuthorizedApiClient(keycloak);
     const response = await client.getDraftFile({
       params: { slug, filePath: file.full_path },
     });

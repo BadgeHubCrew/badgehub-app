@@ -15,9 +15,13 @@ type OrpcClient = JsonifiedClient<
   ContractRouterClient<typeof apiContracts, ApiClientContext>
 >;
 
-/** Result shape kept for existing call sites that switch on `status` / read `body`. */
-// biome-ignore lint/suspicious/noExplicitAny: bridge over oRPC until call sites use typed outputs
-export type TsRestStyleResult<T = any> = {
+/**
+ * Normalized procedure result used by the UI.
+ * Success and HTTP-level failures both resolve to this shape so call sites can
+ * switch on `status` without try/catch for expected error codes.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: call sites use status switches before narrowing body
+export type ApiResult<T = any> = {
   status: number;
   body: T;
   headers: Headers;
@@ -27,9 +31,8 @@ type CallArgs = {
   params?: Record<string, unknown>;
   query?: Record<string, unknown>;
   body?: unknown;
+  /** Per-request HTTP headers (e.g. Authorization for a single call). */
   headers?: Record<string, string>;
-  /** @deprecated Prefer `headers`; kept for ts-rest call-site compatibility. */
-  extraHeaders?: Record<string, string>;
 };
 
 function flattenArgs(args?: CallArgs): unknown {
@@ -53,14 +56,6 @@ function flattenArgs(args?: CallArgs): unknown {
     };
   }
   return { ...params, ...query, ...(body !== undefined ? { body } : {}) };
-}
-
-function perRequestHeaders(
-  args?: CallArgs
-): Record<string, string> | undefined {
-  if (!args?.headers && !args?.extraHeaders) return undefined;
-  const merged = { ...args.headers, ...args.extraHeaders };
-  return Object.keys(merged).length > 0 ? merged : undefined;
 }
 
 function isOrpcError(
@@ -92,14 +87,14 @@ function toResultHeaders(
 }
 
 /**
- * Normalize oRPC procedure output to the legacy `{ status, body, headers }` shape.
+ * Normalize oRPC procedure output to `{ status, body, headers }`.
  *
  * Compact procedures return the body directly (or `undefined` for 204).
  * Detailed procedures (`outputStructure: "detailed"`, e.g. file downloads)
  * already return `{ status, headers, body }` — unwrap so callers get the
- * File/Blob as `body`, not a nested object (which broke `blob.text()`).
+ * File/Blob as `body`, not a nested object.
  */
-function toTsRestStyleResult(output: unknown): TsRestStyleResult {
+function toApiResult(output: unknown): ApiResult {
   if (output === undefined) {
     return { status: 204, body: undefined, headers: new Headers() };
   }
@@ -128,17 +123,16 @@ function toTsRestStyleResult(output: unknown): TsRestStyleResult {
 }
 
 /**
- * Wrap oRPC client procedures with a ts-rest-like `{ status, body }` surface.
+ * Adapt the oRPC client so each procedure returns `ApiResult` and accepts
+ * `{ params, query, body, headers }` call args.
  *
- * Important: oRPC's client is a Proxy that synthesizes a function for *any*
- * property name. If we re-wrap `then`, `await client` (after
- * `getFreshAuthorizedTsRestClient`) treats the client as a thenable and calls
- * procedure path `then` → StandardOpenapiLinkCodec error.
+ * oRPC's client is a Proxy that synthesizes a function for *any* property
+ * name. Do not re-wrap `then` — `await getFreshAuthorizedApiClient(...)`
+ * would otherwise treat the client as a thenable and call procedure `then`.
  */
-function wrapClient(client: OrpcClient): TsRestClient {
+function wrapClient(client: OrpcClient): ApiClient {
   return new Proxy(client, {
     get(target, prop, receiver) {
-      // Not a Promise — never expose a thenable trap.
       if (prop === "then") {
         return undefined;
       }
@@ -149,9 +143,9 @@ function wrapClient(client: OrpcClient): TsRestClient {
       if (typeof value !== "function") {
         return value;
       }
-      return async (args?: CallArgs): Promise<TsRestStyleResult> => {
+      return async (args?: CallArgs): Promise<ApiResult> => {
         try {
-          const requestHeaders = perRequestHeaders(args);
+          const requestHeaders = args?.headers;
           const output = await (
             value as (
               input: unknown,
@@ -163,7 +157,7 @@ function wrapClient(client: OrpcClient): TsRestClient {
               ? { context: { headers: requestHeaders } }
               : undefined
           );
-          return toTsRestStyleResult(output);
+          return toApiResult(output);
         } catch (error) {
           if (isOrpcError(error)) {
             return {
@@ -176,7 +170,7 @@ function wrapClient(client: OrpcClient): TsRestClient {
         }
       };
     },
-  }) as unknown as TsRestClient;
+  }) as unknown as ApiClient;
 }
 
 function createLink(
@@ -202,20 +196,15 @@ function createLink(
 }
 
 /**
- * Frontend API client surface over oRPC OpenAPILink.
- * Keeps `{ status, body }` results and `{ params, query, body }` call args so
- * existing UI code can migrate off ts-rest without a full rewrite.
+ * Frontend API client over oRPC OpenAPILink.
  *
- * Auth: use `getFreshAuthorizedTsRestClient`, or pass `headers` /
- * `extraHeaders` on a single call (merged into the HTTP request).
+ * Auth: use `getFreshAuthorizedApiClient`, or pass `headers` on a single call.
  */
-export type TsRestClient = {
-  [K in keyof typeof apiContracts]: (
-    args?: CallArgs
-  ) => Promise<TsRestStyleResult>;
+export type ApiClient = {
+  [K in keyof typeof apiContracts]: (args?: CallArgs) => Promise<ApiResult>;
 };
 
-export const publicTsRestClient: TsRestClient = wrapClient(
+export const publicApiClient: ApiClient = wrapClient(
   createORPCClient(createLink()) as OrpcClient
 );
 
@@ -228,9 +217,9 @@ export async function getAuthorizationHeader(keycloak: Keycloak | undefined) {
   return { authorization: `Bearer ${await getFreshToken(keycloak)}` };
 }
 
-export const getFreshAuthorizedTsRestClient = async (
+export const getFreshAuthorizedApiClient = async (
   keycloak: Keycloak
-): Promise<TsRestClient> => {
+): Promise<ApiClient> => {
   return wrapClient(
     createORPCClient(
       createLink(async () => getAuthorizationHeader(keycloak))
@@ -242,7 +231,7 @@ export const getFreshAuthorizedTsRestClient = async (
 export function createApiClientForTests(options: {
   url: string;
   fetch?: typeof globalThis.fetch;
-}): TsRestClient {
+}): ApiClient {
   const link = new OpenAPILink<ApiClientContext>(apiContracts, {
     url: options.url,
     fetch: options.fetch ?? globalThis.fetch,

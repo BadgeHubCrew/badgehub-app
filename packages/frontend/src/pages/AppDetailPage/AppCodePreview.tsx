@@ -1,7 +1,7 @@
 import {
-  getFreshAuthorizedTsRestClient,
-  publicTsRestClient,
-} from "@api/tsRestClient.ts";
+  getFreshAuthorizedApiClient,
+  publicApiClient,
+} from "@api/apiClient.ts";
 import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
@@ -325,7 +325,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
         if (isDraft) {
           // Draft mode - use authenticated API
           assertDefined(keycloak);
-          const client = await getFreshAuthorizedTsRestClient(keycloak);
+          const client = await getFreshAuthorizedApiClient(keycloak);
           const response = await client.getDraftFile({
             params: { slug: project.slug, filePath: previewedFile },
           });
@@ -361,7 +361,7 @@ const AppCodePreview: React.FC<AppCodePreviewProps> = ({
           }
         } else {
           // Published mode - use public API
-          const res = await publicTsRestClient.getLatestPublishedFile({
+          const res = await publicApiClient.getLatestPublishedFile({
             params: {
               slug: project.slug,
               filePath: previewedFile,

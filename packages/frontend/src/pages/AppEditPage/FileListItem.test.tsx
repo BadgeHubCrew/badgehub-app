@@ -1,15 +1,15 @@
 import { render, screen } from "@__test__";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadata.ts";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { FileListItem } from "./FileListItem.tsx";
 
-vi.mock("@api/tsRestClient.ts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@api/tsRestClient.ts")>();
+vi.mock("@api/apiClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedTsRestClient: vi.fn(),
+    getFreshAuthorizedApiClient: vi.fn(),
   };
 });
 
@@ -116,9 +116,9 @@ describe("FileListItem", () => {
       status: 200,
       body: new Blob(["test"], { type: "text/plain" }),
     });
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       getDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     const originalCreateObjectURL = URL.createObjectURL;
     const originalRevokeObjectURL = URL.revokeObjectURL;

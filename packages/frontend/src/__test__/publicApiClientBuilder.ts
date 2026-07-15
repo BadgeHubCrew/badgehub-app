@@ -1,5 +1,5 @@
 import { type DummyApp, dummyApps } from "@__test__/fixtures";
-import type { publicTsRestClient as defaultTsRestClient } from "@api/tsRestClient.ts";
+import type { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
 import { getProjectsQuerySchema } from "@shared/contracts/publicRestContracts.ts";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries.ts";
 
@@ -11,7 +11,7 @@ function parseProjectsQuery(rawQuery: unknown) {
 /**
  * Lightweight mock API client for frontend unit tests (no network).
  */
-export function tsRestClientWithApps(apps: DummyApp[] = dummyApps) {
+export function apiClientWithApps(apps: DummyApp[] = dummyApps) {
   return {
     getProject: async (args?: {
       params?: { slug?: string };
@@ -53,10 +53,10 @@ export function tsRestClientWithApps(apps: DummyApp[] = dummyApps) {
         headers: new Headers(),
       };
     },
-  } as unknown as typeof defaultTsRestClient;
+  } as unknown as typeof defaultApiClient;
 }
 
-export function tsRestClientWithError() {
+export function apiClientWithError() {
   const fail = async () => ({
     status: 500,
     body: { reason: "API error" },
@@ -65,5 +65,5 @@ export function tsRestClientWithError() {
   return {
     getProject: fail,
     getProjectSummaries: fail,
-  } as unknown as typeof defaultTsRestClient;
+  } as unknown as typeof defaultApiClient;
 }

@@ -1,8 +1,8 @@
 import {
+  apiClientWithApps,
   dummyApps,
   render,
   screen,
-  tsRestClientWithApps,
   waitFor,
 } from "@__test__";
 import { APP_GRID_PAGE_SIZE } from "@config.ts";
@@ -12,7 +12,7 @@ import HomePage from "./HomePage.tsx";
 
 describe("HomePage filtering", () => {
   it("shows all apps by default", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     await waitFor(() => {
       dummyApps.slice(0, APP_GRID_PAGE_SIZE - 1).forEach(({ summary: app }) => {
         if (app.name) {
@@ -23,7 +23,7 @@ describe("HomePage filtering", () => {
   });
 
   it("filters by Badge/device", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     // Wait for spinner to disappear
     await waitFor(() =>
       expect(screen.queryByTestId("loading-spinner")).not.toBeInTheDocument()
@@ -45,7 +45,7 @@ describe("HomePage filtering", () => {
   });
 
   it("filters by category", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     const categoryDropdown = screen.getByTestId("category-dropdown");
     // Use a category value that exists in dummyApps, e.g., CATEGORIES.silly
     await userEvent.selectOptions(categoryDropdown, "Silly");
@@ -71,7 +71,7 @@ describe("HomePage filtering", () => {
   });
 
   it("filters by both device and category", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     const mcuDropdown = screen.getByTestId("badge-dropdown");
     const categoryDropdown = screen.getByTestId("category-dropdown");
     // Use values that exist together in an app, e.g., "why2025" and CATEGORIES.silly
@@ -92,7 +92,7 @@ describe("HomePage filtering", () => {
   });
 
   it("filters apps by search query", async () => {
-    render(<HomePage tsRestClient={tsRestClientWithApps(dummyApps)} />);
+    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     // Wait for apps to load
     const firstAppName = dummyApps[0]?.summary.name;
     expect(firstAppName).toBeDefined();

@@ -1,8 +1,8 @@
 import { type DummyApp, dummyApps } from "@__test__/fixtures";
-import type { TsRestClient } from "@api/tsRestClient.ts";
+import type { ApiClient } from "@api/apiClient.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 
-export function privateTsRestClientBuilder(apps: DummyApp[] = dummyApps) {
+export function privateApiClientBuilder(apps: DummyApp[] = dummyApps) {
   return {
     getUserDraftProjects: async () => ({
       status: 200,
@@ -24,10 +24,10 @@ export function privateTsRestClientBuilder(apps: DummyApp[] = dummyApps) {
       }
       return { status: 200, body: app.details, headers: new Headers() };
     },
-  } as unknown as TsRestClient;
+  } as unknown as ApiClient;
 }
 
-export function privateTsRestClientWithError() {
+export function privateApiClientWithError() {
   return {
     getUserDraftProjects: async () => {
       throw new Error("API error");
@@ -37,10 +37,10 @@ export function privateTsRestClientWithError() {
       body: { reason: "Forbidden" },
       headers: new Headers(),
     }),
-  } as unknown as TsRestClient;
+  } as unknown as ApiClient;
 }
 
-export function privateTsRestClientWithDraft(project: ProjectDetails) {
+export function privateApiClientWithDraft(project: ProjectDetails) {
   return {
     getDraftProject: async () => ({
       status: 200,
@@ -92,15 +92,15 @@ export function privateTsRestClientWithDraft(project: ProjectDetails) {
       body: undefined,
       headers: new Headers(),
     }),
-  } as unknown as TsRestClient;
+  } as unknown as ApiClient;
 }
 
-export function privateTsRestClientUnauthorized() {
+export function privateApiClientUnauthorized() {
   return {
     getDraftProject: async () => ({
       status: 403,
       body: { reason: "Forbidden" },
       headers: new Headers(),
     }),
-  } as unknown as TsRestClient;
+  } as unknown as ApiClient;
 }

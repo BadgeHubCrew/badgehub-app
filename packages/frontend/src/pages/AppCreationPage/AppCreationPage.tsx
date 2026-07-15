@@ -1,4 +1,4 @@
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { useTitle } from "@hooks/useTitle.ts";
 import { VALID_SLUG_REGEX } from "@shared/contracts/slug.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
@@ -41,7 +41,7 @@ const AppCreationPage: React.FC = () => {
     setError(null);
     try {
       const response = await (
-        await getFreshAuthorizedTsRestClient(keycloak)
+        await getFreshAuthorizedApiClient(keycloak)
       ).createProject({
         params: { slug: form.slug },
       });

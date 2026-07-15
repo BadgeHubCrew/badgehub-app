@@ -1,5 +1,5 @@
 import { render, screen } from "@__test__";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { SessionContext } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import { render as rtlRender } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -18,11 +18,11 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-vi.mock("@api/tsRestClient.ts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@api/tsRestClient.ts")>();
+vi.mock("@api/apiClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedTsRestClient: vi.fn(),
+    getFreshAuthorizedApiClient: vi.fn(),
   };
 });
 
@@ -43,7 +43,7 @@ const renderLoggedOut = () =>
 describe("AppCreationPage", () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    vi.mocked(getFreshAuthorizedTsRestClient).mockReset();
+    vi.mocked(getFreshAuthorizedApiClient).mockReset();
   });
 
   it("shows login message when user is not authenticated", () => {
@@ -65,9 +65,9 @@ describe("AppCreationPage", () => {
   it("submits and navigates on success", async () => {
     const user = userEvent.setup();
     const createProject = vi.fn().mockResolvedValue({ status: 204 });
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       createProject,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppCreationPage />);
     await user.type(screen.getByTestId("app-creation-slug-input"), "my_app");
@@ -85,9 +85,9 @@ describe("AppCreationPage", () => {
       status: 400,
       body: { reason: "slug already exists" },
     });
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       createProject,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(<AppCreationPage />);
     await user.type(screen.getByTestId("app-creation-slug-input"), "my_app");

@@ -1,11 +1,11 @@
 import {
+  apiClientWithApps,
   dummyApps,
   render,
   screen,
-  tsRestClientWithApps,
   waitFor,
 } from "@__test__";
-import type { publicTsRestClient as defaultTsRestClient } from "@api/tsRestClient.ts";
+import type { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
 import { act } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import AppDetailPage from "./AppDetailPage.tsx";
@@ -19,7 +19,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     }
     render(
       <AppDetailPage
-        tsRestClient={tsRestClientWithApps(dummyApps)}
+        apiClient={apiClientWithApps(dummyApps)}
         slug={"dummy-app-1"}
       />
     );
@@ -46,16 +46,16 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
   });
 
   it("does not re-fetch the project in a render loop", async () => {
-    const base = tsRestClientWithApps(dummyApps);
+    const base = apiClientWithApps(dummyApps);
     const getProject = vi.fn(base.getProject);
     const getProjectSummaries = vi.fn(base.getProjectSummaries);
     const client = {
       ...base,
       getProject,
       getProjectSummaries,
-    } as unknown as typeof defaultTsRestClient;
+    } as unknown as typeof defaultApiClient;
 
-    render(<AppDetailPage tsRestClient={client} slug="dummy-app-1" />);
+    render(<AppDetailPage apiClient={client} slug="dummy-app-1" />);
     await screen.findByTestId("app-detail-page");
 
     // Project load + similar projects (same author) should settle quickly.
@@ -85,7 +85,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     }
     render(
       <AppDetailPage
-        tsRestClient={tsRestClientWithApps(dummyApps)}
+        apiClient={apiClientWithApps(dummyApps)}
         slug={"dummy-app-2"}
       />
     );
@@ -120,7 +120,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
 
     render(
       <AppDetailPage
-        tsRestClient={tsRestClientWithApps(appsWithMarkdown)}
+        apiClient={apiClientWithApps(appsWithMarkdown)}
         slug="dummy-app-1"
       />
     );
@@ -139,7 +139,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     }
     render(
       <AppDetailPage
-        tsRestClient={tsRestClientWithApps(dummyApps)}
+        apiClient={apiClientWithApps(dummyApps)}
         slug={"dummy-app-1"}
       />
     );
@@ -157,7 +157,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     //TODO
     render(
       <AppDetailPage
-        tsRestClient={tsRestClientWithApps(dummyApps)}
+        apiClient={apiClientWithApps(dummyApps)}
         slug={"dummy-app-1"}
       />
     );

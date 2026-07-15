@@ -1,14 +1,14 @@
 import { render, screen } from "@__test__";
-import { getFreshAuthorizedTsRestClient } from "@api/tsRestClient.ts";
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import AppEditFileUpload from "./AppEditFileUpload.tsx";
 
-vi.mock("@api/tsRestClient.ts", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@api/tsRestClient.ts")>();
+vi.mock("@api/apiClient.ts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedTsRestClient: vi.fn(),
+    getFreshAuthorizedApiClient: vi.fn(),
   };
 });
 
@@ -21,9 +21,9 @@ describe("AppEditFileUpload", () => {
     const user = userEvent.setup();
     const onUploadSuccess = vi.fn();
     const writeDraftFile = vi.fn().mockResolvedValue({ status: 204 });
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(
       <AppEditFileUpload
@@ -60,9 +60,9 @@ describe("AppEditFileUpload", () => {
       .mockImplementation(() => {});
     const onUploadSuccess = vi.fn();
     const writeDraftFile = vi.fn().mockResolvedValue({ status: 500 });
-    vi.mocked(getFreshAuthorizedTsRestClient).mockResolvedValue({
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
       writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedTsRestClient>>);
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(
       <AppEditFileUpload

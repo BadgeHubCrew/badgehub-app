@@ -1,17 +1,17 @@
-import { publicTsRestClient as defaultTsRestClient } from "@api/tsRestClient.ts";
+import { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
 import type { AppFetcher } from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
 import type { User } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import type Keycloak from "keycloak-js";
 import { useCallback } from "react";
 
 interface UseUserDraftProjectsFetcherParams {
-  tsRestClient?: typeof defaultTsRestClient;
+  apiClient?: typeof defaultApiClient;
   user?: User;
   keycloak?: Keycloak;
 }
 
 export const useUserDraftProjectsFetcher = ({
-  tsRestClient = defaultTsRestClient,
+  apiClient = defaultApiClient,
   user,
   keycloak,
 }: UseUserDraftProjectsFetcherParams): AppFetcher | undefined => {
@@ -24,12 +24,12 @@ export const useUserDraftProjectsFetcher = ({
       throw new Error("Failed to update token. Please try logging in again.");
     });
 
-    const result = await tsRestClient
+    const result = await apiClient
       ?.getUserDraftProjects({
         params: {
           userId: user.id,
         },
-        extraHeaders: {
+        headers: {
           authorization: `Bearer ${keycloak.token}`,
         },
       })
@@ -48,7 +48,7 @@ export const useUserDraftProjectsFetcher = ({
             (result.body as { reason: string })?.reason
         );
     }
-  }, [keycloak, tsRestClient, user]);
+  }, [keycloak, apiClient, user]);
 
   const userIsLoggedIn = keycloak?.authenticated && user?.id;
   return userIsLoggedIn ? appFetcher : undefined;

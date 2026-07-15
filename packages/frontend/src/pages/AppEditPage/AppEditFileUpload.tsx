@@ -1,16 +1,12 @@
+import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import { isExecutableFileName } from "@utils/fileUtils.ts";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 import { useState } from "react";
-import {
-  type publicTsRestClient as defaultTsRestClient,
-  getFreshAuthorizedTsRestClient,
-} from "../../api/tsRestClient.ts";
 
 const AppEditFileUpload: React.FC<{
   slug: string;
-  tsRestClient?: typeof defaultTsRestClient;
   onUploadSuccess: (result: {
     metadataChanged?: boolean;
     firstValidExecutable?: string | null;
@@ -34,7 +30,7 @@ const AppEditFileUpload: React.FC<{
         const formData = new FormData();
         formData.append("file", file);
         const res = await (
-          await getFreshAuthorizedTsRestClient(keycloak)
+          await getFreshAuthorizedApiClient(keycloak)
         ).writeDraftFile({
           params: { slug, filePath: file.name },
           body: formData,

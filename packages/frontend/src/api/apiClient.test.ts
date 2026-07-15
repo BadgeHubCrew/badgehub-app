@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createApiClientForTests } from "./tsRestClient.ts";
+import { createApiClientForTests } from "./apiClient.ts";
 
 function requestFromFetchCall(call: unknown[]): Request {
   const [input, init] = call;
@@ -20,28 +20,6 @@ function jsonFetchMock(body: unknown = {}, status = 200) {
 }
 
 describe("API client auth headers", () => {
-  it("forwards extraHeaders onto the HTTP request", async () => {
-    const fetchMock = jsonFetchMock([]);
-
-    const client = createApiClientForTests({
-      url: "http://api.test/api/v3",
-      fetch: fetchMock as unknown as typeof fetch,
-    });
-
-    const result = await client.getUserDraftProjects({
-      params: { userId: "user-1" },
-      extraHeaders: {
-        authorization: "Bearer test-token",
-      },
-    });
-
-    expect(result.status).toBe(200);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    const request = requestFromFetchCall(fetchMock.mock.calls[0] ?? []);
-    expect(request.headers.get("authorization")).toBe("Bearer test-token");
-  });
-
   it("forwards headers onto the HTTP request", async () => {
     const fetchMock = jsonFetchMock({ slug: "x" });
 
@@ -50,12 +28,15 @@ describe("API client auth headers", () => {
       fetch: fetchMock as unknown as typeof fetch,
     });
 
-    await client.getProject({
+    const result = await client.getProject({
       params: { slug: "codecraft" },
       headers: {
         authorization: "Bearer other-token",
       },
     });
+
+    expect(result.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
 
     const request = requestFromFetchCall(fetchMock.mock.calls[0] ?? []);
     expect(request.headers.get("authorization")).toBe("Bearer other-token");
@@ -71,7 +52,7 @@ describe("API client thenable / createProject", () => {
       fetch: fetchMock as unknown as typeof fetch,
     });
 
-    // Mirrors: const client = await getFreshAuthorizedTsRestClient(keycloak)
+    // Mirrors: const client = await getFreshAuthorizedApiClient(keycloak)
     const resolved = await Promise.resolve(client);
     expect(resolved).toBe(client);
     expect(fetchMock).not.toHaveBeenCalled();
