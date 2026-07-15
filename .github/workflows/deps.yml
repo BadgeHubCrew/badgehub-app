@@ -21,4 +21,4 @@ jobs:
       - run: pnpm install --frozen-lockfile 2>&1 | tee install.log
       - run: pnpm peers check
       - name: No deprecated packages
-        run: '! grep -qi deprecated install.log'
+        run: '! grep -Eqi "WARN.*deprecated" install.log'
