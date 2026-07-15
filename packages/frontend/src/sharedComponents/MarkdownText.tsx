@@ -1,6 +1,6 @@
-import React from "react";
-import ReactMarkdown from "react-markdown";
 import CodeBlock from "@sharedComponents/CodeBlock.tsx";
+import type React from "react";
+import ReactMarkdown from "react-markdown";
 
 interface MarkdownTextProps {
   children: string;
@@ -68,7 +68,7 @@ const MarkdownText: React.FC<MarkdownTextProps> = ({
             const codeNode = node?.children.find(
               (child) => child.type === "element" && child.tagName === "code"
             );
-            if (!codeNode || codeNode.type !== "element") return null;
+            if (codeNode?.type !== "element") return null;
             const codeClassName = Array.isArray(codeNode.properties?.className)
               ? codeNode.properties.className.join(" ")
               : "";

@@ -158,7 +158,9 @@ const AppCard: React.FC<
                   <span
                     key={tag.id}
                     className={`${
-                      tag.type === "category" ? "badge badge-neutral" : "badge badge-success"
+                      tag.type === "category"
+                        ? "badge badge-neutral"
+                        : "badge badge-success"
                     } text-xs font-semibold mr-2`}
                   >
                     {tag.text}

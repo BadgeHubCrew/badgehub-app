@@ -125,16 +125,14 @@ const AppEditBasicInfo: React.FC<{
                 {form.long_description?.trim() ? (
                   <MarkdownText>{form.long_description}</MarkdownText>
                 ) : (
-                  <p className="text-sm opacity-60">
-                    Nothing to preview yet.
-                  </p>
+                  <p className="text-sm opacity-60">Nothing to preview yet.</p>
                 )}
               </div>
             </div>
             <div className="label">
               <span className="label-text-alt whitespace-normal break-words">
-                Preferred on the detail page and other layouts with enough
-                room. Falls back to the short description when empty.
+                Preferred on the detail page and other layouts with enough room.
+                Falls back to the short description when empty.
               </span>
             </div>
           </div>

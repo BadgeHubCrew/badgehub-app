@@ -6,11 +6,11 @@ import type { FileMetadata } from "@shared/domain/readModels/project/FileMetadat
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import CodeBlock from "@sharedComponents/CodeBlock.tsx";
-import type React from "react";
-import { useEffect, useMemo, useState } from "react";
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 import { getLanguageFromFile, getPreviewType } from "@utils/filePreview.ts";
 import type Keycloak from "keycloak-js";
+import type React from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const DownloadIcon = () => (
   <svg

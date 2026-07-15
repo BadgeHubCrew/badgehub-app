@@ -62,7 +62,11 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
   });
 
   it("renders the long description as Markdown", async () => {
-    const firstApp = dummyApps[0]!;
+    const firstApp = dummyApps[0];
+    expect(firstApp).toBeDefined();
+    if (!firstApp) {
+      throw new Error("Expected a dummy app");
+    }
     const appsWithMarkdown = [
       {
         ...firstApp,
