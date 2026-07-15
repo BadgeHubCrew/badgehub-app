@@ -1,4 +1,4 @@
-import { oc } from "@orpc/contract";
+import { type OpenAPI, oc } from "@orpc/contract";
 import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
@@ -32,23 +32,55 @@ const privateErrors = {
   UNAUTHORIZED: { status: 401 as const, data: errorResponseSchema },
 };
 
-const withSecurity = (
-  base: ReturnType<typeof oc.errors>,
-  security: Array<Record<string, string[]>>
-) =>
-  base.route({
-    spec: (spec) => ({
-      ...spec,
-      security,
-    }),
-  });
+type OperationSpec = (
+  operation: OpenAPI.OperationObject
+) => OpenAPI.OperationObject;
 
-const scriptable = withSecurity(oc.errors(privateErrors), [
+const pipeSpec =
+  (...specs: OperationSpec[]): OperationSpec =>
+  (operation) =>
+    specs.reduce((current, spec) => spec(current), operation);
+
+const withSecurity =
+  (security: OpenAPI.SecurityRequirementObject[]): OperationSpec =>
+  (operation) => ({ ...operation, security });
+
+/**
+ * Nested `z.file()` is advertised as JSON + multipart; runtime only accepts
+ * multipart, so drop the JSON content type from the generated operation.
+ *
+ * @see https://orpc.dev/docs/openapi/openapi-specification#operation-metadata
+ */
+const multipartOnly: OperationSpec = (operation) => {
+  const body = operation.requestBody;
+  if (!body || "$ref" in body) return operation;
+
+  const { content } = body;
+  if (!content["multipart/form-data"] || !content["application/json"]) {
+    return operation;
+  }
+
+  const { "application/json": _omit, ...multipartContent } = content;
+  return { ...operation, requestBody: { ...body, content: multipartContent } };
+};
+
+const scriptableSecurity = withSecurity([
   { bearerAuth: [] },
   { apiTokenAuth: [] },
 ]);
 
-const jwtOnly = withSecurity(oc.errors(privateErrors), [{ bearerAuth: [] }]);
+const scriptable = oc.errors(privateErrors).route({
+  spec: scriptableSecurity,
+});
+
+/** Scriptable auth + multipart-only body for nested `z.file()` uploads. */
+const scriptableFileUpload = oc.errors(privateErrors).route({
+  spec: pipeSpec(scriptableSecurity, multipartOnly),
+});
+
+const jwtOnly = oc.errors(privateErrors).route({
+  spec: withSecurity([{ bearerAuth: [] }]),
+});
 
 export const scriptablePrivateProjectContracts = {
   updateProject: scriptable
@@ -73,7 +105,7 @@ export const scriptablePrivateProjectContracts = {
     .input(z.object({ slug: z.string() }))
     .output(z.void()),
 
-  writeDraftFile: scriptable
+  writeDraftFile: scriptableFileUpload
     .route({
       method: "POST",
       path: "/projects/{slug}/draft/files/{+filePath}",

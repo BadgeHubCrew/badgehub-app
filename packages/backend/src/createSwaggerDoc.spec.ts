@@ -20,5 +20,11 @@ describe("createSwaggerDoc", () => {
     expect(content).toBeDefined();
     expect(content?.["multipart/form-data"]).toBeDefined();
     expect(content?.["application/json"]).toBeUndefined();
+
+    // security still comes from the composed route.spec on the contract
+    expect(operation?.security).toEqual([
+      { bearerAuth: [] },
+      { apiTokenAuth: [] },
+    ]);
   });
 });
