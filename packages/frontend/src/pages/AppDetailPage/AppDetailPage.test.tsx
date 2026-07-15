@@ -61,6 +61,42 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     expect(await screen.findByText(app.description)).toBeInTheDocument();
   });
 
+  it("renders the long description as Markdown", async () => {
+    const firstApp = dummyApps[0];
+    expect(firstApp).toBeDefined();
+    if (!firstApp) {
+      throw new Error("Expected a dummy app");
+    }
+    const appsWithMarkdown = [
+      {
+        ...firstApp,
+        details: {
+          ...firstApp.details,
+          version: {
+            ...firstApp.details.version,
+            app_metadata: {
+              ...firstApp.details.version.app_metadata,
+              long_description: "## Features\n\n- Offline support",
+            },
+          },
+        },
+      },
+      ...dummyApps.slice(1),
+    ];
+
+    render(
+      <AppDetailPage
+        tsRestClient={tsRestClientWithApps(appsWithMarkdown)}
+        slug="dummy-app-1"
+      />
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Features" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Offline support").tagName).toBe("LI");
+  });
+
   it("renders the app revision", async () => {
     const app = dummyApps[0]?.summary;
     expect(app).toBeDefined();

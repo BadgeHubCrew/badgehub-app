@@ -1,0 +1,98 @@
+import CodeBlock from "@sharedComponents/CodeBlock.tsx";
+import type React from "react";
+import ReactMarkdown from "react-markdown";
+
+interface MarkdownTextProps {
+  children: string;
+  className?: string;
+}
+
+interface HastNodeLike {
+  type: string;
+  value?: string;
+  children?: HastNodeLike[];
+}
+
+// Fenced code blocks without a language (e.g. plain ```) get no `language-x`
+// className on their <code> node, so we can't rely on that alone. Read the
+// raw hast tree instead, which is reliable regardless of language presence.
+const hastToText = (node: HastNodeLike): string => {
+  if (node.type === "text") return node.value ?? "";
+  if (node.children) return node.children.map(hastToText).join("");
+  return "";
+};
+
+/**
+ * Render trusted project metadata as Markdown without enabling raw HTML.
+ */
+const MarkdownText: React.FC<MarkdownTextProps> = ({
+  children,
+  className = "",
+}) => {
+  return (
+    <div className={`space-y-3 ${className}`.trim()}>
+      <ReactMarkdown
+        components={{
+          h1: ({ children }) => (
+            <h1 className="text-2xl font-bold">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-xl font-semibold">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-lg font-semibold">{children}</h3>
+          ),
+          p: ({ children }) => <p className="leading-relaxed">{children}</p>,
+          ul: ({ children }) => (
+            <ul className="list-disc space-y-1 pl-6">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal space-y-1 pl-6">{children}</ol>
+          ),
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link link-primary"
+            >
+              {children}
+            </a>
+          ),
+          code: ({ children }) => (
+            <code className="rounded bg-base-300 px-1 py-0.5 font-mono text-sm">
+              {children}
+            </code>
+          ),
+          pre: ({ node }) => {
+            const codeNode = node?.children.find(
+              (child) => child.type === "element" && child.tagName === "code"
+            );
+            if (codeNode?.type !== "element") return null;
+            const codeClassName = Array.isArray(codeNode.properties?.className)
+              ? codeNode.properties.className.join(" ")
+              : "";
+            const languageMatch = /language-(\w+)/.exec(codeClassName);
+            return (
+              <CodeBlock
+                language={languageMatch?.[1]}
+                wrapperClassName="rounded-box overflow-hidden"
+              >
+                {hastToText(codeNode).replace(/\n$/, "")}
+              </CodeBlock>
+            );
+          },
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-primary pl-4 italic text-base-content/70">
+              {children}
+            </blockquote>
+          ),
+        }}
+      >
+        {children}
+      </ReactMarkdown>
+    </div>
+  );
+};
+
+export default MarkdownText;

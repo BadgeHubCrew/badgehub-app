@@ -30,6 +30,20 @@ describe("AppEditBasicInfo", () => {
     expect(screen.getByLabelText(/hidden/i)).not.toBeChecked();
   });
 
+  it("previews the long description as Markdown", () => {
+    render(
+      <AppEditBasicInfo
+        form={{ ...baseForm, long_description: "## Preview heading" }}
+        onChange={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Preview heading" })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/18 characters/)).toBeInTheDocument();
+  });
+
   it("calls onChange for updated fields", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

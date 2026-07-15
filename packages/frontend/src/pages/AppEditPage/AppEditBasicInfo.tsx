@@ -1,5 +1,6 @@
 import type { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import GitLink from "@sharedComponents/GitLink.tsx";
+import MarkdownText from "@sharedComponents/MarkdownText.tsx";
 import type React from "react";
 
 /**
@@ -76,44 +77,63 @@ const AppEditBasicInfo: React.FC<{
             />
           </div>
 
-          {/* Description */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="form-control">
-              <label htmlFor="description" className="label">
-                <span className="label-text">Short Description</span>
-              </label>
-              <textarea
-                id="description"
-                rows={4}
-                className="textarea textarea-bordered w-full"
-                value={form.description || ""}
-                onChange={(e) => onChange({ description: e.target.value })}
-              />
-              <div className="label">
-                <span className="label-text-alt whitespace-normal break-words">
-                  Used where space is limited. Hidden on the detail page when a
-                  long description is provided.
-                </span>
-              </div>
+          {/* Short Description */}
+          <div className="form-control">
+            <label htmlFor="description" className="label">
+              <span className="label-text">Short Description</span>
+            </label>
+            <textarea
+              id="description"
+              rows={2}
+              className="textarea textarea-bordered w-full"
+              value={form.description || ""}
+              onChange={(e) => onChange({ description: e.target.value })}
+            />
+            <div className="label">
+              <span className="label-text-alt whitespace-normal break-words">
+                Used where space is limited. Hidden on the detail page when a
+                long description is provided.
+              </span>
             </div>
+          </div>
 
-            <div className="form-control">
-              <label htmlFor="longDescription" className="label">
-                <span className="label-text">Long Description</span>
+          {/* Long Description */}
+          <div className="form-control">
+            <div className="label">
+              <label htmlFor="longDescription" className="label-text">
+                Long Description
               </label>
+              <span className="label-text-alt">
+                Markdown · {form.long_description?.length || 0} characters
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <textarea
                 id="longDescription"
-                rows={4}
-                className="textarea textarea-bordered w-full"
+                rows={16}
+                className="textarea textarea-bordered w-full font-mono"
                 value={form.long_description || ""}
-                onChange={(e) => onChange({ long_description: e.target.value })}
+                placeholder="Enter a long description using Markdown formatting."
+                onChange={(event) =>
+                  onChange({ long_description: event.target.value })
+                }
               />
-              <div className="label">
-                <span className="label-text-alt whitespace-normal break-words">
-                  Preferred on the detail page and other layouts with enough
-                  room. Falls back to the short description when empty.
-                </span>
+              <div className="rounded-box border border-base-300 bg-base-100 p-4 max-h-96 overflow-y-auto">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide opacity-60">
+                  Preview
+                </p>
+                {form.long_description?.trim() ? (
+                  <MarkdownText>{form.long_description}</MarkdownText>
+                ) : (
+                  <p className="text-sm opacity-60">Nothing to preview yet.</p>
+                )}
               </div>
+            </div>
+            <div className="label">
+              <span className="label-text-alt whitespace-normal break-words">
+                Preferred on the detail page and other layouts with enough room.
+                Falls back to the short description when empty.
+              </span>
             </div>
           </div>
 
