@@ -1,3 +1,10 @@
+/**
+ * @vitest-environment node
+ *
+ * Run outside jsdom. On Linux CI (Node from .nvmrc), jsdom's File does not
+ * accept undici Response.blob() parts, so oRPC file downloads become the text
+ * "[object Blob]". This suite only tests the API client (no DOM).
+ */
 import { describe, expect, it, vi } from "vitest";
 import { createApiClientForTests } from "./apiClient.ts";
 
