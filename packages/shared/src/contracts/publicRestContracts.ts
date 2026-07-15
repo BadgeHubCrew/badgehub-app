@@ -5,7 +5,7 @@ import { badgeHubStatsSchema } from "@shared/domain/readModels/BadgeHubStats";
 import { categoryNameSchema } from "@shared/domain/readModels/project/Category";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectLatestRevisionsSchema } from "@shared/domain/readModels/project/ProjectRevision";
-import { projectSummarySchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
 import { z } from "zod";
 
 export const getProjectsQuerySchema = z.object({
@@ -31,12 +31,15 @@ export const badgeIdentifiersSchema = z.object({
   id: z.string().describe("the id of the badge").optional(),
 });
 
-const crashReportBodySchema = z.object({
+export const crashReportBodySchema = z.object({
   reason: z
     .string()
     .describe("An optional reason for the app crash.")
     .optional(),
 });
+
+export const categoryNamesSchema = z.array(categoryNameSchema);
+export const badgeSlugsSchema = z.array(badgeSlugSchema);
 
 const publicBase = oc.errors({
   NOT_FOUND: {
@@ -65,7 +68,7 @@ export const publicRestContracts = {
       tags: ["Public"],
     })
     .input(getProjectsQuerySchema)
-    .output(z.array(projectSummarySchema)),
+    .output(projectSummariesSchema),
 
   getProjectLatestRevisions: publicBase
     .route({
@@ -150,7 +153,7 @@ export const publicRestContracts = {
       path: "/categories",
       tags: ["Public"],
     })
-    .output(z.array(categoryNameSchema)),
+    .output(categoryNamesSchema),
 
   getBadges: publicBase
     .route({
@@ -158,7 +161,7 @@ export const publicRestContracts = {
       path: "/badges",
       tags: ["Public"],
     })
-    .output(z.array(badgeSlugSchema)),
+    .output(badgeSlugsSchema),
 
   ping: publicBase
     .route({

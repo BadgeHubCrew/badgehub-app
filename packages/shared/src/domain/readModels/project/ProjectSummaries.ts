@@ -71,6 +71,9 @@ export const projectSummarySchema = projectCoreSchema.extend({
   revision: z.number(),
   git_url: z.string().optional(),
 });
+
+/** Stable array schema so OpenAPI can $ref the list response. */
+export const projectSummariesSchema = z.array(projectSummarySchema);
 export type FullPathAndUrl = {
   full_path: string;
   url: string;

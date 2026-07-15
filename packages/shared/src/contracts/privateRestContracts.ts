@@ -2,7 +2,7 @@ import { type OpenAPI, oc } from "@orpc/contract";
 import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
-import { projectSummarySchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
 import { writeAppMetadataJSONSchema } from "@shared/domain/writeModels/AppMetadataJSON";
 import {
   type CreateProjectProps,
@@ -11,9 +11,21 @@ import {
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
 
-const createProjectBodySchema = createProjectPropsSchema
+/** Stable identity so OpenAPI can $ref create/update project bodies. */
+export const createProjectBodySchema = createProjectPropsSchema
   .omit({ slug: true, idp_user_id: true })
   .describe("Schema request body for creating or updating a project");
+
+export const createProjectBodyPartialSchema = createProjectBodySchema.partial();
+
+export const updateProjectInputSchema = createProjectBodySchema.extend({
+  slug: z.string(),
+});
+
+export const createProjectInputSchema = createProjectBodyPartialSchema.extend({
+  slug: z.string(),
+});
+
 type CreateProjectBody = Omit<CreateProjectProps, "slug" | "idp_user_id">;
 
 __tsCheckSame<
@@ -91,7 +103,7 @@ export const scriptablePrivateProjectContracts = {
       tags: ["Private Scriptable"],
       successStatus: 204,
     })
-    .input(createProjectBodySchema.extend({ slug: z.string() }))
+    .input(updateProjectInputSchema)
     .output(z.void()),
 
   deleteProject: scriptable
@@ -246,7 +258,7 @@ export const nonScriptablePrivateProjectContracts = {
       tags: ["Private Non Scriptable"],
       successStatus: 204,
     })
-    .input(createProjectBodySchema.partial().extend({ slug: z.string() }))
+    .input(createProjectInputSchema)
     .output(z.void()),
 };
 
@@ -265,7 +277,7 @@ export const nonScriptablePrivateUserContracts = {
         pageLength: z.coerce.number().optional(),
       })
     )
-    .output(z.array(projectSummarySchema)),
+    .output(projectSummariesSchema),
 };
 
 export const nonScriptablePrivateContracts = {

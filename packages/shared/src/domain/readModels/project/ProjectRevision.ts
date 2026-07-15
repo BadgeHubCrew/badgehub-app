@@ -7,7 +7,7 @@ export type ProjectLatestRevision = {
   revision: number;
 };
 
-const projectLatestRevisionSchema = z.object({
+export const projectLatestRevisionSchema = z.object({
   slug: z.string(),
   revision: z.number(),
 });
