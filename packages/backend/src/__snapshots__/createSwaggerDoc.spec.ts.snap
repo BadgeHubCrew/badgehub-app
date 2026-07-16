@@ -2004,7 +2004,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                 "schema": {
                   "anyOf": [
                     {
-                      "description": "File content",
+                      "description": "File content as a stream",
                       "examples": undefined,
                       "title": undefined,
                     },
@@ -2119,6 +2119,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                 "properties": {
                   "file": {
                     "contentMediaType": "*/*",
+                    "description": "The file contents to upload (multipart field).",
+                    "examples": undefined,
+                    "title": undefined,
                     "type": "string",
                   },
                 },
@@ -2243,6 +2246,8 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                     "type": "string",
                   },
                   "sizes": {
+                    "description": "The sizes that the icon should be available in.",
+                    "examples": undefined,
                     "items": {
                       "enum": [
                         "8x8",
@@ -2253,6 +2258,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                       "type": "string",
                     },
                     "minItems": 1,
+                    "title": undefined,
                     "type": "array",
                   },
                 },
@@ -2559,7 +2565,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "apiTokenAuth": [],
           },
         ],
-        "summary": "Overwrite the metadata of the latest draft version of a project.",
+        "summary": "Overwrite the metadata of the latest draft version of a project. This is actually just an alias for a post to /projects/{slug}/draft/files/metadata.json",
         "tags": [
           "Private Scriptable",
         ],
@@ -2844,7 +2850,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                 "schema": {
                   "anyOf": [
                     {
-                      "description": "File content",
+                      "description": "ReadableStream",
                       "examples": undefined,
                       "title": undefined,
                     },
@@ -3397,6 +3403,8 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "content": {
               "application/json": {
                 "schema": {
+                  "description": "An object containing the API token for the project.",
+                  "examples": undefined,
                   "properties": {
                     "token": {
                       "type": "string",
@@ -3405,6 +3413,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                   "required": [
                     "token",
                   ],
+                  "title": undefined,
                   "type": "object",
                 },
               },
@@ -3470,7 +3479,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "apiTokenAuth": [],
           },
         ],
-        "summary": "Create a new API token for the project (and invalidate the old one if there was one).",
+        "summary": "Create a new API token for the project (and invalidate the old one if there was one). This is an api key that can be used in the 'badgehub-api-token' header. Eg. set this header: 'badgehub-api-token:{token}'.",
         "tags": [
           "Private Scriptable",
         ],

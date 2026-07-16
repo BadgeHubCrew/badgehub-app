@@ -129,7 +129,9 @@ export const scriptablePrivateProjectContracts = {
       z.object({
         slug: z.string(),
         filePath: z.string(),
-        file: z.file(),
+        file: z
+          .file()
+          .describe("The file contents to upload (multipart field)."),
       })
     )
     .output(z.void()),
@@ -146,7 +148,10 @@ export const scriptablePrivateProjectContracts = {
       z.object({
         slug: z.string(),
         filePath: z.string(),
-        sizes: z.array(iconSizeSchema).min(1),
+        sizes: z
+          .array(iconSizeSchema)
+          .min(1)
+          .describe("The sizes that the icon should be available in."),
       })
     )
     .output(
@@ -171,7 +176,7 @@ export const scriptablePrivateProjectContracts = {
       method: "PATCH",
       path: "/projects/{slug}/draft/metadata",
       summary:
-        "Overwrite the metadata of the latest draft version of a project.",
+        "Overwrite the metadata of the latest draft version of a project. This is actually just an alias for a post to /projects/{slug}/draft/files/metadata.json",
       tags: ["Private Scriptable"],
       successStatus: 204,
     })
@@ -190,7 +195,7 @@ export const scriptablePrivateProjectContracts = {
     .output(
       z.object({
         headers: z.record(z.string(), z.string()).optional(),
-        body: z.unknown().describe("File content"),
+        body: z.unknown().describe("File content as a stream"),
       })
     ),
 
@@ -220,11 +225,15 @@ export const scriptablePrivateProjectContracts = {
       method: "POST",
       path: "/projects/{slug}/token",
       summary:
-        "Create a new API token for the project (and invalidate the old one if there was one).",
+        "Create a new API token for the project (and invalidate the old one if there was one). This is an api key that can be used in the 'badgehub-api-token' header. Eg. set this header: 'badgehub-api-token:{token}'.",
       tags: ["Private Scriptable"],
     })
     .input(z.object({ slug: z.string() }))
-    .output(z.object({ token: z.string() })),
+    .output(
+      z
+        .object({ token: z.string() })
+        .describe("An object containing the API token for the project.")
+    ),
 
   getProjectApiTokenMetadata: scriptable
     .route({

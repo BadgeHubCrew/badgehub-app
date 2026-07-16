@@ -143,7 +143,7 @@ export const publicRestContracts = {
     .output(
       z.object({
         headers: z.record(z.string(), z.string()).optional(),
-        body: z.unknown().describe("File content"),
+        body: z.unknown().describe("ReadableStream"),
       })
     ),
 
