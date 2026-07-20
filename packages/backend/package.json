@@ -11,7 +11,7 @@
     "check:ts": "tsc --noEmit -p tsconfig.json",
     "dev": "node --watch --import tsx src/index.ts",
     "repopulate-db": "node --import tsx src/dev/populate-db/runPopulateDB.ts",
-    "test-db:up": "docker compose -f docker-compose.test-db.yml up -d --wait",
+    "test-db:up": "docker compose -f docker-compose.test-db.yml up -d",
     "test-db:down": "docker compose -f docker-compose.test-db.yml down",
     "test": "vitest run",
     "test:watch": "vitest watch",
