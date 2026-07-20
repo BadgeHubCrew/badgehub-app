@@ -38,7 +38,7 @@ import {
 } from "@shared/domain/readModels/project/ProjectSummaries";
 import { variantJSONSchema } from "@shared/domain/readModels/project/VariantJSON";
 import { versionSchema } from "@shared/domain/readModels/project/Version";
-import type { PathsObject } from "openapi3-ts";
+import type { PathsObject } from "openapi3-ts/oas32";
 
 const generator = new OpenAPIGenerator({
   schemaConverters: [new ZodToJsonSchemaConverter()],

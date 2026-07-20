@@ -18,7 +18,8 @@ cp .env.example .env
 ```
 
 and fill out the details.
-
+### Pnpm
+You should have pnpm installed. To do that, check https://pnpm.io/installation
 ### Running locally
 The most convenient way to run BadgeHub locally is this way:
 - configure the `.env` file to use the dev keycloak server, like it is done in the `.env.example` file.

@@ -40,5 +40,5 @@
     "lefthook": "^2.1.10",
     "typescript": "^7.0.2"
   },
-  "packageManager": "pnpm@11.13.0"
+  "packageManager": "pnpm@11.13.1"
 }

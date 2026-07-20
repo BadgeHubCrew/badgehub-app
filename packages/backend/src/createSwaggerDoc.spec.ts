@@ -1,5 +1,5 @@
 import { createSwaggerDoc } from "@createSwaggerDoc";
-import type { OperationObject, RequestBodyObject } from "openapi3-ts";
+import type { OperationObject, RequestBodyObject } from "openapi3-ts/oas32";
 import { describe, expect, it } from "vitest";
 
 describe("createSwaggerDoc", () => {
@@ -10,9 +10,9 @@ describe("createSwaggerDoc", () => {
 
   it("documents file upload as multipart/form-data only (not application/json)", async () => {
     const swaggerDoc = await createSwaggerDoc();
-    const operation = swaggerDoc.paths?.[
-      "/api/v3/projects/{slug}/draft/files/{filePath}"
-    ]?.post as OperationObject | undefined;
+    const operation =
+      swaggerDoc.paths?.["/api/v3/projects/{slug}/draft/files/{filePath}"]
+        ?.post;
     expect(operation).toBeDefined();
 
     const content = (operation?.requestBody as RequestBodyObject | undefined)
