@@ -34,7 +34,7 @@
     "cors": "^2.8.6",
     "db-migrate": "^0.11.14",
     "db-migrate-pg": "^1.5.2",
-    "dotenv": "^16.6.1",
+    "dotenv": "^17.4.2",
     "express": "^4.22.2",
     "express-rate-limit": "^7.5.1",
     "jose": "^5.10.0",
