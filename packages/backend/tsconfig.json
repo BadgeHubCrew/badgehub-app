@@ -9,5 +9,5 @@
       "@shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "../shared/src/types/date.d.ts"]
 }
