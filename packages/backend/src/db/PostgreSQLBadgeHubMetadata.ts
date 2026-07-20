@@ -493,6 +493,9 @@ and v.app_metadata->'badges' @>
       case "installs":
         query = sql`${query} order by distinct_installs desc`;
         break;
+      case "name":
+        query = sql`${query} order by lower(v.app_metadata->>'name') asc, v.app_metadata->>'name' asc, p.slug asc`;
+        break;
     }
 
     if (filter.pageLength) {

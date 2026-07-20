@@ -3,10 +3,24 @@ import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { badgeSlugSchema } from "@shared/domain/readModels/Badge";
 import { badgeHubStatsSchema } from "@shared/domain/readModels/BadgeHubStats";
 import { categoryNameSchema } from "@shared/domain/readModels/project/Category";
+import type { OrderByOption } from "@shared/domain/readModels/project/ordering";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectLatestRevisionsSchema } from "@shared/domain/readModels/project/ProjectRevision";
 import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
+
+const orderByOptionSchema = z.enum([
+  "published_at",
+  "updated_at",
+  "installs",
+  "name",
+]);
+__tsCheckSame<
+  OrderByOption,
+  OrderByOption,
+  z.infer<typeof orderByOptionSchema>
+>(true);
 
 export const getProjectsQuerySchema = z.object({
   pageStart: z.coerce.number().optional(),
@@ -23,7 +37,7 @@ export const getProjectsQuerySchema = z.object({
     .max(50, "the search string should not be longer than 50 characters long")
     .optional()
     .describe("allow a text search over the apps' slug, name and descriptions"),
-  orderBy: z.enum(["published_at", "installs"]).optional(),
+  orderBy: orderByOptionSchema.optional(),
 });
 
 export const badgeIdentifiersSchema = z.object({
