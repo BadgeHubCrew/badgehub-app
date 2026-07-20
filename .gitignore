@@ -146,3 +146,5 @@ data
 # Playwright temp files
 .playwright-mcp
 
+# local pnpm store files
+.pnpm-store/
