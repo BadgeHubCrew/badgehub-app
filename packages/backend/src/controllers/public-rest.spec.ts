@@ -483,17 +483,17 @@ describe("Public API Routes", {
     expect(res.statusCode).toBe(404);
   });
 
-  test.each([
-    "latest",
-    "rev1",
-  ])("GET /projects/{slug}/%s/files/metadata.json", async (revision) => {
-    const getRes = await request(app).get(
-      `/api/v3/projects/codecraft/${revision}/files/metadata.json`
-    );
-    expect(getRes.statusCode).toBe(200);
-    const metadata = JSON.parse(getRes.text) as AppMetadataJSON; // TODO, seems like we are returning the wrong content-type since we need to use .text here.
-    expect(metadata.name).toEqual("CodeCraft");
-  });
+  test.each(["latest", "rev1"])(
+    "GET /projects/{slug}/%s/files/metadata.json",
+    async (revision) => {
+      const getRes = await request(app).get(
+        `/api/v3/projects/codecraft/${revision}/files/metadata.json`
+      );
+      expect(getRes.statusCode).toBe(200);
+      const metadata = JSON.parse(getRes.text) as AppMetadataJSON; // TODO, seems like we are returning the wrong content-type since we need to use .text here.
+      expect(metadata.name).toEqual("CodeCraft");
+    }
+  );
 
   test("GET files using url prop should work same as from path", async () => {
     const res = await request(app).get("/api/v3/projects/codecraft/rev1");
@@ -514,33 +514,35 @@ describe("Public API Routes", {
     }
   });
 
-  test.each([
-    "latest",
-    "rev1",
-  ])("GET /projects/{slug}/%s/files/__init__.py", async (revision) => {
-    const getRes = await request(app).get(
-      `/api/v3/projects/codecraft/${revision}/files/__init__.py`
-    );
-    expect(getRes.statusCode).toBe(200);
-    expect(getRes.text).toEqual("print('Hello world from the CodeCraft app')");
-    expect(getRes.headers["content-disposition"]).toMatch(
-      /attachment; filename="__init__\.py"/
-    );
-  });
+  test.each(["latest", "rev1"])(
+    "GET /projects/{slug}/%s/files/__init__.py",
+    async (revision) => {
+      const getRes = await request(app).get(
+        `/api/v3/projects/codecraft/${revision}/files/__init__.py`
+      );
+      expect(getRes.statusCode).toBe(200);
+      expect(getRes.text).toEqual(
+        "print('Hello world from the CodeCraft app')"
+      );
+      expect(getRes.headers["content-disposition"]).toMatch(
+        /attachment; filename="__init__\.py"/
+      );
+    }
+  );
 
-  test.each([
-    "latest",
-    "rev1",
-  ])("GET /projects/{slug}/%s/files/icon5.png sets Content-Type and renders inline", async (revision) => {
-    const getRes = await request(app).get(
-      `/api/v3/projects/codecraft/${revision}/files/icon5.png`
-    );
-    expect(getRes.statusCode).toBe(200);
-    expect(getRes.headers["content-type"]).toEqual("image/png");
-    expect(getRes.headers["content-disposition"]).toMatch(
-      /inline; filename="icon5\.png"/
-    );
-  });
+  test.each(["latest", "rev1"])(
+    "GET /projects/{slug}/%s/files/icon5.png sets Content-Type and renders inline",
+    async (revision) => {
+      const getRes = await request(app).get(
+        `/api/v3/projects/codecraft/${revision}/files/icon5.png`
+      );
+      expect(getRes.statusCode).toBe(200);
+      expect(getRes.headers["content-type"]).toEqual("image/png");
+      expect(getRes.headers["content-disposition"]).toMatch(
+        /inline; filename="icon5\.png"/
+      );
+    }
+  );
 
   describe("ping should return pong", () => {
     test.each([
@@ -563,26 +565,25 @@ describe("Public API Routes", {
   });
 
   describe("unpublished versions should not be requestable", () => {
-    test.each([
-      "rev3",
-      "rev2",
-    ])("GET /projects/{slug}/%s/files/metadata.json", async (revision) => {
-      const getRes = await request(app).get(
-        `/api/v3/projects/codecraft/${revision}/files/metadata.json`
-      );
-      expect(getRes.statusCode).toBe(404);
-    });
+    test.each(["rev3", "rev2"])(
+      "GET /projects/{slug}/%s/files/metadata.json",
+      async (revision) => {
+        const getRes = await request(app).get(
+          `/api/v3/projects/codecraft/${revision}/files/metadata.json`
+        );
+        expect(getRes.statusCode).toBe(404);
+      }
+    );
 
-    test.each([
-      "rev0",
-      "rev2",
-      "rev3",
-    ])("GET /projects/{slug}/%s", async (revision) => {
-      const getRes = await request(app).get(
-        `/api/v3/projects/codecraft/${revision}`
-      );
-      expect(getRes.statusCode).toBe(404);
-    });
+    test.each(["rev0", "rev2", "rev3"])(
+      "GET /projects/{slug}/%s",
+      async (revision) => {
+        const getRes = await request(app).get(
+          `/api/v3/projects/codecraft/${revision}`
+        );
+        expect(getRes.statusCode).toBe(404);
+      }
+    );
   });
 
   describe("project-summaries fields query parameter", () => {
