@@ -65,7 +65,7 @@ describe("MIME Type Detection", () => {
   it("should fallback to extension-based detection when browser reports text/plain for a binary file", () => {
     expect(detectMimeType("text/plain", "icon_64x64.png")).toBe("image/png");
     expect(detectMimeType("text/plain", "sounds/Warning.wav")).toBe(
-      "audio/wave"
+      "audio/wav"
     );
   });
 
@@ -102,6 +102,7 @@ describe("isSafeToRenderInline", () => {
   it("allows image and audio types", () => {
     expect(isSafeToRenderInline("image/png")).toBe(true);
     expect(isSafeToRenderInline("image/jpeg")).toBe(true);
+    expect(isSafeToRenderInline("audio/wav")).toBe(true);
     expect(isSafeToRenderInline("audio/wave")).toBe(true);
     expect(isSafeToRenderInline("audio/x-wav")).toBe(true);
     expect(isSafeToRenderInline("Image/PNG; charset=binary")).toBe(true);

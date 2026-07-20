@@ -35,8 +35,8 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
-    "concurrently": "9.1.2",
+    "@biomejs/biome": "2.5.4",
+    "concurrently": "10.0.3",
     "lefthook": "^2.1.10",
     "typescript": "^7.0.2"
   },

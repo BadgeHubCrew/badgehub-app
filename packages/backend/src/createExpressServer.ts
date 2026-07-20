@@ -78,7 +78,7 @@ export const createExpressServer = () => {
 
   // Register body parsers AFTER oRPC so multipart/file uploads stay intact
   const indexHtmlContents = getIndexHtmlContents();
-  app.get(["/", "/page", "/page/*"], (_req, res) => {
+  app.get(["/", "/page{/*path}"], (_req, res) => {
     res.setHeader("Content-Type", "text/html");
     res.send(indexHtmlContents);
   });

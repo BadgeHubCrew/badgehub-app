@@ -6,6 +6,7 @@ import type { Version } from "@shared/domain/readModels/project/Version";
 import { isInDebugMode } from "@util/debug";
 import type { Express } from "express";
 import { decodeJwt } from "jose";
+import sharp from "sharp";
 import request from "supertest";
 import { beforeAll, describe, expect, test } from "vitest";
 
@@ -142,25 +143,25 @@ describe("Authenticated API Routes", () => {
         expect(res.statusCode).toBe(404);
       });
 
-      test.each([
-        "non-existing",
-        "codecraft",
-      ])("should respond with 401 for [%s] if there is no jwt token in the request", async (projectName) => {
-        const res = await request(app).get(
-          `/api/v3/projects/${projectName}/draft`
-        );
-        expect(res.statusCode).toBe(401);
-      });
+      test.each(["non-existing", "codecraft"])(
+        "should respond with 401 for [%s] if there is no jwt token in the request",
+        async (projectName) => {
+          const res = await request(app).get(
+            `/api/v3/projects/${projectName}/draft`
+          );
+          expect(res.statusCode).toBe(401);
+        }
+      );
 
-      test.each([
-        "non-existing",
-        "codecraft",
-      ])("should respond with 401 for [%s] if the valid jwt token in the request cannot be decoded", async (projectName) => {
-        const res = await request(app)
-          .get(`/api/v3/projects/${projectName}/draft`)
-          .auth("some random string", { type: "bearer" });
-        expect(res.statusCode).toBe(401);
-      });
+      test.each(["non-existing", "codecraft"])(
+        "should respond with 401 for [%s] if the valid jwt token in the request cannot be decoded",
+        async (projectName) => {
+          const res = await request(app)
+            .get(`/api/v3/projects/${projectName}/draft`)
+            .auth("some random string", { type: "bearer" });
+          expect(res.statusCode).toBe(401);
+        }
+      );
     });
 
     describe("/projects/{slug}/draft/files/{filePath}", () => {
@@ -225,10 +226,16 @@ describe("Authenticated API Routes", () => {
       });
 
       test("POST /projects/{slug}/draft/icon converts and sets icons", async () => {
-        const pngBuffer = Buffer.from(
-          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+qLkAAAAASUVORK5CYII=",
-          "base64"
-        );
+        const pngBuffer = await sharp({
+          create: {
+            width: 1,
+            height: 1,
+            channels: 4,
+            background: { r: 255, g: 0, b: 0, alpha: 1 },
+          },
+        })
+          .png()
+          .toBuffer();
         const uploadRes = await request(app)
           .post(`/api/v3/projects/${user1AppId}/draft/files/icon-source.png`)
           .auth(USER1_TOKEN, { type: "bearer" })
@@ -259,7 +266,7 @@ describe("Authenticated API Routes", () => {
           "64x64": "icon-64x64.png",
         });
         expect(getDraftRes.body.version.blur_hash).toMatchInlineSnapshot(
-          `"L9TSUA~qfQ~q~qoffQoffQfQfQfQ"`
+          `"L9TI:j|cfQ|c|co1fQo1fQfQfQfQ"`
         );
       });
 

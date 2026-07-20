@@ -2,10 +2,12 @@ import mime from "mime-types";
 
 // Custom mappings for extensions not covered by mime-types library
 const customMimeTypes: Record<string, string> = {
+  js: "application/javascript",
   py: "text/x-python",
   tsx: "text/typescript-jsx",
   ts: "text/typescript",
   jsx: "text/javascript-jsx",
+  wav: "audio/wav",
   // MicroPythonOS app package (a ZIP container); binary, so it must never
   // inherit a generic text/plain type from the uploading client.
   mpk: "application/octet-stream",
