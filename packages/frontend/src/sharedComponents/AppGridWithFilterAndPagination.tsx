@@ -44,7 +44,7 @@ export const AppGridWithFilterAndPagination = ({
   useEffect(() => {
     setLoading(true);
 
-    appFetcher({ badge, category })
+    appFetcher({ badge, category, orderBy: sortBy })
       .then((res) => {
         if (typeof res === "object") {
           const body = res;
@@ -59,21 +59,18 @@ export const AppGridWithFilterAndPagination = ({
         setError(e.message || "Failed to fetch projects");
       })
       .finally(() => setLoading(false));
-  }, [badge, category, appFetcher]);
+  }, [badge, category, appFetcher, sortBy]);
 
   // Filter apps by search query before pagination
   const filteredSortedApps = useMemo(() => {
-    let result = apps;
-    if (sortBy === "mostInstalled") {
-      result = [...apps].sort((a, b) => b.installs - a.installs);
-    }
+    const result = apps;
     if (!searchQuery.trim()) return result;
     const filteredApps = result.filter((app) =>
       app.name?.toLowerCase().includes(searchQuery.trim().toLowerCase())
     );
 
     return filteredApps;
-  }, [apps, searchQuery, sortBy]);
+  }, [apps, searchQuery]);
 
   // Compute paginated apps from filteredApps
   const paginatedApps = useMemo(() => {

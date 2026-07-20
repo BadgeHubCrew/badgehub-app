@@ -1,3 +1,4 @@
+import type { OrderByOption } from "@shared/domain/readModels/project/ordering.ts";
 import type { SortOption } from "@sharedComponents/AppsGrid/Filters.tsx";
 import type React from "react";
 
@@ -13,7 +14,7 @@ export const OptionSelectorWithTitle: React.FC<
         onValueSelection: (newValue: string) => void;
       }
     | {
-        valueMap: Record<"mostInstalled", string>;
+        valueMap: Partial<Record<OrderByOption, string>>;
         value: SortOption;
         onValueSelection: (value: SortOption) => void;
       }

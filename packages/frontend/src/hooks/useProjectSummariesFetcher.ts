@@ -11,6 +11,7 @@ export const useProjectSummariesFetcher = (
         query: {
           category: filters.category,
           badge: filters.badge,
+          orderBy: filters.orderBy,
         },
       });
       switch (result.status) {
