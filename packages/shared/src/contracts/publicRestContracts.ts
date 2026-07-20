@@ -28,7 +28,11 @@ export const getProjectsQuerySchema = z.object({
 
 export const badgeIdentifiersSchema = z.object({
   mac: z.string().describe("the mac address of the badge").optional(),
-  id: z.string().describe("the id of the badge").optional(),
+  id: z
+    .string()
+    .describe(
+      "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac."
+    ),
 });
 
 export const crashReportBodySchema = z.object({

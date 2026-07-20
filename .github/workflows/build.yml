@@ -27,7 +27,7 @@ jobs:
       - name: Start environment
         run: |
           cp packages/backend/.env.test packages/backend/.env
-          pnpm --filter badgehub-api run test-db:up
+          pnpm --filter badgehub-api run test-db:up --wait
       - name: Populate the DB with test data
         run: pnpm --filter badgehub-api run repopulate-db
       - name: Run test
