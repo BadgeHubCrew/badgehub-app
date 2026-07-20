@@ -96,6 +96,38 @@ describe("Public API Routes", {
     );
   });
 
+  test("GET /api/v3/project-summaries should allow sorting by name", async () => {
+    const res = await request(app).get(
+      "/api/v3/project-summaries?orderBy=name"
+    );
+    expect(res.statusCode).toBe(200);
+    const summaries = res.body as ProjectSummary[];
+    const collator = new Intl.Collator(undefined, {
+      ignorePunctuation: true,
+      sensitivity: "base",
+    });
+    const sortedExpected = summaries
+      .map((p) => p.name)
+      .sort((a, b) => collator.compare(a, b));
+    expect(summaries.map((app: ProjectSummary) => app.name)).toStrictEqual(
+      sortedExpected
+    );
+  });
+
+  test("GET /api/v3/project-summaries should allow sorting by updated_at", async () => {
+    const res = await request(app).get(
+      "/api/v3/project-summaries?slugs=codecraft,pixelpulse,bitblast,nanogames,electraplay&orderBy=updated_at"
+    );
+    expect(res.statusCode).toBe(200);
+    expect(res.body.map((app: ProjectSummary) => app.slug)).toStrictEqual([
+      "codecraft",
+      "bitblast",
+      "pixelpulse",
+      "nanogames",
+      "electraplay",
+    ]);
+  });
+
   test("reporting an install should update installs in project summaries", async () => {
     const projectSlug = "codecraft";
     const baselineRes = await request(app).get("/api/v3/project-summaries");

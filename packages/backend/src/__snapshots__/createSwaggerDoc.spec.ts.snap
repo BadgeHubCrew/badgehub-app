@@ -416,7 +416,9 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
           "orderBy": {
             "enum": [
               "published_at",
+              "updated_at",
               "installs",
+              "name",
             ],
             "type": "string",
           },
@@ -1399,7 +1401,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "schema": {
               "enum": [
                 "published_at",
+                "updated_at",
                 "installs",
+                "name",
               ],
               "type": "string",
             },

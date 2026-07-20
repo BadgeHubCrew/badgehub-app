@@ -1,1 +1,1 @@
-export type OrderByOption = "installs" | "published_at" | "updated_at";
+export type OrderByOption = "installs" | "name" | "published_at" | "updated_at";
