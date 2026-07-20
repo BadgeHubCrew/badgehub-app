@@ -47,7 +47,7 @@
     "openapi3-ts": "^2.0.2",
     "pg": "^8.22.0",
     "pino-http": "^10.5.0",
-    "pm2": "^5.4.3",
+    "pm2": "^7.0.3",
     "shared": "workspace:*",
     "sharp": "^0.34.5",
     "sql-template-tag": "^5.2.1",
