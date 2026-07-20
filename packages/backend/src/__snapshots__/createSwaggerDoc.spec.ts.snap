@@ -157,7 +157,7 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       "BadgeIdentifiers": {
         "properties": {
           "id": {
-            "description": "the id of the badge",
+            "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
             "examples": undefined,
             "title": undefined,
             "type": "string",
@@ -169,6 +169,9 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "type": "string",
           },
         },
+        "required": [
+          "id",
+        ],
         "type": "object",
       },
       "BadgeSlug": {
@@ -1089,7 +1092,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "mac",
-            "required": undefined,
+            "required": false,
             "schema": {
               "description": "the mac address of the badge",
               "examples": undefined,
@@ -1104,9 +1107,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "id",
-            "required": undefined,
+            "required": true,
             "schema": {
-              "description": "the id of the badge",
+              "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
               "examples": undefined,
               "title": undefined,
               "type": "string",
@@ -2916,7 +2919,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "mac",
-            "required": undefined,
+            "required": false,
             "schema": {
               "description": "the mac address of the badge",
               "examples": undefined,
@@ -2931,9 +2934,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "id",
-            "required": undefined,
+            "required": true,
             "schema": {
-              "description": "the id of the badge",
+              "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
               "examples": undefined,
               "title": undefined,
               "type": "string",
@@ -3022,7 +3025,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "mac",
-            "required": undefined,
+            "required": false,
             "schema": {
               "description": "the mac address of the badge",
               "examples": undefined,
@@ -3037,9 +3040,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "id",
-            "required": undefined,
+            "required": true,
             "schema": {
-              "description": "the id of the badge",
+              "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
               "examples": undefined,
               "title": undefined,
               "type": "string",
@@ -3122,7 +3125,7 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "mac",
-            "required": undefined,
+            "required": false,
             "schema": {
               "description": "the mac address of the badge",
               "examples": undefined,
@@ -3137,9 +3140,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "explode": undefined,
             "in": "query",
             "name": "id",
-            "required": undefined,
+            "required": true,
             "schema": {
-              "description": "the id of the badge",
+              "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
               "examples": undefined,
               "title": undefined,
               "type": "string",

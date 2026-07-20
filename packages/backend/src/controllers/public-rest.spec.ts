@@ -548,7 +548,6 @@ describe("Public API Routes", {
       { id: "testid", mac: "testmac" },
       { id: "testid", mac: "" },
       { id: "testid2", mac: undefined },
-      { id: undefined, mac: undefined },
     ])("GET /api/v3/ping id=$id, mac=$mac", async ({ id, mac }) => {
       let url = `/api/v3/ping`;
       if (id) {
