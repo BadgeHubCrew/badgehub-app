@@ -1,11 +1,12 @@
 import type { BadgeSlug } from "@shared/domain/readModels/Badge.ts";
 import type { CategoryName } from "@shared/domain/readModels/project/Category.ts";
+import type { OrderByOption } from "@shared/domain/readModels/project/ordering.ts";
 import { BadgeSelector } from "@sharedComponents/OptionSelector/BadgeSelector.tsx";
 import { CategorySelector } from "@sharedComponents/OptionSelector/CategorySelector.tsx";
 import { OptionSelectorWithTitle } from "@sharedComponents/OptionSelector/OptionSelectorWithTitle.tsx";
 import type React from "react";
 
-export type SortOption = "mostInstalled" | undefined;
+export type SortOption = OrderByOption | undefined;
 
 interface FiltersProps {
   badge: BadgeSlug | undefined;
@@ -48,8 +49,9 @@ const Filters: React.FC<FiltersProps> = ({
           onValueSelection={onSortByChange}
           valueMap={
             {
-              mostInstalled: "Most Installed",
-            } as const satisfies Record<"mostInstalled", string>
+              installs: "Most Installed",
+              name: "App Name",
+            } as const satisfies Partial<Record<OrderByOption, string>>
           }
           value={sortBy}
         />
