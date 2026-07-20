@@ -10,6 +10,8 @@ hoistPattern:
 
 dedupePeerDependents: true
 
+minimumReleaseAge: 4320
+
 allowBuilds:
   '@scarf/scarf': true
   cpu-features: true
