@@ -27,8 +27,8 @@ const withFiles = (project: ProjectDetails, count: number): ProjectDetails => ({
       sha256: "e".repeat(64),
       url: "http://badgehub.p1m.nl/main.py",
       dir: "",
-      created_at: "2023-01-01T00:00:00Z",
-      updated_at: "2023-01-01T00:00:00Z",
+      created_at: "2023-01-01T00:00:00.000Z",
+      updated_at: "2023-01-01T00:00:00.000Z",
     })),
   },
 });

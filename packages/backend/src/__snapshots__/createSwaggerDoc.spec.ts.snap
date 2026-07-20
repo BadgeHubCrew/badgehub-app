@@ -247,11 +247,21 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       "DatedData": {
         "properties": {
           "created_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "updated_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
         },
@@ -264,7 +274,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       "DetailedProject": {
         "properties": {
           "created_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "idp_user_id": {
@@ -284,7 +299,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "type": "string",
           },
           "updated_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "version": {
@@ -314,7 +334,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       "FileMetadata": {
         "properties": {
           "created_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "dir": {
@@ -349,7 +374,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "type": "number",
           },
           "updated_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "url": {
@@ -688,11 +718,21 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
         "examples": undefined,
         "properties": {
           "created_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "last_used_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
         },
@@ -788,7 +828,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "type": "string",
           },
           "published_at": {
-            "pattern": ".*Z$",
+            "description": undefined,
+            "examples": [
+              "2024-08-10T14:48:00.000Z",
+            ],
+            "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+            "title": undefined,
             "type": "string",
           },
           "revision": {
@@ -951,7 +996,12 @@ Warning: if it is present, then badgehub clients on badges will not update the a
           "published_at": {
             "anyOf": [
               {
-                "pattern": ".*Z$",
+                "description": undefined,
+                "examples": [
+                  "2024-08-10T14:48:00.000Z",
+                ],
+                "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+                "title": undefined,
                 "type": "string",
               },
               {

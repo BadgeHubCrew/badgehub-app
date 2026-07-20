@@ -68,8 +68,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "100 B",
         full_path: "test.json",
         url: "http://example.com/test.json",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -81,8 +81,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "200 B",
         full_path: "example.py",
         url: "http://example.com/example.py",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -96,8 +96,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "1 KB",
         full_path: "image.png",
         url: "http://example.com/image.png",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -109,8 +109,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "500 B",
         full_path: "readme.txt",
         url: "http://example.com/readme.txt",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -122,8 +122,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "50 B",
         full_path: "parsed.json",
         url: "http://example.com/parsed.json",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -135,8 +135,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "4 B",
         full_path: "null.json",
         url: "http://example.com/null.json",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -148,8 +148,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "8.07 KB",
         full_path: "sounds/Warning.wav",
         url: "http://example.com/sounds/Warning.wav",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
       {
         dir: "",
@@ -161,8 +161,8 @@ const mockProject: ProjectDetails = {
         size_formatted: "5 KB",
         full_path: "document.pdf",
         url: "http://example.com/document.pdf",
-        created_at: "2023-01-01T00:00:00Z",
-        updated_at: "2023-01-01T00:00:00Z",
+        created_at: "2023-01-01T00:00:00.000Z",
+        updated_at: "2023-01-01T00:00:00.000Z",
       },
     ],
     app_metadata: {
@@ -171,10 +171,10 @@ const mockProject: ProjectDetails = {
       description: "Test description",
       author: "Test Author",
     },
-    published_at: "2023-01-01T00:00:00Z",
+    published_at: "2023-01-01T00:00:00.000Z",
   },
-  created_at: "2023-01-01T00:00:00Z",
-  updated_at: "2023-01-01T00:00:00Z",
+  created_at: "2023-01-01T00:00:00.000Z",
+  updated_at: "2023-01-01T00:00:00.000Z",
 };
 
 describe("AppCodePreview", () => {
