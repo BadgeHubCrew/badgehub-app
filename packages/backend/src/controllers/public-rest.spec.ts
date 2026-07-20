@@ -322,53 +322,53 @@ describe("Public API Routes", {
       `);
     const sortedFiles = files
       .map((f) => f.sha256)
-      .sort()
+      .toSorted()
       .map((sha) => files.find((f) => f.sha256 === sha));
     expect(sortedFiles).toMatchInlineSnapshot(`
-        [
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".py",
-            "full_path": "__init__.py",
-            "mimetype": "text/x-python-script",
-            "name": "__init__",
-            "sha256": "4028201b6ebf876b3ee30462c4d170146a2d3d92c5aca9fefc5e3d1a0508f5df",
-            "size_formatted": "0.04KB",
-            "size_of_content": 43,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/__init__.py",
-          },
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".png",
-            "full_path": "icon5.png",
-            "image_height": 64,
-            "image_width": 64,
-            "mimetype": "image/png",
-            "name": "icon5",
-            "sha256": "7e05ddc2c59f047054f58e4deafac6a2b6ded473a961567d3384ae698ec0f148",
-            "size_formatted": "7.36KB",
-            "size_of_content": 7532,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
-          },
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".json",
-            "full_path": "metadata.json",
-            "mimetype": "application/json",
-            "name": "metadata",
-            "sha256": "a41227adaa729b4519feffd5d05ddfbdeee99a7b2784378d1369d8d731fa0e3d",
-            "size_formatted": "0.24KB",
-            "size_of_content": 247,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/metadata.json",
-          },
-        ]
-      `);
+      [
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".png",
+          "full_path": "icon5.png",
+          "image_height": 64,
+          "image_width": 64,
+          "mimetype": "image/png",
+          "name": "icon5",
+          "sha256": "1582347ecd66c261f936295532079c3ba80d328265108f396cff663d82fd562d",
+          "size_formatted": "7.36KB",
+          "size_of_content": 7532,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
+        },
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".py",
+          "full_path": "__init__.py",
+          "mimetype": "text/x-python-script",
+          "name": "__init__",
+          "sha256": "4028201b6ebf876b3ee30462c4d170146a2d3d92c5aca9fefc5e3d1a0508f5df",
+          "size_formatted": "0.04KB",
+          "size_of_content": 43,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/__init__.py",
+        },
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".json",
+          "full_path": "metadata.json",
+          "mimetype": "application/json",
+          "name": "metadata",
+          "sha256": "a41227adaa729b4519feffd5d05ddfbdeee99a7b2784378d1369d8d731fa0e3d",
+          "size_formatted": "0.24KB",
+          "size_of_content": 247,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/metadata.json",
+        },
+      ]
+    `);
 
     expect(restVersion).toMatchInlineSnapshot(`
         {
@@ -431,50 +431,50 @@ describe("Public API Routes", {
       .map((sha) => files.find((f) => f.sha256 === sha));
     expect(sortedFiles).toMatchInlineSnapshot(
       `
-        [
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".py",
-            "full_path": "__init__.py",
-            "mimetype": "text/x-python-script",
-            "name": "__init__",
-            "sha256": "4028201b6ebf876b3ee30462c4d170146a2d3d92c5aca9fefc5e3d1a0508f5df",
-            "size_formatted": "0.04KB",
-            "size_of_content": 43,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/__init__.py",
-          },
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".png",
-            "full_path": "icon5.png",
-            "image_height": 64,
-            "image_width": 64,
-            "mimetype": "image/png",
-            "name": "icon5",
-            "sha256": "7e05ddc2c59f047054f58e4deafac6a2b6ded473a961567d3384ae698ec0f148",
-            "size_formatted": "7.36KB",
-            "size_of_content": 7532,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
-          },
-          {
-            "created_at": "2024-05-22T14:01:16.975Z",
-            "dir": "",
-            "ext": ".json",
-            "full_path": "metadata.json",
-            "mimetype": "application/json",
-            "name": "metadata",
-            "sha256": "a41227adaa729b4519feffd5d05ddfbdeee99a7b2784378d1369d8d731fa0e3d",
-            "size_formatted": "0.24KB",
-            "size_of_content": 247,
-            "updated_at": "2024-05-22T14:01:16.975Z",
-            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/metadata.json",
-          },
-        ]
-      `
+      [
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".png",
+          "full_path": "icon5.png",
+          "image_height": 64,
+          "image_width": 64,
+          "mimetype": "image/png",
+          "name": "icon5",
+          "sha256": "1582347ecd66c261f936295532079c3ba80d328265108f396cff663d82fd562d",
+          "size_formatted": "7.36KB",
+          "size_of_content": 7532,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
+        },
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".py",
+          "full_path": "__init__.py",
+          "mimetype": "text/x-python-script",
+          "name": "__init__",
+          "sha256": "4028201b6ebf876b3ee30462c4d170146a2d3d92c5aca9fefc5e3d1a0508f5df",
+          "size_formatted": "0.04KB",
+          "size_of_content": 43,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/__init__.py",
+        },
+        {
+          "created_at": "2024-05-22T14:01:16.975Z",
+          "dir": "",
+          "ext": ".json",
+          "full_path": "metadata.json",
+          "mimetype": "application/json",
+          "name": "metadata",
+          "sha256": "a41227adaa729b4519feffd5d05ddfbdeee99a7b2784378d1369d8d731fa0e3d",
+          "size_formatted": "0.24KB",
+          "size_of_content": 247,
+          "updated_at": "2024-05-22T14:01:16.975Z",
+          "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/metadata.json",
+        },
+      ]
+    `
     );
   });
 
