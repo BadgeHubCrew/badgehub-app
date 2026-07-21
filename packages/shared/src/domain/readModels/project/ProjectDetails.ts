@@ -22,19 +22,6 @@ __tsCheckSame<
   z.infer<typeof projectRatingsSchema>
 >(true);
 
-export type ProjectStatusName =
-  | "working"
-  | "in_progress"
-  | "broken"
-  | "unknown";
-
-export const projectStatusNameSchema = z.enum([
-  "working",
-  "in_progress",
-  "broken",
-  "unknown",
-]);
-
 export interface ProjectCore {
   slug: string;
   idp_user_id: User["idp_user_id"];
@@ -73,10 +60,4 @@ __tsCheckSame<
   ProjectDetails,
   ProjectDetails,
   z.infer<typeof detailedProjectSchema>
->(true);
-
-__tsCheckSame<
-  ProjectStatusName,
-  ProjectStatusName,
-  z.infer<typeof projectStatusNameSchema>
 >(true);
