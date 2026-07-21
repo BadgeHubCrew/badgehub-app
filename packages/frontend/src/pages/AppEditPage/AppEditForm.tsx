@@ -56,7 +56,19 @@ const AppEditForm: React.FC<{
       </h1>
       <div className="space-y-8">
         <form className="space-y-8" onSubmit={onSubmit}>
-          <AppEditActions onClickDeleteApplication={onDeleteApplication} />
+          <AppEditActions
+            onClickDeleteApplication={onDeleteApplication}
+            workInProgress={
+              appMetadata.development_status === "work_in_progress"
+            }
+            onWorkInProgressChange={(workInProgress) =>
+              onFormChange({
+                development_status: workInProgress
+                  ? "work_in_progress"
+                  : "stable",
+              })
+            }
+          />
           <AppEditBasicInfo form={appMetadata} onChange={onFormChange} />
           <AppEditCategorization form={appMetadata} onChange={onFormChange} />
           <AppEditFileUpload

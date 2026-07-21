@@ -23,6 +23,7 @@ const AppCard: React.FC<
   editable,
   installs,
   git_url,
+  development_status,
 }) => {
   const icon = icon_map?.["64x64"];
   const iconSrc = icon ? icon.url : FALLBACK_ICON_URL;
@@ -138,6 +139,15 @@ const AppCard: React.FC<
           {(() => {
             const MAX_VISIBLE_TAGS = 3;
             const allTags = [
+              ...(development_status === "work_in_progress"
+                ? [
+                    {
+                      text: "WIP",
+                      type: "status",
+                      id: "status-wip",
+                    },
+                  ]
+                : []),
               ...(categories?.map((cat, index) => ({
                 text: cat,
                 type: "category",
@@ -160,7 +170,9 @@ const AppCard: React.FC<
                     className={`${
                       tag.type === "category"
                         ? "badge badge-neutral"
-                        : "badge badge-success"
+                        : tag.type === "status"
+                          ? "badge badge-warning"
+                          : "badge badge-success"
                     } text-xs font-semibold mr-2`}
                   >
                     {tag.text}

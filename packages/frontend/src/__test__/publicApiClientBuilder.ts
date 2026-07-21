@@ -37,6 +37,7 @@ export function apiClientWithApps(apps: DummyApp[] = dummyApps) {
       let filteredSummaries: ProjectSummary[] = apps.map((a) => a.summary);
       const badgeSlug = parsedQuery?.badge ?? args?.badge;
       const category = parsedQuery?.category ?? args?.category;
+      const developmentStatus = parsedQuery?.developmentStatus;
       if (badgeSlug) {
         filteredSummaries = filteredSummaries.filter((app) =>
           app.badges?.map((b) => b.toLowerCase()).includes(badgeSlug)
@@ -45,6 +46,11 @@ export function apiClientWithApps(apps: DummyApp[] = dummyApps) {
       if (category) {
         filteredSummaries = filteredSummaries.filter((app) =>
           app.categories?.includes(category)
+        );
+      }
+      if (developmentStatus) {
+        filteredSummaries = filteredSummaries.filter(
+          (app) => app.development_status === developmentStatus
         );
       }
       return {

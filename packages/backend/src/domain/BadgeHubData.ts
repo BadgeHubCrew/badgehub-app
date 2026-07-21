@@ -10,6 +10,7 @@ import type { BadgeSlug } from "@shared/domain/readModels/Badge";
 import type { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import {
   appMetadataJSONSchema,
+  type DevelopmentStatus,
   type IconMap,
   type IconSize,
 } from "@shared/domain/readModels/project/AppMetadataJSON";
@@ -282,6 +283,7 @@ export class BadgeHubData {
       slugs?: ProjectSlug[];
       userId?: User["idp_user_id"];
       orderBy: OrderByOption;
+      developmentStatus?: DevelopmentStatus;
     },
     revision: LatestOrDraftAlias
   ): Promise<ProjectSummary[]> {

@@ -12,6 +12,7 @@ export const useProjectSummariesFetcher = (
           category: filters.category,
           badge: filters.badge,
           orderBy: filters.orderBy,
+          developmentStatus: filters.developmentStatus,
         },
       });
       switch (result.status) {

@@ -4,6 +4,10 @@ import {
   isoDateStringSchema,
 } from "@shared/domain/readModels/ISODateString";
 import {
+  type DevelopmentStatus,
+  developmentStatusSchema,
+} from "@shared/domain/readModels/project/AppMetadataJSON";
+import {
   type CategoryName,
   categoryNameSchema,
 } from "@shared/domain/readModels/project/Category";
@@ -30,6 +34,7 @@ export interface ProjectSummary extends ProjectCore {
   version?: string; // semantic version in metadata of latest version of the project
   revision: number; // latest revision number of the project
   git_url?: string;
+  development_status: DevelopmentStatus;
 }
 
 const fullPathAndUrlSchema = z.object({
@@ -70,6 +75,9 @@ export const projectSummarySchema = projectCoreSchema.extend({
   version: z.string().optional(),
   revision: z.number(),
   git_url: z.string().optional(),
+  development_status: developmentStatusSchema.describe(
+    'Computed from version.app_metadata.development_status. Defaults to "stable" when the app metadata does not contain the field.'
+  ),
 });
 
 /** Stable array schema so OpenAPI can $ref the list response. */

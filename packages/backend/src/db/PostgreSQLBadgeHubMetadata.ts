@@ -33,6 +33,7 @@ import { ProjectAlreadyExistsError, UserError } from "@domain/UserError";
 import { VALID_SLUG_REGEX } from "@shared/contracts/slug";
 import { type BadgeSlug, getBadgeSlugs } from "@shared/domain/readModels/Badge";
 import type { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
+import type { DevelopmentStatus } from "@shared/domain/readModels/project/AppMetadataJSON";
 import {
   type CategoryName,
   getAllCategoryNames,
@@ -219,7 +220,8 @@ export class PostgreSQLBadgeHubMetadata {
 
   async getStats(): Promise<BadgeHubStats> {
     const projectInstallsP = this.pool.query(
-      sql`select COUNT(*) from project_install_reports`
+      sql`select COUNT(*)
+          from project_install_reports`
     );
     const projectsP = this.pool.query(
       sql`SELECT COUNT(*)
@@ -287,13 +289,13 @@ export class PostgreSQLBadgeHubMetadata {
       badges: getBadgeSlugs().slice(0, 1),
     };
     await this.pool.query(sql`
-      with inserted_version as (
+        with inserted_version as (
+            insert
+                into versions (project_slug, revision, app_metadata, blur_hash, created_at, updated_at)
+                    values (${project.slug}, 1, ${appMetadata}, null, ${createdAt}, ${updatedAt}) returning revision)
         insert
-          into versions (project_slug, revision, app_metadata, blur_hash, created_at, updated_at)
-            values (${project.slug}, 1, ${appMetadata}, null, ${createdAt}, ${updatedAt}) returning revision)
-      insert
-      into projects (${keys}, draft_revision)
-      values (${values}, (select revision from inserted_version))`);
+        into projects (${keys}, draft_revision)
+        values (${values}, (select revision from inserted_version))`);
   }
 
   async updateProject(
@@ -323,39 +325,39 @@ export class PostgreSQLBadgeHubMetadata {
   ): Promise<void> {
     const fileColumnsForCopyingSql = raw(fileColumnsForCopying.join(", "));
     await this.pool.query(sql`
-      with published_version as (
-        update versions v
-          set published_at = (${mockDate ?? raw("now()")}) , updated_at = (${mockDate ?? raw("now()")})
-          where v.id = (${getVersionQuery(projectSlug, "draft")}) returning revision, id, app_metadata, blur_hash),
-           new_draft_version as (
-             insert
-               into versions (project_slug, app_metadata, blur_hash, revision, created_at, updated_at)
-                 (select project_slug,
-                         app_metadata,
-                         blur_hash,
-                         revision + 1,
-                         (${mockDate ?? raw("now()")}),
-                         (${mockDate ?? raw("now()")})
-                  from versions
-                  where id = ${getVersionQuery(projectSlug, "draft")})
-                 returning revision, id),
-           updated_projects as (
-             update projects
-               set latest_revision = (select revision from published_version), draft_revision = (select revision from new_draft_version)
-               where slug = ${projectSlug}
-                 and deleted_at is null
-               returning 1),
-           copied_files as (
-             insert
-               into files
-                 (version_id, ${fileColumnsForCopyingSql})
-                 select (select id from new_draft_version),
-                        ${fileColumnsForCopyingSql}
-                 from files
-                 where version_id = (select id from published_version)
-                 and deleted_at is null
-                 returning 1)
-      select 1
+        with published_version as (
+            update versions v
+                set published_at = (${mockDate ?? raw("now()")}) , updated_at = (${mockDate ?? raw("now()")})
+                where v.id = (${getVersionQuery(projectSlug, "draft")}) returning revision, id, app_metadata, blur_hash),
+             new_draft_version as (
+                 insert
+                     into versions (project_slug, app_metadata, blur_hash, revision, created_at, updated_at)
+                         (select project_slug,
+                                 app_metadata,
+                                 blur_hash,
+                                 revision + 1,
+                                 (${mockDate ?? raw("now()")}),
+                                 (${mockDate ?? raw("now()")})
+                          from versions
+                          where id = ${getVersionQuery(projectSlug, "draft")})
+                         returning revision, id),
+             updated_projects as (
+                 update projects
+                     set latest_revision = (select revision from published_version), draft_revision = (select revision from new_draft_version)
+                     where slug = ${projectSlug}
+                         and deleted_at is null
+                     returning 1),
+             copied_files as (
+                 insert
+                     into files
+                         (version_id, ${fileColumnsForCopyingSql})
+                         select (select id from new_draft_version),
+                                ${fileColumnsForCopyingSql}
+                         from files
+                         where version_id = (select id from published_version)
+                           and deleted_at is null
+                         returning 1)
+        select 1
     `);
   }
 
@@ -377,7 +379,7 @@ export class PostgreSQLBadgeHubMetadata {
             from projects p
             where p.slug = ${projectSlug}
               and p.deleted_at is null
-              ${checkPublishedIfNotDraft}`
+                ${checkPublishedIfNotDraft}`
       )
       .then((res) => res.rows[0]);
     if (!dbProject) {
@@ -427,6 +429,7 @@ export class PostgreSQLBadgeHubMetadata {
       search?: string;
       userId?: User["idp_user_id"];
       orderBy: OrderByOption;
+      developmentStatus?: DevelopmentStatus;
     },
     revision?: LatestOrDraftAlias
   ): Promise<ProjectSummary[]> {
@@ -446,6 +449,12 @@ and v.app_metadata->'categories' @>
       query = sql`${query}
 and v.app_metadata->'badges' @>
       ${badgesJsonBMatcher}`;
+    }
+
+    if (filter.developmentStatus) {
+      query = sql`${query}
+and coalesce(v.app_metadata->>'development_status', 'stable') =
+      ${filter.developmentStatus}`;
     }
 
     if (revision !== "draft") {
@@ -554,8 +563,8 @@ and v.app_metadata->'badges' @>
       sql`insert into registered_badges (id, mac)
           values (${id}, ${mac || null})
           on conflict (id)
-            do update set mac          = coalesce(registered_badges.mac, excluded.mac),
-                          last_seen_at = now();`
+              do update set mac          = coalesce(registered_badges.mac, excluded.mac),
+                            last_seen_at = now();`
     );
   }
 
@@ -565,14 +574,18 @@ and v.app_metadata->'badges' @>
     badgeId: string,
     reportType: ReportType
   ): Promise<void> {
-    const versionIdQuery = sql`(select id from versions where project_slug = ${slug} and revision = ${revision} and published_at is not null)`;
+    const versionIdQuery = sql`(select id
+                                from versions
+                                where project_slug = ${slug}
+                                  and revision = ${revision}
+                                  and published_at is not null)`;
     const reportColumn = raw(reportType);
 
     await this.pool.query(sql`
-      insert into registered_badges_version_reports (version_id, registered_badge_id, ${reportColumn})
-      values ((${versionIdQuery}), ${badgeId}, 1)
-      on conflict (registered_badge_id, version_id) do update set ${reportColumn} = registered_badges_version_reports.${reportColumn} + 1,
-                                                                   updated_at    = now()
+        insert into registered_badges_version_reports (version_id, registered_badge_id, ${reportColumn})
+        values ((${versionIdQuery}), ${badgeId}, 1)
+        on conflict (registered_badge_id, version_id) do update set ${reportColumn} = registered_badges_version_reports.${reportColumn} + 1,
+                                                                    updated_at        = now()
     `);
   }
 

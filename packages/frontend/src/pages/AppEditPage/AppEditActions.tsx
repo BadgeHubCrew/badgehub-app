@@ -3,22 +3,37 @@ import { Link } from "react-router-dom";
 
 interface AppEditActionsProps {
   onClickDeleteApplication: () => unknown;
+  workInProgress: boolean;
+  onWorkInProgressChange: (workInProgress: boolean) => void;
 }
 
 const AppEditActions: React.FC<AppEditActionsProps> = ({
   onClickDeleteApplication,
+  workInProgress,
+  onWorkInProgressChange,
 }) => (
   <section className="card bg-base-200 shadow-lg">
     <div className="card-body">
       <h2 className="card-title text-2xl mb-4">Actions</h2>
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-4">
-          <button type="submit" className="btn btn-primary">
-            Save & Publish
-          </button>
-          <Link to=".." className="btn btn-neutral">
-            Cancel
-          </Link>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-3">
+          <label className="label cursor-pointer justify-start gap-3 p-0">
+            <input
+              type="checkbox"
+              className="toggle toggle-warning"
+              checked={workInProgress}
+              onChange={(e) => onWorkInProgressChange(e.target.checked)}
+            />
+            <span className="label-text font-medium">Work in progress</span>
+          </label>
+          <div className="flex items-center space-x-4">
+            <button type="submit" className="btn btn-primary">
+              Save & Publish
+            </button>
+            <Link to=".." className="btn btn-neutral">
+              Cancel
+            </Link>
+          </div>
         </div>
         <div>
           <button

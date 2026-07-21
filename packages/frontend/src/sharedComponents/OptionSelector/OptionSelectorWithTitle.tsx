@@ -11,7 +11,7 @@ export const OptionSelectorWithTitle: React.FC<
     | {
         valueMap: Record<string, string>;
         value: string | undefined;
-        onValueSelection: (newValue: string) => void;
+        onValueSelection: (newValue: string | undefined) => void;
       }
     | {
         valueMap: Partial<Record<OrderByOption, string>>;

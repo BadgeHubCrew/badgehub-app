@@ -45,6 +45,16 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "title": undefined,
             "type": "string",
           },
+          "development_status": {
+            "description": "Indicates whether this project is considered stable or still a work in progress. If this field is not set, clients should treat the project as "stable".",
+            "enum": [
+              "stable",
+              "work_in_progress",
+            ],
+            "examples": undefined,
+            "title": undefined,
+            "type": "string",
+          },
           "git_url": {
             "type": "string",
           },
@@ -232,9 +242,6 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       },
       "CreateProjectInput": {
         "properties": {
-          "git": {
-            "type": "string",
-          },
           "slug": {
             "type": "string",
           },
@@ -412,6 +419,16 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
           },
           "category": {
             "$ref": "#/components/schemas/CategoryName",
+          },
+          "developmentStatus": {
+            "description": "Filter by development status.",
+            "enum": [
+              "stable",
+              "work_in_progress",
+            ],
+            "examples": undefined,
+            "title": undefined,
+            "type": "string",
           },
           "orderBy": {
             "enum": [
@@ -795,6 +812,16 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
           "description": {
             "type": "string",
           },
+          "development_status": {
+            "description": "Computed from version.app_metadata.development_status. Defaults to "stable" when the app metadata does not contain the field.",
+            "enum": [
+              "stable",
+              "work_in_progress",
+            ],
+            "examples": undefined,
+            "title": undefined,
+            "type": "string",
+          },
           "git_url": {
             "type": "string",
           },
@@ -854,6 +881,7 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
           "name",
           "installs",
           "revision",
+          "development_status",
         ],
         "type": "object",
       },
@@ -883,9 +911,6 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
       },
       "UpdateProjectInput": {
         "properties": {
-          "git": {
-            "type": "string",
-          },
           "slug": {
             "type": "string",
           },
@@ -1409,6 +1434,25 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             },
             "style": undefined,
           },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "explode": undefined,
+            "in": "query",
+            "name": "developmentStatus",
+            "required": undefined,
+            "schema": {
+              "description": "Filter by development status.",
+              "enum": [
+                "stable",
+                "work_in_progress",
+              ],
+              "examples": undefined,
+              "title": undefined,
+              "type": "string",
+            },
+            "style": undefined,
+          },
         ],
         "responses": {
           "200": {
@@ -1602,23 +1646,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "style": undefined,
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "examples": undefined,
-                "properties": {
-                  "git": {
-                    "type": "string",
-                  },
-                },
-                "required": undefined,
-                "type": "object",
-              },
-            },
-          },
-          "required": false,
-        },
         "responses": {
           "204": {
             "content": {
@@ -1719,23 +1746,6 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "style": undefined,
           },
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "examples": undefined,
-                "properties": {
-                  "git": {
-                    "type": "string",
-                  },
-                },
-                "required": undefined,
-                "type": "object",
-              },
-            },
-          },
-          "required": false,
-        },
         "responses": {
           "204": {
             "content": {
@@ -2479,6 +2489,16 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                   },
                   "description": {
                     "description": "Short description of the app. Used in compact layouts and as a fallback when long_description is empty.",
+                    "examples": undefined,
+                    "title": undefined,
+                    "type": "string",
+                  },
+                  "development_status": {
+                    "description": "Indicates whether this project is considered stable or still a work in progress. If this field is not set, clients should treat the project as "stable".",
+                    "enum": [
+                      "stable",
+                      "work_in_progress",
+                    ],
                     "examples": undefined,
                     "title": undefined,
                     "type": "string",

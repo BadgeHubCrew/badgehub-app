@@ -48,6 +48,7 @@ export function createApiRouter(
           search: input.search,
           userId: input.userId,
           orderBy: input.orderBy ?? "published_at",
+          developmentStatus: input.developmentStatus,
         },
         "latest"
       );

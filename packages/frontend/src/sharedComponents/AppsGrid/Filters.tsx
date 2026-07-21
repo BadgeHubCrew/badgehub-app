@@ -1,4 +1,5 @@
 import type { BadgeSlug } from "@shared/domain/readModels/Badge.ts";
+import type { DevelopmentStatus } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import type { CategoryName } from "@shared/domain/readModels/project/Category.ts";
 import type { OrderByOption } from "@shared/domain/readModels/project/ordering.ts";
 import { BadgeSelector } from "@sharedComponents/OptionSelector/BadgeSelector.tsx";
@@ -12,9 +13,11 @@ export type SortOption = OrderByOption | undefined;
 interface FiltersProps {
   badge: BadgeSlug | undefined;
   category: CategoryName | undefined;
+  developmentStatus: DevelopmentStatus | undefined;
   sortBy: SortOption;
   onBadgeChange: (value: BadgeSlug | undefined) => void;
   onCategoryChange: (value: CategoryName | undefined) => void;
+  onDevelopmentStatusChange: (value: DevelopmentStatus | undefined) => void;
   onSortByChange: (value: SortOption) => void;
   onResetFilters: () => void;
   searchQuery?: string;
@@ -24,9 +27,11 @@ interface FiltersProps {
 const Filters: React.FC<FiltersProps> = ({
   badge,
   category,
+  developmentStatus,
   sortBy,
   onBadgeChange,
   onCategoryChange,
+  onDevelopmentStatusChange,
   onSortByChange,
   onResetFilters,
   searchQuery,
@@ -45,6 +50,20 @@ const Filters: React.FC<FiltersProps> = ({
         noValueSetName={"All"}
         category={category}
         onCategoryChange={onCategoryChange}
+      />
+      <OptionSelectorWithTitle
+        title={"Status"}
+        noValueSetName={"All statuses"}
+        onValueSelection={(value: string | undefined) =>
+          onDevelopmentStatusChange(value as DevelopmentStatus | undefined)
+        }
+        valueMap={
+          {
+            stable: "Stable",
+            work_in_progress: "Work in progress",
+          } as const satisfies Record<DevelopmentStatus, string>
+        }
+        value={developmentStatus}
       />
       <OptionSelectorWithTitle
         title={"Sort By"}
@@ -68,7 +87,7 @@ const Filters: React.FC<FiltersProps> = ({
           className="hidden lg:block card bg-base-200 shadow mb-8 p-4"
           data-testid="filter-bar"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {filterControls}
 
             <div className="flex items-end">

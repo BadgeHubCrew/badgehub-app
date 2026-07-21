@@ -3,6 +3,7 @@ import type { DBProjectInstallReport } from "@db/models/DBReporting";
 import type { DBProject } from "@db/models/project/DBProject";
 import type { DBVersion } from "@db/models/project/DBVersion";
 import { timestampTZToISODateString } from "@db/sqlHelpers/dbDates";
+import { getDevelopmentStatus } from "@shared/domain/readModels/project/AppMetadataJSON";
 import {
   type IconMapWithUrls,
   type ProjectSummary,
@@ -51,6 +52,7 @@ export const projectQueryResponseToReadModel = (
     revision: enrichedDBProject.revision,
     slug: enrichedDBProject.slug,
     git_url: appMetadata.git_url,
+    development_status: getDevelopmentStatus(appMetadata),
     // states: undefined,
     // status: undefined, // TODO
     // dependencies: undefined, // TODO
@@ -78,9 +80,6 @@ export const projectQueryResponseToReadModel = (
   };
   if (appMetadata.hidden) {
     projectSummary.hidden = appMetadata.hidden;
-  }
-  if (enrichedDBProject.git) {
-    projectSummary.git_url = enrichedDBProject.git;
   }
   return projectSummarySchema.parse(projectSummary);
 };
