@@ -249,6 +249,30 @@ describe("Public API Routes", {
     ).toBeDefined();
   });
 
+  test("GET /api/v3/project-summaries with category exclusion", async () => {
+    const res = await request(app).get(
+      "/api/v3/project-summaries?excludeCategories=Silly"
+    );
+    expect(res.statusCode).toBe(200);
+    expect(
+      res.body.some((app: ProjectSummary) => app.categories?.includes("Silly"))
+    ).toBe(false);
+    expect(
+      res.body.find((app: ProjectSummary) => app.slug === "codecraft")
+    ).toBeDefined();
+  });
+
+  test("GET /api/v3/project-summaries ignores unknown excluded categories", async () => {
+    const baselineRes = await request(app).get("/api/v3/project-summaries");
+    const res = await request(app).get(
+      "/api/v3/project-summaries?excludeCategories=RemovedCategory"
+    );
+    expect(res.statusCode).toBe(200);
+    expect(res.body.map((app: ProjectSummary) => app.slug)).toStrictEqual(
+      baselineRes.body.map((app: ProjectSummary) => app.slug)
+    );
+  });
+
   test("GET /api/v3/project-summaries with category name in search", async () => {
     const res = await request(app).get(
       "/api/v3/project-summaries?search=Uncategorised"
