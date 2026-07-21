@@ -1,3 +1,4 @@
+import { getDevelopmentStatus } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import GitLink from "@sharedComponents/GitLink.tsx";
 import type React from "react";
@@ -35,6 +36,11 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-base-300">
+          {getDevelopmentStatus(appMetadata) === "work_in_progress" && (
+            <span className="badge badge-warning text-sm font-semibold mr-2">
+              WIP
+            </span>
+          )}
           {appMetadata.badges?.map((dev: string) => (
             <span
               key={dev}

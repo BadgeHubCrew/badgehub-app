@@ -118,6 +118,9 @@ describe("Authenticated API Routes", () => {
         .auth(USER1_TOKEN, { type: "bearer" });
       expect(getRes.statusCode).toBe(200);
       expect(getRes.body.slug).toBe(TEST_APP_ID);
+      expect(
+        getRes.body.version.app_metadata.development_status
+      ).toBeUndefined();
     });
   });
 

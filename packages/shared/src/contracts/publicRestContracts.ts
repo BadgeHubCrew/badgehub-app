@@ -2,6 +2,7 @@ import { oc } from "@orpc/contract";
 import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { badgeSlugSchema } from "@shared/domain/readModels/Badge";
 import { badgeHubStatsSchema } from "@shared/domain/readModels/BadgeHubStats";
+import { developmentStatusSchema } from "@shared/domain/readModels/project/AppMetadataJSON";
 import { categoryNameSchema } from "@shared/domain/readModels/project/Category";
 import type { OrderByOption } from "@shared/domain/readModels/project/ordering";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
@@ -38,6 +39,9 @@ export const getProjectsQuerySchema = z.object({
     .optional()
     .describe("allow a text search over the apps' slug, name and descriptions"),
   orderBy: orderByOptionSchema.optional(),
+  developmentStatus: developmentStatusSchema
+    .optional()
+    .describe(`Filter by development status.`),
 });
 
 export const badgeIdentifiersSchema = z.object({

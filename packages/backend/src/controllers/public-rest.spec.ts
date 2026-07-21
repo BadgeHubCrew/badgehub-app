@@ -38,31 +38,32 @@ describe("Public API Routes", {
         installs: expect.any(Number),
       },
       `
-        {
-          "badges": [
-            "mch2022",
-            "why2025",
-          ],
-          "categories": [
-            "Event related",
-            "Games",
-          ],
-          "description": "With CodeCraft, you can do interesting things with the sensors.",
-          "icon_map": {
-            "64x64": {
-              "full_path": "icon5.png",
-              "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
-            },
+      {
+        "badges": [
+          "mch2022",
+          "why2025",
+        ],
+        "categories": [
+          "Event related",
+          "Games",
+        ],
+        "description": "With CodeCraft, you can do interesting things with the sensors.",
+        "development_status": "stable",
+        "icon_map": {
+          "64x64": {
+            "full_path": "icon5.png",
+            "url": "http://localhost:8081/api/v3/projects/codecraft/rev1/files/icon5.png",
           },
-          "idp_user_id": "CyberSherpa",
-          "installs": Any<Number>,
-          "license_type": "MIT",
-          "name": "CodeCraft",
-          "published_at": "2024-05-23T14:01:16.975Z",
-          "revision": 1,
-          "slug": "codecraft",
-        }
-      `
+        },
+        "idp_user_id": "CyberSherpa",
+        "installs": Any<Number>,
+        "license_type": "MIT",
+        "name": "CodeCraft",
+        "published_at": "2024-05-23T14:01:16.975Z",
+        "revision": 1,
+        "slug": "codecraft",
+      }
+    `
     );
   });
 
@@ -72,6 +73,26 @@ describe("Public API Routes", {
     expect(
       res.body.find((app: ProjectSummary) => !app.published_at)
     ).toBeUndefined();
+  });
+
+  test("GET /api/v3/project-summaries should filter by development status", async () => {
+    const res = await request(app).get(
+      "/api/v3/project-summaries?developmentStatus=stable"
+    );
+    expect(res.statusCode).toBe(200);
+    expect(
+      res.body.find((app: ProjectSummary) => app.slug === "codecraft")
+    ).toMatchObject({
+      development_status: "stable",
+      slug: "codecraft",
+    });
+  });
+
+  test("GET /api/v3/project-summaries rejects invalid development status", async () => {
+    const res = await request(app).get(
+      "/api/v3/project-summaries?developmentStatus=beta"
+    );
+    expect(res.statusCode).toBe(400);
   });
 
   test("GET /api/v3/project-summaries should contain apps with non-0 number of installs", async () => {
@@ -322,14 +343,14 @@ describe("Public API Routes", {
 
     const { version, ...restProject } = project;
     expect(restProject).toMatchInlineSnapshot(`
-        {
-          "created_at": "2024-05-22T14:01:16.975Z",
-          "idp_user_id": "CyberSherpa",
-          "latest_revision": 1,
-          "slug": "codecraft",
-          "updated_at": "2024-05-22T14:01:16.975Z",
-        }
-      `);
+      {
+        "created_at": "2024-05-22T14:01:16.975Z",
+        "idp_user_id": "CyberSherpa",
+        "latest_revision": 1,
+        "slug": "codecraft",
+        "updated_at": "2024-05-22T14:01:16.975Z",
+      }
+    `);
 
     expect(version).toBeDefined();
     const { app_metadata, files, ...restVersion } = version ?? {};
@@ -419,14 +440,14 @@ describe("Public API Routes", {
 
     const { version, ...restProject } = project;
     expect(restProject).toMatchInlineSnapshot(`
-        {
-          "created_at": "2024-05-22T14:01:16.975Z",
-          "idp_user_id": "CyberSherpa",
-          "latest_revision": 1,
-          "slug": "codecraft",
-          "updated_at": "2024-05-22T14:01:16.975Z",
-        }
-      `);
+      {
+        "created_at": "2024-05-22T14:01:16.975Z",
+        "idp_user_id": "CyberSherpa",
+        "latest_revision": 1,
+        "slug": "codecraft",
+        "updated_at": "2024-05-22T14:01:16.975Z",
+      }
+    `);
 
     expect(version).toBeDefined();
     const { app_metadata, files, ...restVersion } = version ?? {};

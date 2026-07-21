@@ -91,6 +91,48 @@ describe("HomePage filtering", () => {
     });
   });
 
+  it("filters by development status", async () => {
+    const firstApp = dummyApps[0];
+    const secondApp = dummyApps[1];
+    expect(firstApp).toBeDefined();
+    expect(secondApp).toBeDefined();
+    if (!firstApp || !secondApp) {
+      throw new Error("Expected dummy apps");
+    }
+    const apps = [
+      {
+        ...firstApp,
+        summary: {
+          ...firstApp.summary,
+          development_status: "work_in_progress" as const,
+        },
+        details: {
+          ...firstApp.details,
+          version: {
+            ...firstApp.details.version,
+            app_metadata: {
+              ...firstApp.details.version.app_metadata,
+              development_status: "work_in_progress" as const,
+            },
+          },
+        },
+      },
+      secondApp,
+    ];
+
+    render(<HomePage apiClient={apiClientWithApps(apps)} />);
+    const statusDropdown = screen.getByTestId("status-dropdown");
+
+    await userEvent.selectOptions(statusDropdown, "work_in_progress");
+
+    await waitFor(() => {
+      expect(screen.getByText(firstApp.summary.name)).toBeInTheDocument();
+      expect(
+        screen.queryByText(secondApp.summary.name)
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it("filters apps by search query", async () => {
     render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
     // Wait for apps to load

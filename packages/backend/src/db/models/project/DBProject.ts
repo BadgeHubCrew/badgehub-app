@@ -5,7 +5,6 @@ import type { UserRelation } from "./DBUser";
 
 export interface DBProjectBase {
   slug: ProjectSlug; // The directory name of this project
-  git?: string; // repository url
 }
 
 type ProjectToVersionRelation = VersionRelation<

@@ -18,10 +18,26 @@ import {
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
 
+export const developmentStatusSchema = z
+  .enum(["stable", "work_in_progress"])
+  .describe(
+    'Indicates whether this project is considered stable or still a work in progress. If this field is not set, clients should treat the project as "stable".'
+  );
+
+export type DevelopmentStatus = z.infer<typeof developmentStatusSchema>;
+export const DEFAULT_DEVELOPMENT_STATUS = "stable" satisfies DevelopmentStatus;
+
+export function getDevelopmentStatus(
+  appMetadata: Pick<AppMetadataJSON, "development_status">
+): DevelopmentStatus {
+  return appMetadata.development_status ?? DEFAULT_DEVELOPMENT_STATUS;
+}
+
 export interface AppMetadataJSON {
   name?: string;
   project_type?: "app" | "library" | "firmware" | "other";
   hidden?: boolean;
+  development_status?: DevelopmentStatus;
   description?: string;
   long_description?: string;
   git_url?: string;
@@ -82,6 +98,7 @@ export const appMetadataJSONSchema = z.object({
       "Whether the project should be hidden from the launcher and from discovery on BadgeHub. Note that this does not make it private, just harder to find."
     )
     .optional(),
+  development_status: developmentStatusSchema.optional(),
   name: z
     .string()
     .optional()

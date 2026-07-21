@@ -142,6 +142,7 @@ const toSummary = (dummyApp: DummyData): ProjectSummary => {
     installs: 1,
     license_type: "MIT",
     idp_user_id: "dummy-user-id",
+    development_status: "stable",
   };
 };
 

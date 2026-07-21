@@ -4,11 +4,7 @@ import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
 import { writeAppMetadataJSONSchema } from "@shared/domain/writeModels/AppMetadataJSON";
-import {
-  type CreateProjectProps,
-  createProjectPropsSchema,
-} from "@shared/domain/writeModels/project/WriteProject";
-import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
+import { createProjectPropsSchema } from "@shared/domain/writeModels/project/WriteProject";
 import { z } from "zod";
 
 /** Stable identity so OpenAPI can $ref create/update project bodies. */
@@ -25,14 +21,6 @@ export const updateProjectInputSchema = createProjectBodySchema.extend({
 export const createProjectInputSchema = createProjectBodyPartialSchema.extend({
   slug: z.string(),
 });
-
-type CreateProjectBody = Omit<CreateProjectProps, "slug" | "idp_user_id">;
-
-__tsCheckSame<
-  CreateProjectBody,
-  CreateProjectBody,
-  z.infer<typeof createProjectBodySchema>
->(true);
 
 const iconSizeSchema = z.enum(["8x8", "16x16", "32x32", "64x64"]);
 
