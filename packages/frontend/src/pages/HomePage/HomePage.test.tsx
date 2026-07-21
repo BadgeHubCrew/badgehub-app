@@ -11,7 +11,19 @@ import HomePage from "./HomePage.tsx";
 
 describe("HomePage", () => {
   it("renders the homepage with dummy apps", async () => {
-    render(<HomePage apiClient={apiClientWithApps(dummyApps)} />);
+    const apps = dummyApps.map((app, index) =>
+      index === 0
+        ? {
+            ...app,
+            summary: {
+              ...app.summary,
+              ratings: { average: 4.5, count: 12 },
+            },
+          }
+        : app
+    );
+
+    render(<HomePage apiClient={apiClientWithApps(apps)} />);
     expect(screen.getByTestId("main-page")).toBeInTheDocument();
     expect(screen.getByText(/Share\. Build\. Innovate\./i)).toBeInTheDocument();
     await waitFor(() => {
@@ -27,6 +39,12 @@ describe("HomePage", () => {
     expect(screen.getByTestId("badge-dropdown")).toBeInTheDocument();
     expect(screen.getByTestId("category-dropdown")).toBeInTheDocument();
     expect(screen.getByTestId("sort by-dropdown")).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Highest Rated" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: "Most Ratings" })
+    ).toBeInTheDocument();
     expect(screen.getByTestId("app-cards-container")).toBeInTheDocument();
   });
 

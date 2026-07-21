@@ -29,6 +29,13 @@ export interface DBProjectInstallReport {
   distinct_installs: string;
 }
 
+// Corresponds to the 'project_rating_reports' materialized view
+export interface DBProjectRatingReport {
+  project_slug: string;
+  average_rating: number | null;
+  rating_count: number | string | null;
+}
+
 // Corresponds to the 'version_launch_reports' materialized view
 export interface DBVersionLaunchReport {
   version_id: number;

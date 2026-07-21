@@ -4,6 +4,24 @@ import { type DatedData, datedDataSchema } from "./DatedData";
 import type { User } from "./User";
 import { type Version, versionSchema } from "./Version";
 
+export interface ProjectRatings {
+  average: number;
+  count: number;
+}
+
+export const projectRatingsSchema = z
+  .object({
+    average: z.number(),
+    count: z.number(),
+  })
+  .describe("Average rating and number of ratings for this app.");
+
+__tsCheckSame<
+  ProjectRatings,
+  ProjectRatings,
+  z.infer<typeof projectRatingsSchema>
+>(true);
+
 export type ProjectStatusName =
   | "working"
   | "in_progress"
@@ -25,6 +43,7 @@ export interface ProjectCore {
 
 export interface ProjectDetails extends ProjectCore, DatedData {
   version: Version;
+  ratings?: ProjectRatings;
   // author?: null | { name: string }; // TODO
   // states?: Array<ProjectStatusOnBadge>;|null
   // votes?: Array<VoteFromUser>;|null
@@ -43,6 +62,9 @@ export const projectCoreSchema = z.object({
 export const detailedProjectSchema = projectCoreSchema
   .extend({
     version: versionSchema,
+    ratings: projectRatingsSchema
+      .optional()
+      .describe("Average rating and number of ratings for this app."),
     // author: z.object({ name: z.string() }).optional().nullable(),
   })
   .extend(datedDataSchema.shape);

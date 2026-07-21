@@ -1,4 +1,5 @@
 import { createExpressServer } from "@createExpressServer";
+import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import type { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
@@ -121,6 +122,51 @@ describe("Authenticated API Routes", () => {
       expect(
         getRes.body.version.app_metadata.development_status
       ).toBeUndefined();
+    });
+
+    test("PUT /api/v3/users/{userId}/ratings/{projectSlug} records a user rating", async () => {
+      const dynamicTestAppId = toSlug(
+        `test_user_rating_${crypto.randomUUID()}`
+      );
+      const postRes = await request(app)
+        .post(`/api/v3/projects/${dynamicTestAppId}`)
+        .auth(USER1_TOKEN, { type: "bearer" })
+        .send();
+      expect(postRes.statusCode).toBe(204);
+
+      const publishRes = await request(app)
+        .patch(`/api/v3/projects/${dynamicTestAppId}/publish`)
+        .auth(USER1_TOKEN, { type: "bearer" });
+      expect(publishRes.statusCode).toBe(204);
+
+      const missingRatingRes = await request(app)
+        .get(`/api/v3/users/${USER1_ID}/ratings/${dynamicTestAppId}`)
+        .auth(USER1_TOKEN, { type: "bearer" });
+      expect(missingRatingRes.statusCode).toBe(200);
+      expect(missingRatingRes.body).toBeNull();
+
+      const ratingRes = await request(app)
+        .put(`/api/v3/users/${USER1_ID}/ratings/${dynamicTestAppId}`)
+        .auth(USER1_TOKEN, { type: "bearer" })
+        .send({ rating: 4 });
+      expect(ratingRes.statusCode).toBe(204);
+
+      const userRatingRes = await request(app)
+        .get(`/api/v3/users/${USER1_ID}/ratings/${dynamicTestAppId}`)
+        .auth(USER1_TOKEN, { type: "bearer" });
+      expect(userRatingRes.statusCode).toBe(200);
+      expect(userRatingRes.body).toStrictEqual({ rating: 4 });
+
+      await new PostgreSQLBadgeHubMetadata().refreshReports();
+
+      const getRes = await request(app).get(
+        `/api/v3/projects/${dynamicTestAppId}`
+      );
+      expect(getRes.statusCode).toBe(200);
+      expect((getRes.body as ProjectDetails).ratings).toStrictEqual({
+        average: 4,
+        count: 1,
+      });
     });
   });
 

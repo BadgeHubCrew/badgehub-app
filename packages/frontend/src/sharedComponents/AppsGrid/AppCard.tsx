@@ -7,6 +7,18 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import type { AppCardProps } from "../types.ts";
 
+const RatingIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M12 2.5l2.9 5.88 6.49.94-4.7 4.58 1.11 6.46L12 17.31l-5.8 3.05 1.11-6.46-4.7-4.58 6.49-.94L12 2.5z" />
+  </svg>
+);
+
 const AppCard: React.FC<
   AppCardProps & {
     git_url?: string;
@@ -22,6 +34,7 @@ const AppCard: React.FC<
   icon_map,
   editable,
   installs,
+  ratings,
   git_url,
   development_status,
 }) => {
@@ -196,12 +209,20 @@ const AppCard: React.FC<
       </div>
 
       {/* Footer with stats */}
-      <div className="px-5 py-3 bg-base-300 border-t border-base-300 flex justify-between items-center">
+      <div className="px-5 py-3 bg-base-300 border-t border-base-300 flex justify-between items-center gap-3">
         <p className="text-sm opacity-70">Revision: {revision ?? "-"}</p>
         <p className="text-sm opacity-70">
           Published:{" "}
           {published_at ? new Date(published_at).toLocaleDateString() : "-"}
         </p>
+        {ratings && (
+          <p className="text-sm opacity-70 flex items-center">
+            <RatingIcon />
+            <span className="ml-1">
+              {ratings.average.toFixed(1)} ({ratings.count})
+            </span>
+          </p>
+        )}
         {installs !== undefined && (
           <p className="text-sm opacity-70 flex items-center">
             <DownloadIcon />
