@@ -99,6 +99,8 @@ export const AppGridWithFilterAndPagination = ({
           onCategoryChange={handleCategoryChange}
           onSortByChange={setSortBy}
           onResetFilters={handleResetFilters}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
         />
       )}
       {loading ? (
@@ -112,18 +114,6 @@ export const AppGridWithFilterAndPagination = ({
         </div>
       ) : (
         <>
-          {setSearchQuery && (
-            <div className="lg:hidden mb-4">
-              <input
-                type="search"
-                placeholder="Search apps..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                data-testid="mobile-search-bar"
-                className="input input-bordered input-sm w-full"
-              />
-            </div>
-          )}
           <AppsGrid apps={paginatedApps} editable={editable} />
         </>
       )}
