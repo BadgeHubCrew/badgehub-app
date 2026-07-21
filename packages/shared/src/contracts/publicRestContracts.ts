@@ -28,6 +28,12 @@ export const getProjectsQuerySchema = z.object({
   pageLength: z.coerce.number().optional(),
   badge: badgeSlugSchema.optional(),
   category: categoryNameSchema.optional(),
+  excludeCategories: z
+    .string()
+    .describe(
+      "optional comma separated list of categories to exclude. Unknown categories are ignored."
+    )
+    .optional(),
   slugs: z
     .string()
     .describe("optional comma separated list of project slugs to filter on")

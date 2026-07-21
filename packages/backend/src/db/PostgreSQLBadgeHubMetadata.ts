@@ -426,6 +426,7 @@ export class PostgreSQLBadgeHubMetadata {
       pageLength?: number;
       badge?: BadgeSlug;
       category?: CategoryName;
+      excludeCategories?: string[];
       search?: string;
       userId?: User["idp_user_id"];
       orderBy: OrderByOption;
@@ -442,6 +443,15 @@ export class PostgreSQLBadgeHubMetadata {
       query = sql`${query}
 and v.app_metadata->'categories' @>
       ${categoryJsonBMatcher}`;
+    }
+
+    if (filter.excludeCategories?.length) {
+      query = sql`${query}
+and not exists (
+  select 1
+  from jsonb_array_elements_text(coalesce(v.app_metadata->'categories', '[]'::jsonb)) as excluded_category(category_name)
+  where excluded_category.category_name = any(${filter.excludeCategories})
+)`;
     }
 
     if (filter.badge) {

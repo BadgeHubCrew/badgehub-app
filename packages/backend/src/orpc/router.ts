@@ -5,6 +5,7 @@ import { ProjectAlreadyExistsError, UserError } from "@domain/UserError";
 import { implement } from "@orpc/server";
 import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import { publicRestContracts } from "@shared/contracts/publicRestContracts";
+import { getAllCategoryNames } from "@shared/domain/readModels/project/Category";
 import type { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
 import { parseAuth, requireAuth } from "./auth";
 import { assertProjectAccess, assertUserAccess } from "./authorization";
@@ -38,6 +39,11 @@ export function createApiRouter(
   const getProjectSummaries = publicOs.getProjectSummaries.handler(
     async ({ input }) => {
       const projectSlugs = input.slugs?.split(",") || [];
+      const knownCategoryNames = getAllCategoryNames();
+      const excludeCategories = input.excludeCategories
+        ?.split(",")
+        .map((category) => category.trim())
+        .filter((category) => knownCategoryNames.includes(category));
       return badgeHubData.getProjectSummaries(
         {
           slugs: projectSlugs,
@@ -45,6 +51,7 @@ export function createApiRouter(
           pageLength: input.pageLength,
           badge: input.badge,
           category: input.category,
+          excludeCategories,
           search: input.search,
           userId: input.userId,
           orderBy: input.orderBy ?? "published_at",

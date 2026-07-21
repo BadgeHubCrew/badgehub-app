@@ -279,6 +279,7 @@ export class BadgeHubData {
       pageLength?: number;
       badge?: BadgeSlug;
       category?: CategoryName;
+      excludeCategories?: string[];
       search?: string;
       slugs?: ProjectSlug[];
       userId?: User["idp_user_id"];

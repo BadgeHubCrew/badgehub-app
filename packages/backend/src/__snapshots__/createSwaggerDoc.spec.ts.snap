@@ -430,6 +430,12 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "title": undefined,
             "type": "string",
           },
+          "excludeCategories": {
+            "description": "optional comma separated list of categories to exclude. Unknown categories are ignored.",
+            "examples": undefined,
+            "title": undefined,
+            "type": "string",
+          },
           "orderBy": {
             "enum": [
               "published_at",
@@ -1372,6 +1378,21 @@ Warning: if it is present, then badgehub clients on badges will not update the a
               "$ref": "#/components/schemas/CategoryName",
             },
             "style": "deepObject",
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "explode": undefined,
+            "in": "query",
+            "name": "excludeCategories",
+            "required": undefined,
+            "schema": {
+              "description": "optional comma separated list of categories to exclude. Unknown categories are ignored.",
+              "examples": undefined,
+              "title": undefined,
+              "type": "string",
+            },
+            "style": undefined,
           },
           {
             "allowEmptyValue": true,
