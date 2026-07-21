@@ -71,8 +71,10 @@ const Filters: React.FC<FiltersProps> = ({
         onValueSelection={onSortByChange}
         valueMap={
           {
+            average_rating: "Highest Rated",
             installs: "Most Installed",
             name: "App Name",
+            rating_count: "Most Ratings",
           } as const satisfies Partial<Record<OrderByOption, string>>
         }
         value={sortBy}

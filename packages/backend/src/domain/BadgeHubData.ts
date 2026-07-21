@@ -25,6 +25,7 @@ import type {
   ProjectSlug,
 } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectUserRating } from "@shared/domain/readModels/project/ProjectUserRating";
 import type { User } from "@shared/domain/readModels/project/User";
 import type {
   LatestOrDraftAlias,
@@ -538,6 +539,38 @@ export class BadgeHubData {
         "crash_count"
       );
     }
+  }
+
+  async reportRatingFromBadge(
+    slug: ProjectSlug,
+    revision: number,
+    badge: { id?: string; mac?: string },
+    body: { rating: number }
+  ): Promise<void> {
+    if (badge.id) {
+      await this.registerBadge(badge.id, badge.mac);
+      await this.badgeHubMetadata.reportRatingFromBadge(
+        slug,
+        revision,
+        badge.id,
+        body.rating
+      );
+    }
+  }
+
+  async reportRatingFromUser(
+    slug: ProjectSlug,
+    userId: User["idp_user_id"],
+    body: { rating: number }
+  ): Promise<void> {
+    await this.badgeHubMetadata.reportRatingFromUser(slug, userId, body.rating);
+  }
+
+  async getRatingFromUser(
+    slug: ProjectSlug,
+    userId: User["idp_user_id"]
+  ): Promise<ProjectUserRating | null> {
+    return this.badgeHubMetadata.getRatingFromUser(slug, userId);
   }
 
   async revokeProjectAPIToken(slug: ProjectSlug) {

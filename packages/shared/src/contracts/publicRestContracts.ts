@@ -12,7 +12,9 @@ import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
 
 const orderByOptionSchema = z.enum([
+  "average_rating",
   "published_at",
+  "rating_count",
   "updated_at",
   "installs",
   "name",
@@ -58,6 +60,15 @@ export const crashReportBodySchema = z.object({
     .string()
     .describe("An optional reason for the app crash.")
     .optional(),
+});
+
+export const ratingReportBodySchema = z.object({
+  rating: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .describe("A rating from 1 to 5."),
 });
 
 export const categoryNamesSchema = z.array(categoryNameSchema);
@@ -262,6 +273,27 @@ export const publicRestContracts = {
         }),
         query: badgeIdentifiersSchema,
         body: crashReportBodySchema.optional(),
+      })
+    )
+    .output(z.void()),
+
+  reportRatingFromBadge: publicBase
+    .route({
+      method: "POST",
+      path: "/projects/{slug}/revisions/{revision}/report/rating",
+      summary: "Report a rating of an app from a badge.",
+      tags: ["Public"],
+      successStatus: 204,
+      inputStructure: "detailed",
+    })
+    .input(
+      z.object({
+        params: z.object({
+          slug: z.string(),
+          revision: z.coerce.number(),
+        }),
+        query: badgeIdentifiersSchema,
+        body: ratingReportBodySchema,
       })
     )
     .output(z.void()),

@@ -3,6 +3,7 @@
 import path from "node:path";
 import { getPool } from "@db/connectionPool";
 import { getFileDownloadUrl } from "@db/getFileDownloadUrl";
+import type { DBProjectRatingReport } from "@db/models/DBReporting";
 import type { TimestampTZ } from "@db/models/DBTypes";
 import type {
   DBDatedData,
@@ -48,6 +49,7 @@ import {
   type ProjectSlug,
 } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
+import type { ProjectUserRating } from "@shared/domain/readModels/project/ProjectUserRating";
 import type { User } from "@shared/domain/readModels/project/User";
 import type {
   LatestOrDraftAlias,
@@ -213,9 +215,10 @@ export class PostgreSQLBadgeHubMetadata {
   }
 
   async refreshReports(): Promise<void> {
-    await this.pool.query(
-      sql`refresh materialized view project_install_reports`
-    );
+    await Promise.all([
+      this.pool.query(sql`refresh materialized view project_install_reports`),
+      this.pool.query(sql`refresh materialized view project_rating_reports`),
+    ]);
   }
 
   async getStats(): Promise<BadgeHubStats> {
@@ -374,9 +377,12 @@ export class PostgreSQLBadgeHubMetadata {
         ? raw("")
         : raw("and p.latest_revision is not null");
     const dbProject = await this.pool
-      .query<DBProject>(
-        sql`select *
+      .query<DBProject & DBProjectRatingReport>(
+        sql`select p.*,
+                    prr.average_rating,
+                    prr.rating_count
             from projects p
+                     left join project_rating_reports prr on p.slug = prr.project_slug
             where p.slug = ${projectSlug}
               and p.deleted_at is null
                 ${checkPublishedIfNotDraft}`
@@ -386,10 +392,18 @@ export class PostgreSQLBadgeHubMetadata {
       return undefined;
     }
 
+    // Using schema parsing here to clean stuff from the dbProject that haven't defined in our api.
     return detailedProjectSchema.parse({
       ...convertDatedData(dbProject),
+      ratings:
+        dbProject.average_rating != null && dbProject.rating_count != null
+          ? {
+              average: Number(dbProject.average_rating),
+              count: Number(dbProject.rating_count),
+            }
+          : undefined,
       version,
-    });
+    } satisfies ProjectDetails);
   }
 
   async getVersion(
@@ -502,6 +516,12 @@ and coalesce(v.app_metadata->>'development_status', 'stable') =
       case "installs":
         query = sql`${query} order by distinct_installs desc`;
         break;
+      case "average_rating":
+        query = sql`${query} order by average_rating desc nulls last, rating_count desc nulls last`;
+        break;
+      case "rating_count":
+        query = sql`${query} order by rating_count desc nulls last, average_rating desc nulls last`;
+        break;
       case "name":
         query = sql`${query} order by lower(v.app_metadata->>'name') asc, v.app_metadata->>'name' asc, p.slug asc`;
         break;
@@ -587,6 +607,51 @@ and coalesce(v.app_metadata->>'development_status', 'stable') =
         on conflict (registered_badge_id, version_id) do update set ${reportColumn} = registered_badges_version_reports.${reportColumn} + 1,
                                                                     updated_at        = now()
     `);
+  }
+
+  async reportRatingFromBadge(
+    slug: ProjectSlug,
+    _revision: number,
+    badgeId: string,
+    rating: number
+  ): Promise<void> {
+    await this.pool.query(sql`
+        insert into project_ratings (project_slug, registered_badge_id, rating)
+        values (${slug}, ${badgeId}, ${rating})
+        on conflict (project_slug, registered_badge_id)
+            where registered_badge_id is not null
+            do update set rating     = excluded.rating,
+                          updated_at = now()
+    `);
+  }
+
+  async reportRatingFromUser(
+    slug: ProjectSlug,
+    userId: User["idp_user_id"],
+    rating: number
+  ): Promise<void> {
+    await this.pool.query(sql`
+        insert into project_ratings (project_slug, idp_user_id, rating)
+        values (${slug}, ${userId}, ${rating})
+        on conflict (project_slug, idp_user_id)
+            where idp_user_id is not null
+            do update set rating     = excluded.rating,
+                          updated_at = now()
+    `);
+  }
+
+  async getRatingFromUser(
+    slug: ProjectSlug,
+    userId: User["idp_user_id"]
+  ): Promise<ProjectUserRating | null> {
+    const { rows } = await this.pool.query<{ rating: number }>(sql`
+        select rating
+        from project_ratings
+        where project_slug = ${slug}
+          and idp_user_id = ${userId}
+    `);
+    const row = rows[0];
+    return row ? { rating: Number(row.rating) } : null;
   }
 
   async getProjectApiTokenMetadata(

@@ -120,9 +120,7 @@ export const AppGridWithFilterAndPagination = ({
           {error}
         </div>
       ) : (
-        <>
-          <AppsGrid apps={paginatedApps} editable={editable} />
-        </>
+        <AppsGrid apps={paginatedApps} editable={editable} />
       )}
       {/* show pagination if more than one page */}
       {Math.ceil(filteredSortedApps.length / pageSize) > 1 && (

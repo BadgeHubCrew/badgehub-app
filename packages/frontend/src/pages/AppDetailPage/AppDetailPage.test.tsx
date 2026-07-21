@@ -6,7 +6,9 @@ import {
   waitFor,
 } from "@__test__";
 import type { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
-import { act } from "@testing-library/react";
+import { SessionContext } from "@sharedComponents/keycloakSession/SessionContext.tsx";
+import { act, render as renderWithoutProviders } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import AppDetailPage from "./AppDetailPage.tsx";
 
@@ -43,6 +45,113 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     if (firstBadge) {
       expect(screen.queryAllByText(firstBadge).length).toBeGreaterThan(0);
     }
+  });
+
+  it("shows the project rating aggregate", async () => {
+    const firstApp = dummyApps[0];
+    expect(firstApp).toBeDefined();
+    if (!firstApp) {
+      throw new Error("Expected dummy app");
+    }
+    const apps = [
+      {
+        ...firstApp,
+        details: {
+          ...firstApp.details,
+          ratings: { average: 4.5, count: 12 },
+        },
+      },
+      ...dummyApps.slice(1),
+    ];
+
+    render(
+      <AppDetailPage apiClient={apiClientWithApps(apps)} slug="dummy-app-1" />
+    );
+
+    expect(await screen.findByText("4.5/5 (12 ratings)")).toBeInTheDocument();
+  });
+
+  it("allows a logged in user to rate the app", async () => {
+    const base = apiClientWithApps(dummyApps);
+    const getRatingFromUser = vi.fn().mockResolvedValue({
+      status: 200,
+      body: null,
+      headers: new Headers(),
+    });
+    const reportRatingFromUser = vi.fn().mockResolvedValue({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
+    const client = {
+      ...base,
+      getRatingFromUser,
+      reportRatingFromUser,
+    } as unknown as typeof defaultApiClient;
+
+    const { user } = render(
+      <AppDetailPage apiClient={client} slug="dummy-app-1" />
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "Rate 4 out of 5" })
+    );
+
+    expect(reportRatingFromUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: { userId: "test-user-id", projectSlug: "dummy-app-1" },
+        body: { rating: 4 },
+      })
+    );
+    expect(await screen.findByText("Rating saved.")).toBeInTheDocument();
+  });
+
+  it("shows the logged in user's existing rating", async () => {
+    const base = apiClientWithApps(dummyApps);
+    const getRatingFromUser = vi.fn().mockResolvedValue({
+      status: 200,
+      body: { rating: 3 },
+      headers: new Headers(),
+    });
+    const client = {
+      ...base,
+      getRatingFromUser,
+    } as unknown as typeof defaultApiClient;
+
+    render(<AppDetailPage apiClient={client} slug="dummy-app-1" />);
+
+    await waitFor(() => {
+      expect(getRatingFromUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: { userId: "test-user-id", projectSlug: "dummy-app-1" },
+        })
+      );
+    });
+    expect(
+      await screen.findByRole("button", { name: "Rate 3 out of 5" })
+    ).toHaveClass("text-warning");
+    expect(
+      await screen.findByRole("button", { name: "Rate 4 out of 5" })
+    ).toHaveClass("text-base-content/30");
+  });
+
+  it("does not show the rating control when logged out", async () => {
+    renderWithoutProviders(
+      <MemoryRouter>
+        <SessionContext value={{}}>
+          <AppDetailPage
+            apiClient={apiClientWithApps(dummyApps)}
+            slug="dummy-app-1"
+          />
+        </SessionContext>
+      </MemoryRouter>
+    );
+
+    await screen.findByTestId("app-detail-page");
+
+    expect(
+      screen.queryByRole("button", { name: "Rate 4 out of 5" })
+    ).not.toBeInTheDocument();
   });
 
   it("does not re-fetch the project in a render loop", async () => {

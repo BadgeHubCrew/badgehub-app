@@ -184,6 +184,17 @@ export function createApiRouter(
     );
   });
 
+  const reportRatingFromBadge = publicOs.reportRatingFromBadge.handler(
+    async ({ input }) => {
+      await badgeHubData.reportRatingFromBadge(
+        input.params.slug,
+        input.params.revision,
+        input.query,
+        input.body
+      );
+    }
+  );
+
   const createProject = privateOs.createProject.handler(
     async ({ input, context }) => {
       if (!context.user) {
@@ -205,6 +216,22 @@ export function createApiRouter(
         }
         throw e;
       }
+    }
+  );
+
+  const reportRatingFromUser = privateOs.reportRatingFromUser.handler(
+    async ({ input, context }) => {
+      assertUserAccess(input.userId, context.user);
+      await badgeHubData.reportRatingFromUser(input.projectSlug, input.userId, {
+        rating: input.rating,
+      });
+    }
+  );
+
+  const getRatingFromUser = privateOs.getRatingFromUser.handler(
+    async ({ input, context }) => {
+      assertUserAccess(input.userId, context.user);
+      return badgeHubData.getRatingFromUser(input.projectSlug, input.userId);
     }
   );
 
@@ -380,9 +407,12 @@ export function createApiRouter(
       reportInstall,
       reportLaunch,
       reportCrash,
+      reportRatingFromBadge,
     }),
     ...privateOs.router({
       createProject,
+      getRatingFromUser,
+      reportRatingFromUser,
       updateProject,
       deleteProject,
       writeDraftFile,

@@ -24,6 +24,8 @@ describe("projectQueryResponseToReadModel", () => {
       published_at: "2024-01-02T00:00:00.000Z",
       download_count: 0,
       distinct_installs: "0",
+      average_rating: null,
+      rating_count: null,
     } as ProjectQueryResponse;
 
     expect(projectQueryResponseToReadModel(dbProject)).toMatchObject({
@@ -55,6 +57,8 @@ describe("projectQueryResponseToReadModel", () => {
       published_at: "2024-01-02T00:00:00.000Z",
       download_count: 0,
       distinct_installs: "0",
+      average_rating: null,
+      rating_count: null,
     } as ProjectQueryResponse;
 
     expect(projectQueryResponseToReadModel(dbProject)).toMatchObject({

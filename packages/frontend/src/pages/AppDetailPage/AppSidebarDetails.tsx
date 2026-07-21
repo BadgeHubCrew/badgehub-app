@@ -13,6 +13,9 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
     app_metadata.license_type && app_metadata.license_type.trim().length > 0
       ? app_metadata.license_type
       : null;
+  const ratingsText = project.ratings
+    ? `${project.ratings.average.toFixed(1)}/5 (${project.ratings.count} ratings)`
+    : "No ratings yet";
 
   return (
     <section className="card bg-base-200 shadow-lg">
@@ -48,11 +51,8 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
           <li className={"todoElement"}>
             <strong>Downloads:</strong> {"Download count not available"}
           </li>
-          <li className={"todoElement"}>
-            <strong>Rating:</strong>{" "}
-            {
-              "4.8/5 (120 votes)" // TODO
-            }
+          <li>
+            <strong>Rating:</strong> {ratingsText}
           </li>
         </ul>
       </div>

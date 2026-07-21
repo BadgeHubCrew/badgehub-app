@@ -13,7 +13,9 @@ import {
 } from "@shared/domain/readModels/project/Category";
 import {
   type ProjectCore,
+  type ProjectRatings,
   projectCoreSchema,
+  projectRatingsSchema,
 } from "@shared/domain/readModels/project/ProjectDetails";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
@@ -26,7 +28,7 @@ export interface ProjectSummary extends ProjectCore {
   blur_hash?: string; // see https://github.com/woltapp/blurhash
   icon_map?: IconMapWithUrls; // Relative path to the icon of the project
   installs: number;
-  // ratings: { average: number; count: number } | null; // Average rating and count of ratings
+  ratings?: ProjectRatings; // Average rating and count of ratings
   license_type?: string; // Eg. MIT
   categories?: CategoryName[];
   badges?: Array<BadgeSlug>;
@@ -67,6 +69,7 @@ export const projectSummarySchema = projectCoreSchema.extend({
     .describe(
       "The number of badges that have reported to have installed this app at least once."
     ),
+  ratings: projectRatingsSchema.optional(),
   icon_map: iconMapWithUrlsSchema.optional(),
   license_type: z.string().optional(),
   categories: z.array(categoryNameSchema).optional(),

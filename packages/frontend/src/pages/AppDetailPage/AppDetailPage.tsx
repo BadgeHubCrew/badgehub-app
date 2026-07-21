@@ -12,6 +12,7 @@ import AppBreadcrumb from "./AppBreadcrumb.tsx";
 import AppCodePreview from "./AppCodePreview.tsx";
 import AppDescription from "./AppDescription.tsx";
 import AppDetailHeader from "./AppDetailHeader.tsx";
+import AppRating from "./AppRating.tsx";
 import AppSidebarAuthor from "./AppSidebarAuthor.tsx";
 // import AppReviews from "./AppDetailPage/AppReviews";
 import AppSidebarDetails from "./AppSidebarDetails.tsx";
@@ -72,6 +73,7 @@ const AppDetailPage: React.FunctionComponent<{
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <AppDetailHeader project={project} />
+          <AppRating project={project} apiClient={apiClient} />
           <AppDescription project={project} />
           <AppCodePreview project={project} />
           {/*<AppReviews project={project} />*/}

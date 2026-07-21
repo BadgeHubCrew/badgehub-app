@@ -28,6 +28,16 @@ export function apiClientWithApps(apps: DummyApp[] = dummyApps) {
       }
       return { status: 200, body: app.details, headers: new Headers() };
     },
+    reportRatingFromUser: async () => ({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    }),
+    getRatingFromUser: async () => ({
+      status: 200,
+      body: null,
+      headers: new Headers(),
+    }),
     getProjectSummaries: async (args?: {
       query?: unknown;
       badge?: string;

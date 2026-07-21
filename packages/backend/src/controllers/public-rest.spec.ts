@@ -11,6 +11,19 @@ import type express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, test } from "vitest";
 
+function expectRatingsAggregate(
+  ratings: ProjectDetails["ratings"] | ProjectSummary["ratings"]
+) {
+  if (ratings === undefined) {
+    return;
+  }
+
+  expect(ratings).toStrictEqual({
+    average: expect.any(Number),
+    count: expect.any(Number),
+  });
+}
+
 describe("Public API Routes", {
   timeout: isInDebugMode() ? 3600_000 : undefined,
 }, () => {
@@ -31,9 +44,12 @@ describe("Public API Routes", {
     expect(
       res.body.find((app: ProjectSummary) => app.name === "PixelPulse")
     ).toBeDefined();
-    expect(
-      res.body.find((app: ProjectSummary) => app.slug === "codecraft")
-    ).toMatchInlineSnapshot(
+    const codecraftSummary = res.body.find(
+      (app: ProjectSummary) => app.slug === "codecraft"
+    ) as ProjectSummary;
+    const { ratings, ...codecraftSummaryWithoutRatings } = codecraftSummary;
+    expectRatingsAggregate(ratings);
+    expect(codecraftSummaryWithoutRatings).toMatchInlineSnapshot(
       {
         installs: expect.any(Number),
       },
@@ -117,6 +133,17 @@ describe("Public API Routes", {
     );
   });
 
+  test.each(["average_rating", "rating_count"] as const)(
+    "GET /api/v3/project-summaries should allow sorting by %s",
+    async (orderBy) => {
+      const res = await request(app).get(
+        `/api/v3/project-summaries?orderBy=${orderBy}`
+      );
+      expect(res.statusCode).toBe(200);
+      expect(res.body.length).toBeGreaterThan(0);
+    }
+  );
+
   test("GET /api/v3/project-summaries should allow sorting by name", async () => {
     const res = await request(app).get(
       "/api/v3/project-summaries?orderBy=name"
@@ -159,9 +186,9 @@ describe("Public API Routes", {
     )?.installs;
     expect(typeof baselineInstalls).toBe("number");
 
-    const reportRes = await request(app).post(
-      `/api/v3/projects/${projectSlug}/rev1/report/install?id=${randomUUID()}`
-    );
+    const reportRes = await request(app)
+      .post(`/api/v3/projects/${projectSlug}/rev1/report/install`)
+      .query({ id: `badge-${randomUUID()}` });
     expect(reportRes.statusCode).toBe(204);
 
     await new PostgreSQLBadgeHubMetadata().refreshReports();
@@ -175,6 +202,37 @@ describe("Public API Routes", {
 
     expect(updatedInstalls).toBeGreaterThanOrEqual(
       (baselineInstalls as number) + 1
+    );
+  });
+
+  test("reporting a rating should update ratings in project summaries", async () => {
+    const projectSlug = "codecraft";
+    const baselineRes = await request(app).get("/api/v3/project-summaries");
+    expect(baselineRes.statusCode).toBe(200);
+    const baselineSummaries = baselineRes.body as ProjectSummary[];
+    const baselineRatings = baselineSummaries.find(
+      (summary) => summary.slug === projectSlug
+    )?.ratings;
+    const baselineRatingCount = baselineRatings?.count ?? 0;
+
+    const reportRes = await request(app)
+      .post(`/api/v3/projects/${projectSlug}/rev1/report/rating`)
+      .query({ id: `badge-${randomUUID()}` })
+      .send({ rating: 5 });
+    expect(reportRes.statusCode).toBe(204);
+
+    await new PostgreSQLBadgeHubMetadata().refreshReports();
+
+    const updatedRes = await request(app).get("/api/v3/project-summaries");
+    expect(updatedRes.statusCode).toBe(200);
+    const updatedSummaries = updatedRes.body as ProjectSummary[];
+    const updatedRatings = updatedSummaries.find(
+      (summary) => summary.slug === projectSlug
+    )?.ratings;
+
+    expect(updatedRatings).not.toBeNull();
+    expect(updatedRatings?.count).toBeGreaterThanOrEqual(
+      baselineRatingCount + 1
     );
   });
 
@@ -310,7 +368,7 @@ describe("Public API Routes", {
     ).toBeDefined();
   });
 
-  test("GET /api/v3/project-summariesslugs=codecraft,codecrafter", async () => {
+  test("GET /api/v3/project-summaries?slugs=codecraft,codecrafter", async () => {
     const res = await request(app).get(
       "/api/v3/project-summaries?slugs=codecraft,codecrafter"
     );
@@ -341,7 +399,8 @@ describe("Public API Routes", {
 
     const project = res.body as ProjectDetails;
 
-    const { version, ...restProject } = project;
+    const { version, ratings, ...restProject } = project;
+    expectRatingsAggregate(ratings);
     expect(restProject).toMatchInlineSnapshot(`
       {
         "created_at": "2024-05-22T14:01:16.975Z",
@@ -438,7 +497,8 @@ describe("Public API Routes", {
     expect(res.statusCode).toBe(200);
     const project = res.body as ProjectDetails;
 
-    const { version, ...restProject } = project;
+    const { version, ratings, ...restProject } = project;
+    expectRatingsAggregate(ratings);
     expect(restProject).toMatchInlineSnapshot(`
       {
         "created_at": "2024-05-22T14:01:16.975Z",

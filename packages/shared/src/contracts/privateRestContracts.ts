@@ -3,6 +3,7 @@ import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { projectUserRatingSchema } from "@shared/domain/readModels/project/ProjectUserRating";
 import { writeAppMetadataJSONSchema } from "@shared/domain/writeModels/AppMetadataJSON";
 import { createProjectPropsSchema } from "@shared/domain/writeModels/project/WriteProject";
 import { z } from "zod";
@@ -23,6 +24,15 @@ export const createProjectInputSchema = createProjectBodyPartialSchema.extend({
 });
 
 const iconSizeSchema = z.enum(["8x8", "16x16", "32x32", "64x64"]);
+
+const ratingReportBodySchema = z.object({
+  rating: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(5)
+    .describe("A rating from 1 to 5."),
+});
 
 const privateErrors = {
   NOT_FOUND: { status: 404 as const, data: errorResponseSchema },
@@ -260,6 +270,32 @@ export const nonScriptablePrivateProjectContracts = {
 };
 
 export const nonScriptablePrivateUserContracts = {
+  getRatingFromUser: jwtOnly
+    .route({
+      method: "GET",
+      path: "/users/{userId}/ratings/{projectSlug}",
+      summary: "Get the authenticated user's rating of an app",
+      tags: ["Private Non Scriptable"],
+    })
+    .input(z.object({ userId: z.string(), projectSlug: z.string() }))
+    .output(projectUserRatingSchema.nullable()),
+
+  reportRatingFromUser: jwtOnly
+    .route({
+      method: "PUT",
+      path: "/users/{userId}/ratings/{projectSlug}",
+      summary: "Report a rating of an app from the authenticated user",
+      tags: ["Private Non Scriptable"],
+      successStatus: 204,
+    })
+    .input(
+      ratingReportBodySchema.extend({
+        userId: z.string(),
+        projectSlug: z.string(),
+      })
+    )
+    .output(z.void()),
+
   getUserDraftProjects: jwtOnly
     .route({
       method: "GET",

@@ -302,6 +302,24 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
               },
             ],
           },
+          "ratings": {
+            "description": "Average rating and number of ratings for this app.",
+            "examples": undefined,
+            "properties": {
+              "average": {
+                "type": "number",
+              },
+              "count": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "average",
+              "count",
+            ],
+            "title": undefined,
+            "type": "object",
+          },
           "slug": {
             "type": "string",
           },
@@ -432,7 +450,9 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
           },
           "orderBy": {
             "enum": [
+              "average_rating",
               "published_at",
+              "rating_count",
               "updated_at",
               "installs",
               "name",
@@ -864,6 +884,24 @@ exports[`createSwaggerDoc > swagger doc should match snapshot 1`] = `
             "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
             "title": undefined,
             "type": "string",
+          },
+          "ratings": {
+            "description": "Average rating and number of ratings for this app.",
+            "examples": undefined,
+            "properties": {
+              "average": {
+                "type": "number",
+              },
+              "count": {
+                "type": "number",
+              },
+            },
+            "required": [
+              "average",
+              "count",
+            ],
+            "title": undefined,
+            "type": "object",
           },
           "revision": {
             "type": "number",
@@ -1425,7 +1463,9 @@ Warning: if it is present, then badgehub clients on badges will not update the a
             "required": undefined,
             "schema": {
               "enum": [
+                "average_rating",
                 "published_at",
+                "rating_count",
                 "updated_at",
                 "installs",
                 "name",
@@ -3263,6 +3303,125 @@ Warning: if it is present, then badgehub clients on badges will not update the a
         ],
       },
     },
+    "/api/v3/projects/{slug}/rev{revision}/report/rating": {
+      "post": {
+        "deprecated": undefined,
+        "description": undefined,
+        "operationId": "reportRatingFromBadge",
+        "parameters": [
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "type": "number",
+            },
+            "style": undefined,
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "explode": undefined,
+            "in": "query",
+            "name": "mac",
+            "required": false,
+            "schema": {
+              "description": "the mac address of the badge",
+              "examples": undefined,
+              "title": undefined,
+              "type": "string",
+            },
+            "style": undefined,
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "explode": undefined,
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "the id of the badge, this should be an string that is unique to the badge and persistent, and not sniffable like the mac.",
+              "examples": undefined,
+              "title": undefined,
+              "type": "string",
+            },
+            "style": undefined,
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "rating": {
+                    "description": "A rating from 1 to 5.",
+                    "examples": undefined,
+                    "maximum": 5,
+                    "minimum": 1,
+                    "title": undefined,
+                    "type": "integer",
+                  },
+                },
+                "required": [
+                  "rating",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "not": {},
+                    },
+                    {
+                      "not": {},
+                    },
+                  ],
+                },
+              },
+            },
+            "description": "OK",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http404Error",
+                },
+              },
+            },
+            "description": "404",
+          },
+        },
+        "summary": "Report a rating of an app from a badge.",
+        "tags": [
+          "Public",
+        ],
+      },
+    },
     "/api/v3/projects/{slug}/token": {
       "delete": {
         "deprecated": undefined,
@@ -3706,6 +3865,263 @@ Warning: if it is present, then badgehub clients on badges will not update the a
           },
         ],
         "summary": "Get all draft projects for a user",
+        "tags": [
+          "Private Non Scriptable",
+        ],
+      },
+    },
+    "/api/v3/users/{userId}/ratings/{projectSlug}": {
+      "get": {
+        "deprecated": undefined,
+        "description": undefined,
+        "operationId": "getRatingFromUser",
+        "parameters": [
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "projectSlug",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "description": "The authenticated user's rating for this app.",
+                      "examples": undefined,
+                      "properties": {
+                        "rating": {
+                          "maximum": 5,
+                          "minimum": 1,
+                          "type": "integer",
+                        },
+                      },
+                      "required": [
+                        "rating",
+                      ],
+                      "title": undefined,
+                      "type": "object",
+                    },
+                    {
+                      "type": "null",
+                    },
+                  ],
+                },
+              },
+            },
+            "description": "OK",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http400Error",
+                },
+              },
+            },
+            "description": "400",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http401Error",
+                },
+              },
+            },
+            "description": "401",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http403Error",
+                },
+              },
+            },
+            "description": "403",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http404Error",
+                },
+              },
+            },
+            "description": "404",
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http409Error",
+                },
+              },
+            },
+            "description": "409",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+        "summary": "Get the authenticated user's rating of an app",
+        "tags": [
+          "Private Non Scriptable",
+        ],
+      },
+      "put": {
+        "deprecated": undefined,
+        "description": undefined,
+        "operationId": "reportRatingFromUser",
+        "parameters": [
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "projectSlug",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "examples": undefined,
+                "properties": {
+                  "rating": {
+                    "description": "A rating from 1 to 5.",
+                    "examples": undefined,
+                    "maximum": 5,
+                    "minimum": 1,
+                    "title": undefined,
+                    "type": "integer",
+                  },
+                },
+                "required": [
+                  "rating",
+                ],
+                "type": "object",
+              },
+            },
+          },
+          "required": true,
+        },
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "not": {},
+                    },
+                    {
+                      "not": {},
+                    },
+                  ],
+                },
+              },
+            },
+            "description": "OK",
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http400Error",
+                },
+              },
+            },
+            "description": "400",
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http401Error",
+                },
+              },
+            },
+            "description": "401",
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http403Error",
+                },
+              },
+            },
+            "description": "403",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http404Error",
+                },
+              },
+            },
+            "description": "404",
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http409Error",
+                },
+              },
+            },
+            "description": "409",
+          },
+        },
+        "security": [
+          {
+            "bearerAuth": [],
+          },
+        ],
+        "summary": "Report a rating of an app from the authenticated user",
         "tags": [
           "Private Non Scriptable",
         ],

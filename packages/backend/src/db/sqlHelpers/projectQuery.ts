@@ -1,5 +1,8 @@
 import { getFileDownloadUrl } from "@db/getFileDownloadUrl";
-import type { DBProjectInstallReport } from "@db/models/DBReporting";
+import type {
+  DBProjectInstallReport,
+  DBProjectRatingReport,
+} from "@db/models/DBReporting";
 import type { DBProject } from "@db/models/project/DBProject";
 import type { DBVersion } from "@db/models/project/DBVersion";
 import { timestampTZToISODateString } from "@db/sqlHelpers/dbDates";
@@ -27,10 +30,13 @@ export function getBaseSelectProjectQuery(
                     v.blur_hash,
                     v.size_of_zip,
                     v.app_metadata,
-                    coalesce(pir.distinct_installs, 0) as distinct_installs
+                    coalesce(pir.distinct_installs, 0) as distinct_installs,
+                    prr.average_rating,
+                    prr.rating_count
              from projects p
                     left join versions v on ${revision_column} = v.revision and p.slug = v.project_slug
-                    left join project_install_reports pir on p.slug = pir.project_slug`;
+                    left join project_install_reports pir on p.slug = pir.project_slug
+                    left join project_rating_reports prr on p.slug = prr.project_slug`;
 }
 
 export const projectQueryResponseToReadModel = (
@@ -45,6 +51,14 @@ export const projectQueryResponseToReadModel = (
       (enrichedDBProject.distinct_installs &&
         parseInt(enrichedDBProject.distinct_installs, 10)) ||
       0,
+    ratings:
+      enrichedDBProject.average_rating != null &&
+      enrichedDBProject.rating_count != null
+        ? {
+            average: Number(enrichedDBProject.average_rating),
+            count: Number(enrichedDBProject.rating_count),
+          }
+        : undefined,
     license_type: appMetadata.license_type,
     name: appMetadata.name ?? enrichedDBProject.slug,
     published_at: timestampTZToISODateString(enrichedDBProject.published_at),
@@ -86,4 +100,5 @@ export const projectQueryResponseToReadModel = (
 
 export type ProjectQueryResponse = DBProject &
   DBVersion &
-  DBProjectInstallReport;
+  DBProjectInstallReport &
+  DBProjectRatingReport;
