@@ -10,6 +10,7 @@ const navLinks = [
   { label: "Browse Projects", to: "/", testId: "BrowseProjects" },
   {
     label: "Create Project",
+    mobileLabel: "Upload Your Creation",
     to: "/page/create-project",
     testId: "CreateProject",
   },
@@ -168,7 +169,7 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
               key={link.label}
               className="text-base-content/70 hover:bg-base-300 hover:text-base-content px-3 py-2 rounded-md text-sm font-medium transition-colors text-left w-full"
             >
-              {link.label}
+              {link.mobileLabel ?? link.label}
             </MLink>
           ))}
           <div className="divider my-1" />
