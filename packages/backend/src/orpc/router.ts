@@ -1,7 +1,11 @@
 import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import { BadgeHubData } from "@domain/BadgeHubData";
-import { ProjectAlreadyExistsError, UserError } from "@domain/UserError";
+import {
+  ProjectAlreadyExistsError,
+  RoleAuthorizationError,
+  UserError,
+} from "@domain/UserError";
 import { implement } from "@orpc/server";
 import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import { publicRestContracts } from "@shared/contracts/publicRestContracts";
@@ -262,13 +266,28 @@ export function createApiRouter(
       await assertProjectAccess(badgeHubData, input.slug, context);
       const file = input.file;
       const buffer = Buffer.from(await file.arrayBuffer());
-      await badgeHubData.writeDraftFile(input.slug, input.filePath, {
-        mimetype: file.type || "application/octet-stream",
-        fileContent: buffer,
-        directory: "",
-        fileName: file.name,
-        size: file.size,
-      });
+      try {
+        await badgeHubData.writeDraftFile(
+          input.slug,
+          input.filePath,
+          {
+            mimetype: file.type || "application/octet-stream",
+            fileContent: buffer,
+            directory: "",
+            fileName: file.name,
+            size: file.size,
+          },
+          context.user
+        );
+      } catch (error) {
+        if (error instanceof RoleAuthorizationError) {
+          forbidden(error.message);
+        }
+        if (error instanceof UserError) {
+          badRequest(error.message);
+        }
+        throw error;
+      }
     }
   );
 
@@ -284,6 +303,7 @@ export function createApiRouter(
           input.slug,
           input.filePath,
           input.sizes,
+          context.user,
           project
         );
         if (!iconPaths) {
@@ -312,7 +332,17 @@ export function createApiRouter(
     async ({ input, context }) => {
       const { slug, ...metadata } = input;
       await assertProjectAccess(badgeHubData, slug, context);
-      await badgeHubData.updateDraftMetadata(slug, metadata);
+      try {
+        await badgeHubData.updateDraftMetadata(slug, metadata, context.user);
+      } catch (error) {
+        if (error instanceof RoleAuthorizationError) {
+          forbidden(error.message);
+        }
+        if (error instanceof UserError) {
+          badRequest(error.message);
+        }
+        throw error;
+      }
     }
   );
 

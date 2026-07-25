@@ -1,10 +1,17 @@
+import { rolesFromJwtPayload } from "@auth/roles-from-jwt";
 import {
   DISABLE_AUTH,
   KEYCLOAK_CERTS_URL,
+  KEYCLOAK_CLIENT_ID,
   KEYCLOAK_REALM_ISSUER_URL,
 } from "@config";
 import { ORPCError } from "@orpc/server";
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from "jose";
+import {
+  createRemoteJWKSet,
+  decodeJwt,
+  type JWTPayload,
+  jwtVerify,
+} from "jose";
 import type { AuthContext } from "./context";
 
 const JWKS = createRemoteJWKSet(
@@ -20,12 +27,19 @@ function stripBearerPrefix(
     : value;
 }
 
-async function verifyJwt(token: string) {
-  if (DISABLE_AUTH) return;
-  await jwtVerify(token, JWKS, {
+/**
+ * Verify the access token and return its payload.
+ * When auth is disabled (tests/local), only decode without cryptographic verification.
+ */
+async function verifyAndGetPayload(token: string): Promise<JWTPayload> {
+  if (DISABLE_AUTH) {
+    return decodeJwt(token);
+  }
+  const { payload } = await jwtVerify(token, JWKS, {
     issuer: KEYCLOAK_REALM_ISSUER_URL,
     algorithms: ["RS256"],
   });
+  return payload;
 }
 
 type MiddlewareArgs = {
@@ -59,8 +73,9 @@ export async function parseAuth({ context, next }: MiddlewareArgs) {
     });
   }
 
+  let payload: JWTPayload;
   try {
-    await verifyJwt(token);
+    payload = await verifyAndGetPayload(token);
   } catch {
     throw new ORPCError("UNAUTHORIZED", {
       status: 401,
@@ -69,18 +84,7 @@ export async function parseAuth({ context, next }: MiddlewareArgs) {
     });
   }
 
-  let sub: string | undefined;
-  try {
-    const payload = decodeJwt(token);
-    sub = typeof payload.sub === "string" ? payload.sub : undefined;
-  } catch {
-    throw new ORPCError("UNAUTHORIZED", {
-      status: 401,
-      message: "Unable to decode JWT token",
-      data: { reason: "Unable to decode JWT token" },
-    });
-  }
-
+  const sub = typeof payload.sub === "string" ? payload.sub : undefined;
   if (!sub) {
     throw new ORPCError("UNAUTHORIZED", {
       status: 401,
@@ -91,7 +95,10 @@ export async function parseAuth({ context, next }: MiddlewareArgs) {
 
   return next({
     context: {
-      user: { idp_user_id: sub },
+      user: {
+        idp_user_id: sub,
+        roles: rolesFromJwtPayload(payload, KEYCLOAK_CLIENT_ID),
+      },
       apiToken,
     },
   });

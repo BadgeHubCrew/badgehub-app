@@ -138,6 +138,7 @@ const writeDraftAppFiles = async (
       size: metadataJsonContent.length,
       fileContent: metadataJsonContent,
     },
+    undefined,
     { created_at, updated_at }
   );
 
@@ -151,6 +152,7 @@ const writeDraftAppFiles = async (
         size: iconBuffer.length,
         fileContent: iconBuffer,
       },
+      undefined,
       { created_at, updated_at }
     );
   }
@@ -166,6 +168,7 @@ const writeDraftAppFiles = async (
       size: initPyContent.length,
       fileContent: initPyContent,
     },
+    undefined,
     { created_at, updated_at }
   );
 };

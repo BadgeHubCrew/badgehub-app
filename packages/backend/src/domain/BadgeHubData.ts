@@ -5,7 +5,7 @@ import type { DBProject } from "@db/models/project/DBProject";
 import type { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
 import type { BadgeHubFiles } from "@domain/BadgeHubFiles";
 import { parseIconSize } from "@domain/ImageDimensions";
-import { UserError } from "@domain/UserError";
+import { RoleAuthorizationError, UserError } from "@domain/UserError";
 import type { BadgeSlug } from "@shared/domain/readModels/Badge";
 import type { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import {
@@ -26,7 +26,11 @@ import type {
 } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
 import type { ProjectUserRating } from "@shared/domain/readModels/project/ProjectUserRating";
-import type { User } from "@shared/domain/readModels/project/User";
+import {
+  isAdminUser,
+  type User,
+  type UserIdentity,
+} from "@shared/domain/readModels/project/User";
 import type {
   LatestOrDraftAlias,
   RevisionNumberOrAlias,
@@ -296,13 +300,19 @@ export class BadgeHubData {
     projectSlug: ProjectSlug,
     filePath: string,
     uploadedFile: UploadedFile,
+    user?: UserIdentity,
     mockDates?: DBDatedData
   ): Promise<void> {
     if (filePath === "metadata.json") {
       const appMetadata: WriteAppMetadataJSON = appMetadataJSONSchema.parse(
         JSON.parse(new TextDecoder().decode(uploadedFile.fileContent))
       );
-      return this.updateDraftMetadata(projectSlug, appMetadata, mockDates);
+      return this.updateDraftMetadata(
+        projectSlug,
+        appMetadata,
+        user,
+        mockDates
+      );
     }
     Object.assign(uploadedFile, await getImageProps(uploadedFile));
     await this._writeDraftFile(
@@ -322,6 +332,7 @@ export class BadgeHubData {
   async updateDraftMetadata(
     slug: string,
     newAppMetadata: WriteAppMetadataJSON,
+    user?: UserIdentity,
     mockDates?: DBDatedData
   ): Promise<void> {
     const oldProject = await this.badgeHubMetadata.getProject(slug, "draft");
@@ -336,9 +347,13 @@ export class BadgeHubData {
       .filter((cat) => {
         return !newAppMetadata.categories?.includes(cat);
       });
-    if (newAdminCategories?.length) {
-      throw new UserError(
-        `Change of admin category [${[...newAdminCategories, removedAdminCategories].join(",")}] detected, this is only allowed for admins.`
+    const adminCategoryChanges = [
+      ...(newAdminCategories ?? []),
+      ...(removedAdminCategories ?? []),
+    ];
+    if (adminCategoryChanges.length && !isAdminUser(user)) {
+      throw new RoleAuthorizationError(
+        `Change of admin category [${adminCategoryChanges.join(",")}] detected, this is only allowed for admins.`
       );
     }
     const blurHash = await this.getDraftIconBlurHash(slug, newAppMetadata);
@@ -369,6 +384,7 @@ export class BadgeHubData {
     projectSlug: ProjectSlug,
     sourceFilePath: string,
     sizes: IconSize[],
+    user?: UserIdentity,
     project?: ProjectDetails
   ): Promise<Record<IconSize, string> | undefined> {
     const draftProject =
@@ -415,11 +431,16 @@ export class BadgeHubData {
         );
       }
       const iconPath = `icon-${size}.png`;
-      await this.writeDraftFile(projectSlug, iconPath, {
-        mimetype: "image/png",
-        fileContent: iconBuffer,
-        size: iconBuffer.length,
-      });
+      await this.writeDraftFile(
+        projectSlug,
+        iconPath,
+        {
+          mimetype: "image/png",
+          fileContent: iconBuffer,
+          size: iconBuffer.length,
+        },
+        user
+      );
       iconPaths[size] = iconPath;
     }
 
@@ -428,10 +449,14 @@ export class BadgeHubData {
       ...(existingMetadata.icon_map ?? {}),
       ...iconPaths,
     };
-    await this.updateDraftMetadata(projectSlug, {
-      ...existingMetadata,
-      icon_map,
-    });
+    await this.updateDraftMetadata(
+      projectSlug,
+      {
+        ...existingMetadata,
+        icon_map,
+      },
+      user
+    );
 
     return iconPaths as Record<IconSize, string>;
   }

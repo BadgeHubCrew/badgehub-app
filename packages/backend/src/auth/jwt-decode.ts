@@ -1,9 +1,11 @@
+import { rolesFromJwtPayload } from "@auth/roles-from-jwt";
+import { KEYCLOAK_CLIENT_ID } from "@config";
 import { ErrorType, NotAuthenticatedError } from "@error";
-import type { User } from "@shared/domain/readModels/project/User";
+import type { UserIdentity } from "@shared/domain/readModels/project/User";
 import type { NextFunction, Request, Response } from "express";
 import { decodeJwt } from "jose";
 
-export type UserDataInRequest = Pick<User, "idp_user_id">;
+export type UserDataInRequest = UserIdentity;
 
 export type AuthenticatedRequest = Request &
   (
@@ -16,12 +18,6 @@ export type AuthenticatedRequest = Request &
         apiToken: string;
       }
   );
-
-export function getUser(req: {
-  user?: UserDataInRequest;
-}): UserDataInRequest | undefined {
-  return req.user;
-}
 
 const decodeTokenWithErrorHandling = (token: string) => {
   try {
@@ -72,7 +68,10 @@ const addAuthenticationMiddleware = (
       );
       throw NotAuthenticatedError("JWT does not contain user sub");
     }
-    authenticatedRequest.user = { idp_user_id: payload.sub };
+    authenticatedRequest.user = {
+      idp_user_id: payload.sub,
+      roles: rolesFromJwtPayload(payload, KEYCLOAK_CLIENT_ID),
+    };
     next();
   } catch (e: unknown) {
     return handleError(e, res);

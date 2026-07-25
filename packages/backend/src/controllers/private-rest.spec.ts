@@ -124,6 +124,26 @@ describe("Authenticated API Routes", () => {
       ).toBeUndefined();
     });
 
+    test("PATCH draft metadata with admin category returns 403 for non-admin", async () => {
+      const dynamicTestAppId = toSlug(
+        `test_admin_category_${crypto.randomUUID()}`
+      );
+      const postRes = await request(app)
+        .post(`/api/v3/projects/${dynamicTestAppId}`)
+        .auth(USER1_TOKEN, { type: "bearer" })
+        .send();
+      expect(postRes.statusCode).toBe(204);
+
+      const patchMetadataRes = await request(app)
+        .patch(`/api/v3/projects/${dynamicTestAppId}/draft/metadata`)
+        .auth(USER1_TOKEN, { type: "bearer" })
+        .send({
+          name: "Test App Name",
+          categories: ["Default"],
+        } as const satisfies AppMetadataJSON);
+      expect(patchMetadataRes.statusCode).toBe(403);
+    });
+
     test("PUT /api/v3/users/{userId}/ratings/{projectSlug} records a user rating", async () => {
       const dynamicTestAppId = toSlug(
         `test_user_rating_${crypto.randomUUID()}`
