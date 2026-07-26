@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { createExpressServer } from "@createExpressServer";
+import { PostgreSQLBadgeHubFiles } from "@db/PostgreSQLBadgeHubFiles";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
+import { BadgeHubData } from "@domain/BadgeHubData";
 import type { BadgeHubStats } from "@shared/domain/readModels/BadgeHubStats";
 import type { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
@@ -618,6 +620,95 @@ describe("Public API Routes", {
   test("GET /api/v3/projects/codecraft/rev2 (unpublished version)", async () => {
     const res = await request(app).get("/api/v3/projects/codecraft/rev2");
     expect(res.statusCode).toBe(404);
+  });
+
+  test("GET /api/v3/projects/codecraft/versions", async () => {
+    const res = await request(app).get("/api/v3/projects/codecraft/versions");
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(1);
+    for (const entry of res.body) {
+      expect(entry).toEqual(
+        expect.objectContaining({
+          latestRevision: expect.any(Number),
+          latestPublishDate: expect.any(String),
+        })
+      );
+      expect(entry.version === null || typeof entry.version === "string").toBe(
+        true
+      );
+      expect(Number.isNaN(Date.parse(entry.latestPublishDate))).toBe(false);
+    }
+    // Highest revision first
+    const revisions = res.body.map(
+      (entry: { latestRevision: number }) => entry.latestRevision
+    );
+    expect(revisions).toEqual(
+      [...revisions].sort((a: number, b: number) => b - a)
+    );
+  });
+
+  test("GET /api/v3/projects/non-existent/versions should return 404", async () => {
+    const res = await request(app).get(
+      "/api/v3/projects/non-existent/versions"
+    );
+    expect(res.statusCode).toBe(404);
+  });
+
+  test("GET /api/v3/projects/{slug}/versions returns unique versions with highest revision", async () => {
+    // Seed via domain layer (no auth) so the public endpoint can be tested with
+    // multiple labeled published revisions.
+    const badgeHubData = new BadgeHubData(
+      new PostgreSQLBadgeHubMetadata(),
+      new PostgreSQLBadgeHubFiles()
+    );
+    const projectSlug = `test_versions_${Date.now()}`;
+    await badgeHubData.insertProject({
+      slug: projectSlug,
+      idp_user_id: "public-test-user",
+    });
+
+    // Publish 1.0.0 twice (revisions 1 and 2) — unique version should keep max revision 2
+    for (const _ of [1, 2]) {
+      await badgeHubData.updateDraftMetadata(projectSlug, {
+        name: "Versioned App",
+        version: "1.0.0",
+        description: "v1",
+      });
+      await badgeHubData.publishVersion(projectSlug);
+    }
+
+    // Publish 2.0.0 once (revision 3)
+    await badgeHubData.updateDraftMetadata(projectSlug, {
+      name: "Versioned App",
+      version: "2.0.0",
+      description: "v2",
+    });
+    await badgeHubData.publishVersion(projectSlug);
+
+    const res = await request(app).get(
+      `/api/v3/projects/${projectSlug}/versions`
+    );
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual([
+      {
+        version: "2.0.0",
+        latestRevision: 3,
+        latestPublishDate: expect.any(String),
+      },
+      {
+        version: "1.0.0",
+        latestRevision: 2,
+        latestPublishDate: expect.any(String),
+      },
+    ]);
+    for (const entry of res.body) {
+      expect(Number.isNaN(Date.parse(entry.latestPublishDate))).toBe(false);
+    }
+    // Publish date of the higher revision should be at least as recent
+    expect(Date.parse(res.body[0].latestPublishDate)).toBeGreaterThanOrEqual(
+      Date.parse(res.body[1].latestPublishDate)
+    );
   });
 
   test.each(["latest", "rev1"])(

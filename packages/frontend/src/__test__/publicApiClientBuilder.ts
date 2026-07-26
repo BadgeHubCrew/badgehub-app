@@ -28,6 +28,87 @@ export function apiClientWithApps(apps: DummyApp[] = dummyApps) {
       }
       return { status: 200, body: app.details, headers: new Headers() };
     },
+    getProjectForRevision: async (args?: {
+      params?: { slug?: string; revision?: number };
+      slug?: string;
+      revision?: number;
+    }) => {
+      const slug = args?.params?.slug ?? args?.slug;
+      const revision = args?.params?.revision ?? args?.revision;
+      const app = apps.find((a) => a.summary.slug === slug) as
+        | (DummyApp & {
+            historicalByRevision?: Record<number, DummyApp["details"]>;
+          })
+        | undefined;
+      if (!app) {
+        return {
+          status: 404,
+          body: { reason: "Not found" },
+          headers: new Headers(),
+        };
+      }
+      if (revision != null && app.historicalByRevision?.[revision]) {
+        return {
+          status: 200,
+          body: app.historicalByRevision[revision],
+          headers: new Headers(),
+        };
+      }
+      if (revision != null && app.details.version.revision !== revision) {
+        return {
+          status: 404,
+          body: { reason: "Not found" },
+          headers: new Headers(),
+        };
+      }
+      return {
+        status: 200,
+        body: app.details,
+        headers: new Headers(),
+      };
+    },
+    getProjectVersions: async (args?: {
+      params?: { slug?: string };
+      slug?: string;
+    }) => {
+      const slug = args?.params?.slug ?? args?.slug;
+      const app = apps.find((a) => a.summary.slug === slug);
+      if (!app) {
+        return {
+          status: 404,
+          body: { reason: "Not found" },
+          headers: new Headers(),
+        };
+      }
+      const withVersions = app as DummyApp & {
+        versions?: Array<{
+          version: string | null;
+          latestRevision: number;
+          latestPublishDate: string;
+        }>;
+      };
+      if (withVersions.versions) {
+        return {
+          status: 200,
+          body: withVersions.versions,
+          headers: new Headers(),
+        };
+      }
+      const metadataVersion =
+        app.details.version.app_metadata.version?.trim() || null;
+      return {
+        status: 200,
+        body: [
+          {
+            version: metadataVersion,
+            latestRevision: app.details.version.revision,
+            latestPublishDate:
+              app.details.version.published_at ?? new Date().toISOString(),
+          },
+        ],
+        headers: new Headers(),
+      };
+    },
     reportRatingFromUser: async () => ({
       status: 204,
       body: undefined,
@@ -80,6 +161,8 @@ export function apiClientWithError() {
   });
   return {
     getProject: fail,
+    getProjectForRevision: fail,
+    getProjectVersions: fail,
     getProjectSummaries: fail,
   } as unknown as typeof defaultApiClient;
 }

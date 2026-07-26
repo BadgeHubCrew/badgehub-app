@@ -8,6 +8,7 @@ import type { OrderByOption } from "@shared/domain/readModels/project/ordering";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
 import { projectLatestRevisionsSchema } from "@shared/domain/readModels/project/ProjectRevision";
 import { projectSummariesSchema } from "@shared/domain/readModels/project/ProjectSummaries";
+import { projectVersionsSchema } from "@shared/domain/readModels/project/ProjectVersions";
 import { __tsCheckSame } from "@shared/zodUtils/zodTypeComparison";
 import { z } from "zod";
 
@@ -147,6 +148,20 @@ export const publicRestContracts = {
       })
     )
     .output(detailedProjectSchema),
+
+  getProjectVersions: publicBase
+    .route({
+      method: "GET",
+      path: "/projects/{slug}/versions",
+      summary:
+        "Get unique metadata versions for a project with the highest revision for each version",
+      description:
+        "Returns the list of unique versions (from the version field in project metadata) with the highest revision number for that version. Only published revisions are considered. Ordered by revision descending.",
+      tags: ["Public"],
+      successStatus: 200,
+    })
+    .input(z.object({ slug: z.string() }))
+    .output(projectVersionsSchema),
 
   getLatestPublishedFile: publicBase
     .route({

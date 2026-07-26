@@ -26,6 +26,7 @@ import type {
 } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
 import type { ProjectUserRating } from "@shared/domain/readModels/project/ProjectUserRating";
+import type { ProjectVersions } from "@shared/domain/readModels/project/ProjectVersions";
 import {
   isAdminUser,
   type User,
@@ -196,6 +197,12 @@ export class BadgeHubData {
       return result;
     }
     return this.badgeHubMetadata.getProject(projectSlug, versionRevision);
+  }
+
+  getProjectVersions(
+    projectSlug: ProjectSlug
+  ): Promise<ProjectVersions | undefined> {
+    return this.badgeHubMetadata.getProjectVersions(projectSlug);
   }
 
   async getFileContents(

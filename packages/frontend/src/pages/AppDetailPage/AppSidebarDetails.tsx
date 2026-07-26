@@ -1,9 +1,13 @@
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
+import type { ProjectVersions } from "@shared/domain/readModels/project/ProjectVersions.ts";
 import type React from "react";
+import AppVersionPicker from "./AppVersionPicker.tsx";
 
-const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
-  project,
-}) => {
+const AppSidebarDetails: React.FC<{
+  project: ProjectDetails;
+  versions?: ProjectVersions | null;
+  onSelectRevision?: (revision: number) => void;
+}> = ({ project, versions, onSelectRevision }) => {
   const { app_metadata, revision } = project.version;
   const version =
     app_metadata.version && app_metadata.version.trim().length > 0
@@ -16,6 +20,8 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
   const ratingsText = project.ratings
     ? `${project.ratings.average.toFixed(1)}/5 (${project.ratings.count} ratings)`
     : "No ratings yet";
+  const showVersionPicker =
+    versions != null && versions.length > 1 && onSelectRevision != null;
 
   return (
     <section className="card bg-base-200 shadow-lg">
@@ -23,8 +29,17 @@ const AppSidebarDetails: React.FC<{ project: ProjectDetails }> = ({
         <h2 className="text-xl font-semibold mb-4 border-b border-base-300 pb-2">
           App Details
         </h2>
+        {showVersionPicker && (
+          <div className="mb-4">
+            <AppVersionPicker
+              versions={versions}
+              selectedRevision={revision}
+              onSelectRevision={onSelectRevision}
+            />
+          </div>
+        )}
         <ul className="text-sm space-y-3 font-mono">
-          {version && (
+          {!showVersionPicker && version && (
             <li>
               <strong>Version:</strong> {version}
             </li>
