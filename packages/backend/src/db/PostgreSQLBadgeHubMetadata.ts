@@ -50,6 +50,7 @@ import {
 } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
 import type { ProjectUserRating } from "@shared/domain/readModels/project/ProjectUserRating";
+import type { ProjectVersions } from "@shared/domain/readModels/project/ProjectVersions";
 import type { User } from "@shared/domain/readModels/project/User";
 import type {
   LatestOrDraftAlias,
@@ -427,6 +428,56 @@ export class PostgreSQLBadgeHubMetadata {
       files: await this._getFilesMetadataForVersion(dbVersion),
       published_at: timestampTZToISODateString(dbVersion.published_at),
     };
+  }
+
+  /**
+   * Unique metadata version labels for a published project, each with the
+   * highest published revision that carried that label.
+   * Returns undefined when the project is missing, deleted, or unpublished.
+   */
+  async getProjectVersions(
+    projectSlug: ProjectSlug
+  ): Promise<ProjectVersions | undefined> {
+    const projectExists = await this.pool
+      .query<{ slug: string }>(
+        sql`select p.slug
+            from projects p
+            where p.slug = ${projectSlug}
+              and p.deleted_at is null
+              and p.latest_revision is not null`
+      )
+      .then((res) => res.rows[0]);
+    if (!projectExists) {
+      return undefined;
+    }
+
+    // DISTINCT ON picks the row with the highest revision per metadata version
+    // label; outer ORDER BY keeps the API list newest-first.
+    const rows = await this.pool
+      .query<{
+        version: string | null;
+        latest_revision: string | number;
+        published_at: string;
+      }>(
+        sql`select version, latest_revision, published_at
+            from (select distinct on (nullif(trim(v.app_metadata ->> 'version'), ''))
+                         nullif(trim(v.app_metadata ->> 'version'), '') as version,
+                         v.revision                                    as latest_revision,
+                         v.published_at
+                  from versions v
+                  where v.project_slug = ${projectSlug}
+                    and v.published_at is not null
+                  order by nullif(trim(v.app_metadata ->> 'version'), ''),
+                           v.revision desc) per_version
+            order by latest_revision desc`
+      )
+      .then((res) => res.rows);
+
+    return rows.map((row) => ({
+      version: row.version ?? undefined,
+      latestRevision: Number(row.latest_revision),
+      latestPublishDate: timestampTZToISODateString(row.published_at),
+    }));
   }
 
   async getBadges(): Promise<BadgeSlug[]> {

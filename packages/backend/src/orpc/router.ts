@@ -106,6 +106,16 @@ export function createApiRouter(
     }
   );
 
+  const getProjectVersions = publicOs.getProjectVersions.handler(
+    async ({ input }) => {
+      const versions = await badgeHubData.getProjectVersions(input.slug);
+      if (!versions) {
+        notFound(`No public app with slug '${input.slug}' found`);
+      }
+      return versions;
+    }
+  );
+
   const getLatestPublishedFile = publicOs.getLatestPublishedFile.handler(
     async ({ input }) => {
       const [file, fileMetadata] = await Promise.all([
@@ -435,6 +445,7 @@ export function createApiRouter(
       getProjectLatestRevisions,
       getProjectLatestRevision,
       getProjectForRevision,
+      getProjectVersions,
       getLatestPublishedFile,
       getFileForRevision,
       getCategories,

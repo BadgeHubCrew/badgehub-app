@@ -3742,6 +3742,88 @@ Warning: if it is present, then badgehub clients on badges will not update the a
         ],
       },
     },
+    "/api/v3/projects/{slug}/versions": {
+      "get": {
+        "deprecated": undefined,
+        "description": "Returns the list of unique versions (from the version field in project metadata) with the highest revision number for that version. Only published revisions are considered. Ordered by revision descending.",
+        "operationId": "getProjectVersions",
+        "parameters": [
+          {
+            "allowEmptyValue": undefined,
+            "allowReserved": undefined,
+            "explode": undefined,
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "type": "string",
+            },
+            "style": undefined,
+          },
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Unique version labels from published project metadata, each with the highest revision for that label. Ordered by latestRevision descending.",
+                  "examples": undefined,
+                  "items": {
+                    "properties": {
+                      "latestPublishDate": {
+                        "description": "Publish date of the highest revision for this version",
+                        "examples": [
+                          "2024-08-10T14:48:00.000Z",
+                        ],
+                        "pattern": "^[\\s\\S]{0,}\\.-?\\d+Z$",
+                        "title": undefined,
+                        "type": "string",
+                      },
+                      "latestRevision": {
+                        "description": "The highest revisionNumber for this version",
+                        "examples": undefined,
+                        "maximum": 9007199254740991,
+                        "minimum": -9007199254740991,
+                        "title": undefined,
+                        "type": "integer",
+                      },
+                      "version": {
+                        "description": "Version string from project metadata. Omitted when the version field was missing or blank for that revision.",
+                        "examples": undefined,
+                        "title": undefined,
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "latestRevision",
+                      "latestPublishDate",
+                    ],
+                    "type": "object",
+                  },
+                  "title": undefined,
+                  "type": "array",
+                },
+              },
+            },
+            "description": "OK",
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Http404Error",
+                },
+              },
+            },
+            "description": "404",
+          },
+        },
+        "summary": "Get unique metadata versions for a project with the highest revision for each version",
+        "tags": [
+          "Public",
+        ],
+      },
+    },
     "/api/v3/stats": {
       "get": {
         "deprecated": undefined,

@@ -262,6 +262,108 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     ).toBeGreaterThan(0);
   });
 
+  it("shows a version picker and loads a previous revision", async () => {
+    const firstApp = dummyApps[0];
+    expect(firstApp).toBeDefined();
+    if (!firstApp) {
+      throw new Error("Expected dummy app");
+    }
+
+    const historicalDetails = {
+      ...firstApp.details,
+      latest_revision: 3,
+      version: {
+        ...firstApp.details.version,
+        revision: 1,
+        app_metadata: {
+          ...firstApp.details.version.app_metadata,
+          version: "1.0.0",
+          name: "Dummy App 1 v1",
+          long_description: "Historical description for v1.",
+        },
+      },
+    };
+    const latestDetails = {
+      ...firstApp.details,
+      latest_revision: 3,
+      version: {
+        ...firstApp.details.version,
+        revision: 3,
+        app_metadata: {
+          ...firstApp.details.version.app_metadata,
+          version: "2.0.0",
+          name: "Dummy App 1 v2",
+          long_description: "Latest description for v2.",
+        },
+      },
+    };
+
+    const apps = [
+      {
+        ...firstApp,
+        summary: {
+          ...firstApp.summary,
+          revision: 3,
+        },
+        details: latestDetails,
+        versions: [
+          {
+            version: "2.0.0",
+            latestRevision: 3,
+            latestPublishDate: "2024-06-02T12:00:00.000Z",
+          },
+          {
+            version: "1.0.0",
+            latestRevision: 1,
+            latestPublishDate: "2024-06-01T12:00:00.000Z",
+          },
+        ],
+        historicalByRevision: {
+          1: historicalDetails,
+          3: latestDetails,
+        },
+      },
+      ...dummyApps.slice(1),
+    ];
+
+    const base = apiClientWithApps(apps);
+    const getProjectForRevision = vi.fn(base.getProjectForRevision);
+    const client = {
+      ...base,
+      getProjectForRevision,
+    } as unknown as typeof defaultApiClient;
+
+    const { user } = render(
+      <AppDetailPage apiClient={client} slug="dummy-app-1" />
+    );
+
+    await screen.findByTestId("app-detail-page");
+    expect(screen.getByTestId("app-detail-name")).toHaveTextContent(
+      "Dummy App 1 v2"
+    );
+
+    const select = await screen.findByTestId("app-version-select");
+    expect(select).toHaveValue("3");
+
+    await user.selectOptions(select, "1");
+
+    await waitFor(() => {
+      expect(getProjectForRevision).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: { slug: "dummy-app-1", revision: 1 },
+        })
+      );
+    });
+
+    expect(await screen.findByTestId("app-detail-name")).toHaveTextContent(
+      "Dummy App 1 v1"
+    );
+    expect(screen.getByTestId("historical-version-banner")).toBeInTheDocument();
+    expect(
+      screen.getByText("Historical description for v1.")
+    ).toBeInTheDocument();
+  });
+
   it.skip("shows error if app not found", async () => {
     //TODO
     render(
