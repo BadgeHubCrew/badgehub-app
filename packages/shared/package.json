@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@orpc/contract": "^1.14.8",
+    "@orpc/contract": "^1.14.10",
     "zod": "^4.4.3"
   }
 }
