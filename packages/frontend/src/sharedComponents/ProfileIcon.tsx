@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 const ProfileIcon: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { user, keycloak } = useSession();
+  const { user, keycloak, status } = useSession();
+  const sessionReady = status !== "loading";
 
   async function login() {
     await keycloak?.login();
@@ -41,37 +42,48 @@ const ProfileIcon: React.FC = () => {
   return (
     <div className="relative" ref={menuRef}>
       <div className="hidden md:inline-block align-top p-2 pr-3">
-        {user?.name}
+        {sessionReady ? user?.name : null}
       </div>
       <button
         type="button"
         className="btn btn-ghost btn-circle relative"
         aria-label="Profile"
-        onClick={() => setMenuOpen((v) => !v)}
+        aria-busy={!sessionReady}
+        onClick={() => sessionReady && setMenuOpen((v) => !v)}
+        disabled={!sessionReady}
         data-testid="profile-icon"
       >
-        {user && (
+        {!sessionReady ? (
           <span
-            className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-base-200"
-            title="Logged in"
+            className="loading loading-spinner loading-sm"
+            data-testid="profile-session-loading"
           />
+        ) : (
+          <>
+            {user && (
+              <span
+                className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-base-200"
+                title="Logged in"
+              />
+            )}
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </>
         )}
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
       </button>
-      {menuOpen && (
+      {menuOpen && sessionReady && (
         <ul className="absolute right-0 mt-2 w-48 menu menu-sm bg-base-200 border border-base-300 rounded-box shadow-lg z-50 p-2">
           {user ? (
             <>

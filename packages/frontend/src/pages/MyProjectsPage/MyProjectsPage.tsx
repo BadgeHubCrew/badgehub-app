@@ -1,9 +1,10 @@
 import { useTitle } from "@hooks/useTitle.ts";
 import { useUserDraftProjectsFetcher } from "@hooks/useUserDraftProjectsFetcher.ts";
 import { AppGridWithFilterAndPagination } from "@sharedComponents/AppGridWithFilterAndPagination.tsx";
+import { AuthGate } from "@sharedComponents/keycloakSession/AuthGate.tsx";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import PageLayout from "@sharedComponents/PageLayout.tsx";
-import { PleaseLoginMessage } from "@sharedComponents/PleaseLoginMessage.tsx";
+import Spinner from "@sharedComponents/Spinner.tsx";
 import { memo, useState } from "react";
 import { publicApiClient as defaultApiClient } from "../../api/apiClient.ts";
 
@@ -26,16 +27,18 @@ const MyProjectsPage = memo(({ apiClient = defaultApiClient }: AppProps) => {
       setSearchQuery={setSearchQuery}
       data-testid="my-projects-page"
     >
-      {appFetcher ? (
-        <AppGridWithFilterAndPagination
-          appFetcher={appFetcher}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          editable={true}
-        />
-      ) : (
-        <PleaseLoginMessage whatToSee={"see your projects"} />
-      )}
+      <AuthGate whatToSee="see your projects">
+        {appFetcher ? (
+          <AppGridWithFilterAndPagination
+            appFetcher={appFetcher}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            editable={true}
+          />
+        ) : (
+          <Spinner />
+        )}
+      </AuthGate>
     </PageLayout>
   );
 });

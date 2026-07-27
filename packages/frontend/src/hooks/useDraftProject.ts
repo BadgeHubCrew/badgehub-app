@@ -1,6 +1,7 @@
 import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { useAsyncResource } from "@hooks/useAsyncResource.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
+import type { SessionStatus } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import {
   type DraftProjectErrorCode,
   draftProjectErrorFromStatus,
@@ -11,13 +12,19 @@ import { useEffect, useState } from "react";
 
 export type PossiblyStaleProject = ProjectDetails & { stale?: true };
 
-export const useDraftProject = (slug: string, keycloak?: Keycloak) => {
+export const useDraftProject = (
+  slug: string,
+  keycloak: Keycloak | undefined,
+  sessionStatus: SessionStatus
+) => {
   const [project, setProject] = useState<PossiblyStaleProject | null>(null);
-  const shouldFetchProject = Boolean(keycloak) && (!project || project.stale);
+  const canFetch =
+    sessionStatus === "authenticated" && Boolean(keycloak?.authenticated);
+  const shouldFetchProject = canFetch && (!project || project.stale);
   const {
     data: fetchedProject,
     error: fetchError,
-    loading,
+    loading: fetchLoading,
   } = useAsyncResource(
     async () => {
       if (!keycloak) {
@@ -51,11 +58,17 @@ export const useDraftProject = (slug: string, keycloak?: Keycloak) => {
     }
   }, [fetchedProject]);
 
-  const error: DraftProjectErrorCode | null = !keycloak
-    ? "authentication"
-    : fetchError
-      ? normalizeDraftProjectError(fetchError)
-      : null;
+  const loading =
+    sessionStatus === "loading" || (canFetch && fetchLoading && !project);
+
+  const error: DraftProjectErrorCode | null =
+    sessionStatus === "loading"
+      ? null
+      : sessionStatus === "anonymous" || !keycloak
+        ? "authentication"
+        : fetchError
+          ? normalizeDraftProjectError(fetchError)
+          : null;
 
   return { project, setProject, loading, error };
 };

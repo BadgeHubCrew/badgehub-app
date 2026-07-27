@@ -208,15 +208,40 @@ export const publicApiClient: ApiClient = wrapClient(
   createORPCClient(createLink()) as OrpcClient
 );
 
-async function getFreshToken(keycloak: Keycloak | undefined) {
-  await keycloak?.updateToken(30);
-  return keycloak?.token;
+/** Refresh access token if it expires within this many seconds. */
+export const TOKEN_MIN_VALIDITY_SECONDS = 30;
+
+/**
+ * Ensures a usable access token (single refresh path for all authorized calls).
+ * Call sites should not invoke `keycloak.updateToken` themselves.
+ */
+export async function getFreshToken(
+  keycloak: Keycloak | undefined
+): Promise<string | undefined> {
+  if (!keycloak) {
+    return undefined;
+  }
+  try {
+    await keycloak.updateToken(TOKEN_MIN_VALIDITY_SECONDS);
+  } catch (error) {
+    console.error("Failed to refresh access token", error);
+    throw new Error("Failed to update token. Please try logging in again.");
+  }
+  return keycloak.token;
 }
 
 export async function getAuthorizationHeader(keycloak: Keycloak | undefined) {
-  return { authorization: `Bearer ${await getFreshToken(keycloak)}` };
+  const token = await getFreshToken(keycloak);
+  if (!token) {
+    throw new Error("Authentication required");
+  }
+  return { authorization: `Bearer ${token}` };
 }
 
+/**
+ * Authorized API client. Token refresh runs per request via the link headers
+ * callback — do not call `updateToken` again around these calls.
+ */
 export const getFreshAuthorizedApiClient = async (
   keycloak: Keycloak
 ): Promise<ApiClient> => {

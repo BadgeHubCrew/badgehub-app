@@ -8,6 +8,7 @@ import type { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetad
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import type { VariantJSON } from "@shared/domain/readModels/project/VariantJSON.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
+import { AuthGate } from "@sharedComponents/keycloakSession/AuthGate.tsx";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import PageLayout from "@sharedComponents/PageLayout.tsx";
 import type React from "react";
@@ -29,11 +30,12 @@ const AppEditPage: React.FC<{
   slug: string;
 }> = ({ slug }) => {
   const [previewedFile, setPreviewedFile] = useState<string | null>(null);
-  const { user, keycloak } = useSession();
+  const { user, keycloak, status } = useSession();
   const navigate = useNavigate();
   const { project, setProject, loading, error } = useDraftProject(
     slug,
-    keycloak
+    keycloak,
+    status
   );
 
   const setAppMetadata = (
@@ -71,7 +73,6 @@ const AppEditPage: React.FC<{
     uploadedPaths?: string[];
   }) => {
     assertDefined(keycloak);
-    await keycloak.updateToken(30);
     const updatedDraftProject = await (
       await getFreshAuthorizedApiClient(keycloak)
     ).getDraftProject({
@@ -203,7 +204,6 @@ const AppEditPage: React.FC<{
   const handleSetIcon = async (filePath: string) => {
     assertDefined(keycloak);
     try {
-      await keycloak.updateToken(30);
       const client = await getFreshAuthorizedApiClient(keycloak);
       const setIconResult = await client.setDraftIconFromFile({
         params: { slug },
@@ -239,30 +239,32 @@ const AppEditPage: React.FC<{
 
   return (
     <PageLayout data-testid="app-edit-page">
-      <AppEditStateView
-        loading={loading}
-        error={error ?? (!project || !appMetadata ? "not_found" : null)}
-        onLogin={() => keycloak?.login()}
-      >
-        {project && appMetadata && keycloak && (
-          <AppEditForm
-            project={project as ProjectDetails}
-            appMetadata={appMetadata as ProjectEditFormData}
-            slug={slug}
-            keycloak={keycloak}
-            previewedFile={previewedFile}
-            mainExecutable={mainExecutable}
-            onPreviewFile={handlePreviewFile}
-            onSetIcon={handleSetIcon}
-            onDeleteFile={handleDeleteFile}
-            onSetMainExecutable={onSetMainExecutable}
-            onUploadSuccess={updateDraftFiles}
-            onFormChange={handleFormChange}
-            onSubmit={handleSubmit}
-            onDeleteApplication={handleDeleteApplication}
-          />
-        )}
-      </AppEditStateView>
+      <AuthGate whatToSee="edit this project">
+        <AppEditStateView
+          loading={loading}
+          error={error ?? (!project || !appMetadata ? "not_found" : null)}
+          onLogin={() => keycloak?.login()}
+        >
+          {project && appMetadata && keycloak && (
+            <AppEditForm
+              project={project as ProjectDetails}
+              appMetadata={appMetadata as ProjectEditFormData}
+              slug={slug}
+              keycloak={keycloak}
+              previewedFile={previewedFile}
+              mainExecutable={mainExecutable}
+              onPreviewFile={handlePreviewFile}
+              onSetIcon={handleSetIcon}
+              onDeleteFile={handleDeleteFile}
+              onSetMainExecutable={onSetMainExecutable}
+              onUploadSuccess={updateDraftFiles}
+              onFormChange={handleFormChange}
+              onSubmit={handleSubmit}
+              onDeleteApplication={handleDeleteApplication}
+            />
+          )}
+        </AppEditStateView>
+      </AuthGate>
     </PageLayout>
   );
 };

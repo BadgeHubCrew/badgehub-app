@@ -52,13 +52,14 @@ const SearchField: React.FC<SearchProps> = ({
 
 const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { user, keycloak } = useSession();
+  const { user, keycloak, status } = useSession();
   const searchEnabled =
     searchProps.searchQuery !== undefined &&
     searchProps.setSearchQuery !== undefined;
   const checkedSearchProps: SearchProps | undefined = searchEnabled
     ? (searchProps as SearchProps)
     : undefined;
+  const sessionReady = status !== "loading";
 
   async function login() {
     await keycloak?.login();
@@ -173,7 +174,14 @@ const Header: React.FC<Partial<SearchProps>> = (searchProps) => {
             </MLink>
           ))}
           <div className="divider my-1" />
-          {user ? (
+          {!sessionReady ? (
+            <div
+              className="px-3 py-2 text-sm opacity-60"
+              data-testid="mobile-session-loading"
+            >
+              Checking session…
+            </div>
+          ) : user ? (
             <>
               <div className="px-3 py-2">
                 <p className="text-sm font-medium truncate">{user.name}</p>
