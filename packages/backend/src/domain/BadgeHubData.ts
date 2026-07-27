@@ -47,6 +47,44 @@ import {
 import { stringToSha256, uint8ToSha256 } from "@util/sha256";
 import { LRUCache } from "lru-cache";
 
+/**
+ * Parse and validate a metadata.json upload body.
+ * Invalid JSON / schema become UserError (400) instead of unhandled 500s.
+ */
+export function parseUploadedMetadataJson(
+  fileContent: Uint8Array
+): WriteAppMetadataJSON {
+  const text = new TextDecoder()
+    .decode(fileContent)
+    // Strip UTF-8 BOM if present (common when saving from some editors)
+    .replace(/^\uFEFF/, "")
+    .trim();
+
+  if (!text) {
+    throw new UserError("metadata.json is empty.");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new UserError("metadata.json is not valid JSON.");
+  }
+
+  const result = appMetadataJSONSchema.safeParse(parsed);
+  if (!result.success) {
+    const details = result.error.issues
+      .map((issue) => {
+        const path = issue.path.length ? issue.path.join(".") : "(root)";
+        return `${path}: ${issue.message}`;
+      })
+      .join("; ");
+    throw new UserError(`metadata.json is invalid: ${details}`);
+  }
+
+  return result.data;
+}
+
 type FileContext =
   | { projectSlug: string; revision: number; filePath: string }
   | { sha256: string };
@@ -311,9 +349,7 @@ export class BadgeHubData {
     mockDates?: DBDatedData
   ): Promise<void> {
     if (filePath === "metadata.json") {
-      const appMetadata: WriteAppMetadataJSON = appMetadataJSONSchema.parse(
-        JSON.parse(new TextDecoder().decode(uploadedFile.fileContent))
-      );
+      const appMetadata = parseUploadedMetadataJson(uploadedFile.fileContent);
       return this.updateDraftMetadata(
         projectSlug,
         appMetadata,

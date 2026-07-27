@@ -1,22 +1,20 @@
 import AppCodePreview from "@pages/AppDetailPage/AppCodePreview.tsx";
 import type { ProjectEditFormData } from "@pages/AppEditPage/ProjectEditFormData.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
-import type { User } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 import AppEditActions from "./AppEditActions.tsx";
 import AppEditBasicInfo from "./AppEditBasicInfo.tsx";
 import AppEditBreadcrumb from "./AppEditBreadcrumb.tsx";
 import AppEditCategorization from "./AppEditCategorization.tsx";
-import AppEditFileList from "./AppEditFileList.tsx";
-import AppEditFileUpload from "./AppEditFileUpload.tsx";
+import AppEditFilesSection from "./AppEditFilesSection.tsx";
+import type { UploadSuccessResult } from "./AppEditFileUpload.tsx";
 import AppEditTokenManager from "./AppEditTokenManager.tsx";
 
 const AppEditForm: React.FC<{
   project: ProjectDetails;
   appMetadata: ProjectEditFormData;
   slug: string;
-  user?: User;
   keycloak: Keycloak;
   previewedFile: string | null;
   mainExecutable?: string;
@@ -24,10 +22,7 @@ const AppEditForm: React.FC<{
   onSetIcon: (filePath: string) => void;
   onDeleteFile: (filePath: string) => void;
   onSetMainExecutable: (filePath: string) => void;
-  onUploadSuccess: (result: {
-    metadataChanged?: boolean;
-    firstValidExecutable?: string | null;
-  }) => void;
+  onUploadSuccess: (result: UploadSuccessResult) => void;
   onFormChange: (changes: Partial<ProjectEditFormData>) => void;
   onSubmit: (e: React.FormEvent) => void;
   onDeleteApplication: () => void;
@@ -35,7 +30,6 @@ const AppEditForm: React.FC<{
   project,
   appMetadata,
   slug,
-  user,
   keycloak,
   previewedFile,
   mainExecutable,
@@ -71,22 +65,17 @@ const AppEditForm: React.FC<{
           />
           <AppEditBasicInfo form={appMetadata} onChange={onFormChange} />
           <AppEditCategorization form={appMetadata} onChange={onFormChange} />
-          <AppEditFileUpload
-            slug={slug}
-            keycloak={keycloak}
-            onUploadSuccess={onUploadSuccess}
-          />
-          <AppEditFileList
-            user={user}
+          <AppEditFilesSection
             project={project}
-            onSetIcon={onSetIcon}
-            iconFilePath={appMetadata?.icon_map?.["64x64"]}
-            onDeleteFile={onDeleteFile}
-            mainExecutable={mainExecutable}
-            onSetMainExecutable={onSetMainExecutable}
-            onPreview={onPreviewFile}
+            appMetadata={appMetadata}
             slug={slug}
             keycloak={keycloak}
+            mainExecutable={mainExecutable}
+            onPreviewFile={onPreviewFile}
+            onSetIcon={onSetIcon}
+            onDeleteFile={onDeleteFile}
+            onSetMainExecutable={onSetMainExecutable}
+            onUploadSuccess={onUploadSuccess}
           />
           <AppCodePreview
             project={project}

@@ -234,6 +234,41 @@ describe("Authenticated API Routes", () => {
     });
 
     describe("/projects/{slug}/draft/files/{filePath}", () => {
+      test("POST metadata.json updates draft app metadata", async () => {
+        const metadata = {
+          name: "Uploaded Metadata Name",
+          description: "From metadata.json upload",
+        } as const satisfies AppMetadataJSON;
+        const postRes = await request(app)
+          .post(`/api/v3/projects/${user1AppId}/draft/files/metadata.json`)
+          .auth(USER1_TOKEN, { type: "bearer" })
+          .attach("file", Buffer.from(JSON.stringify(metadata)), {
+            filename: "metadata.json",
+            contentType: "application/json",
+          });
+        expect(postRes.statusCode).toBe(204);
+
+        const getRes = await request(app)
+          .get(`/api/v3/projects/${user1AppId}/draft`)
+          .auth(USER1_TOKEN, { type: "bearer" });
+        expect(getRes.statusCode).toBe(200);
+        expect(getRes.body.version.app_metadata).toMatchObject(metadata);
+      });
+
+      test("POST invalid metadata.json returns 400", async () => {
+        const postRes = await request(app)
+          .post(`/api/v3/projects/${user1AppId}/draft/files/metadata.json`)
+          .auth(USER1_TOKEN, { type: "bearer" })
+          .attach("file", Buffer.from("{not json"), {
+            filename: "metadata.json",
+            contentType: "application/json",
+          });
+        expect(postRes.statusCode).toBe(400);
+        expect(postRes.body).toMatchObject({
+          message: expect.stringMatching(/not valid JSON/i),
+        });
+      });
+
       test("CREATE/READ/DELETE /projects/{slug}/draft/files/{filePath}", async () => {
         const postRes = await request(app)
           .post(`/api/v3/projects/${user1AppId}/draft/files/test.txt`)

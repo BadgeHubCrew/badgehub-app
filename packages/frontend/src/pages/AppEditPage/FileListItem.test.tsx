@@ -48,6 +48,21 @@ describe("FileListItem", () => {
     expect(deleteButton).toBeDisabled();
   });
 
+  it("shows last updated time", () => {
+    render(<FileListItem file={baseFile} slug="demo" keycloak={keycloak} />);
+
+    expect(screen.getByText(/updated /i)).toBeInTheDocument();
+    expect(screen.getByTitle(/last updated:/i)).toBeInTheDocument();
+  });
+
+  it("marks recently uploaded files", () => {
+    render(
+      <FileListItem file={baseFile} slug="demo" keycloak={keycloak} isRecent />
+    );
+
+    expect(screen.getByRole("listitem")).toHaveAttribute("data-recent", "true");
+  });
+
   it("calls onSetMainExecutable for executable files", async () => {
     const user = userEvent.setup();
     const onSetMainExecutable = vi.fn();
