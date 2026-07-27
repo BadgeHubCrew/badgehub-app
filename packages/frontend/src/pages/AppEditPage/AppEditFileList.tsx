@@ -1,11 +1,10 @@
 import { FileListItem } from "@pages/AppEditPage/FileListItem.tsx";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
-import type { User } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import type Keycloak from "keycloak-js";
 import type React from "react";
+import { useMemo } from "react";
 
-interface AppEditFilePreviewProps {
-  user?: User; // Optional user prop for authentication
+interface AppEditFileListProps {
   project: ProjectDetails;
   onSetIcon?: (filePath: string) => void;
   iconFilePath?: string;
@@ -15,13 +14,14 @@ interface AppEditFilePreviewProps {
   onPreview?: (filePath: string) => void;
   slug: string;
   keycloak: Keycloak;
+  recentPaths?: ReadonlySet<string>;
 }
 
 /**
  * Displays a list of project files with actions to delete or set an icon/main executable.
- * This is the main component that orchestrates the file preview section.
+ * Sorted by most recently updated first so new uploads appear at the top.
  */
-const AppEditFileList: React.FC<AppEditFilePreviewProps> = ({
+const AppEditFileList: React.FC<AppEditFileListProps> = ({
   project,
   onSetIcon,
   iconFilePath,
@@ -31,37 +31,47 @@ const AppEditFileList: React.FC<AppEditFilePreviewProps> = ({
   onPreview,
   slug,
   keycloak,
+  recentPaths,
 }) => {
-  // Use nullish coalescing for a cleaner way to handle potentially undefined files
-  const files = project?.version?.files ?? [];
+  const files = useMemo(() => {
+    const list = project?.version?.files ?? [];
+    return [...list].sort(
+      (a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at)
+    );
+  }, [project?.version?.files]);
+
+  if (files.length === 0) {
+    return (
+      <p
+        className="opacity-50 italic text-sm"
+        data-testid="app-edit-file-list-empty"
+      >
+        No files yet. Drop files above to add them to this draft.
+      </p>
+    );
+  }
 
   return (
-    <section className="card bg-base-200 shadow-lg text-left mt-8">
-      <div className="card-body">
-        <h2 className="card-title text-2xl mb-2">Files</h2>
-        <h3 className="text-lg font-medium mb-2">Project Files:</h3>
-        {files.length > 0 ? (
-          <ul className="list-none text-sm space-y-1">
-            {files.map((file) => (
-              <FileListItem
-                key={file.full_path}
-                file={file}
-                onDeleteFile={onDeleteFile}
-                onSetIcon={onSetIcon}
-                iconFilePath={iconFilePath}
-                mainExecutable={mainExecutable}
-                onSetMainExecutable={onSetMainExecutable}
-                onPreview={onPreview}
-                slug={slug}
-                keycloak={keycloak}
-              />
-            ))}
-          </ul>
-        ) : (
-          <p className="opacity-50 italic">No files in this project version.</p>
-        )}
-      </div>
-    </section>
+    <ul
+      className="list-none text-sm space-y-1"
+      data-testid="app-edit-file-list"
+    >
+      {files.map((file) => (
+        <FileListItem
+          key={file.full_path}
+          file={file}
+          onDeleteFile={onDeleteFile}
+          onSetIcon={onSetIcon}
+          iconFilePath={iconFilePath}
+          mainExecutable={mainExecutable}
+          onSetMainExecutable={onSetMainExecutable}
+          onPreview={onPreview}
+          slug={slug}
+          keycloak={keycloak}
+          isRecent={recentPaths?.has(file.full_path) ?? false}
+        />
+      ))}
+    </ul>
   );
 };
 

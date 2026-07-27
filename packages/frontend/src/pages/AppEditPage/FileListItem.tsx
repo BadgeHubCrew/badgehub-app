@@ -3,6 +3,7 @@ import { DownloadIcon } from "@sharedComponents/AppsGrid/DownloadIcon.tsx";
 import { DeleteIcon } from "@sharedComponents/icons/DeleteIcon.tsx";
 import { downloadProjectFile } from "@utils/downloadProjectFile.ts";
 import { NON_EXECUTABLE_EXTENSIONS } from "@utils/fileUtils.ts";
+import { formatRelativeTime } from "@utils/formatRelativeTime.ts";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 
@@ -23,6 +24,7 @@ interface FileListItemProps {
   onPreview?: (filePath: string) => void;
   slug: string;
   keycloak: Keycloak;
+  isRecent?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
   onPreview,
   slug,
   keycloak,
+  isRecent = false,
 }) => {
   const isCurrentIcon = iconFilePath === file.full_path;
   const showIconButton = onSetIcon && file.mimetype.startsWith("image/");
@@ -59,8 +62,16 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       `${file.image_width}x${file.image_height}`) ||
     false;
 
+  const absoluteUpdated = new Date(file.updated_at).toLocaleString();
+  const relativeUpdated = formatRelativeTime(file.updated_at);
+
   return (
-    <li className="flex items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-base-300/50">
+    <li
+      className={`flex flex-wrap items-center gap-2 p-1 rounded-md transition-colors duration-200 hover:bg-base-300/50 ${
+        isRecent ? "bg-success/15 ring-1 ring-success/30" : ""
+      }`}
+      data-recent={isRecent ? "true" : "false"}
+    >
       {/* Download Button */}
       <button
         type="button"
@@ -86,28 +97,38 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       {onPreview ? (
         <button
           type="button"
-          className="flex-grow font-mono opacity-70 hover:opacity-100 hover:underline text-left bg-transparent border-none cursor-pointer p-0"
+          className="flex-grow font-mono opacity-70 hover:opacity-100 hover:underline text-left bg-transparent border-none cursor-pointer p-0 min-w-0"
           onClick={() => onPreview(file.full_path)}
           title="Preview file"
         >
           {file.full_path}
         </button>
       ) : (
-        <p className="flex-grow font-mono opacity-60">{file.full_path}</p>
+        <p className="flex-grow font-mono opacity-60 min-w-0">
+          {file.full_path}
+        </p>
       )}
       {file.size_formatted && (
-        <span className="ml-2 opacity-60 text-xs">{file.size_formatted}</span>
-      )}{" "}
-      {widthXHeight && (
-        <span className="ml-2 opacity-60 text-xs">{widthXHeight}px</span>
+        <span className="opacity-60 text-xs shrink-0">
+          {file.size_formatted}
+        </span>
       )}
+      {widthXHeight && (
+        <span className="opacity-60 text-xs shrink-0">{widthXHeight}px</span>
+      )}
+      <span
+        className="opacity-60 text-xs shrink-0 whitespace-nowrap"
+        title={`Last updated: ${absoluteUpdated}`}
+      >
+        Updated {relativeUpdated}
+      </span>
       {/* "Set as Main" Button */}
       {isSelectableAsMain && (
         <button
           type="button"
           disabled={isCurrentMain}
           onClick={() => onSetMainExecutable(file.full_path)}
-          className={`btn btn-xs ml-2 ${isCurrentMain ? "btn-info" : "btn-ghost"}`}
+          className={`btn btn-xs ${isCurrentMain ? "btn-info" : "btn-ghost"}`}
           title={
             isCurrentMain
               ? "This is the main executable"
@@ -121,7 +142,7 @@ export const FileListItem: React.FC<FileListItemProps> = ({
       {showIconButton && (
         <button
           type="button"
-          className={`btn btn-xs ml-2 ${isCurrentIcon ? "btn-success" : "btn-ghost"}`}
+          className={`btn btn-xs ${isCurrentIcon ? "btn-success" : "btn-ghost"}`}
           onClick={() => onSetIcon(file.full_path)}
           title={
             isCurrentIcon ? "This file is the current icon" : "Set as icon"

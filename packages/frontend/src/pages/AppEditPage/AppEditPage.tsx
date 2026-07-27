@@ -68,42 +68,43 @@ const AppEditPage: React.FC<{
   const updateDraftFiles = async (result: {
     metadataChanged?: boolean;
     firstValidExecutable?: string | null;
+    uploadedPaths?: string[];
   }) => {
     assertDefined(keycloak);
     await keycloak.updateToken(30);
-    if (result.metadataChanged) {
-      // Full refresh if metadata.json was uploaded
-      setProject(null);
-      return;
-    }
     const updatedDraftProject = await (
       await getFreshAuthorizedApiClient(keycloak)
     ).getDraftProject({
       params: { slug },
     });
-    if (updatedDraftProject.status === 200 && project) {
-      setProject((prevProject) => {
-        if (!prevProject) return null;
-        const newProjectData = {
-          ...prevProject,
-          version: {
-            ...prevProject.version,
-            files: updatedDraftProject.body.version.files,
-          },
-        };
-        // If no main executable is set, and a valid one was uploaded, set it as default.
-        const newMainExecutable =
-          newProjectData.version.app_metadata.application?.[0]?.executable;
-
-        if (!newMainExecutable && result.firstValidExecutable) {
-          const application = getAndEnsureApplication(newProjectData);
-          application.executable = result.firstValidExecutable;
-        }
-        return newProjectData;
-      });
-    } else {
+    if (updatedDraftProject.status !== 200) {
       window.alert("File refresh after upload failed");
+      return;
     }
+
+    setProject((prevProject) => {
+      // metadata.json rewrites app_metadata — take the full draft from the server.
+      // For other uploads, keep local form edits and only refresh the file list.
+      const newProjectData: ProjectDetails = result.metadataChanged
+        ? updatedDraftProject.body
+        : {
+            ...(prevProject ?? updatedDraftProject.body),
+            version: {
+              ...(prevProject ?? updatedDraftProject.body).version,
+              files: updatedDraftProject.body.version.files,
+            },
+          };
+
+      // If no main executable is set, and a valid one was uploaded, set it as default.
+      const newMainExecutable =
+        newProjectData.version.app_metadata.application?.[0]?.executable;
+
+      if (!newMainExecutable && result.firstValidExecutable) {
+        const application = getAndEnsureApplication(newProjectData);
+        application.executable = result.firstValidExecutable;
+      }
+      return newProjectData;
+    });
   };
 
   const handleDeleteFile = async (filePath: string) => {
@@ -248,7 +249,6 @@ const AppEditPage: React.FC<{
             project={project as ProjectDetails}
             appMetadata={appMetadata as ProjectEditFormData}
             slug={slug}
-            user={user}
             keycloak={keycloak}
             previewedFile={previewedFile}
             mainExecutable={mainExecutable}

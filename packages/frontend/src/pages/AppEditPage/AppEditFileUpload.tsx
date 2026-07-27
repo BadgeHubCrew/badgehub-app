@@ -3,97 +3,352 @@ import { assertDefined } from "@shared/util/assertions.ts";
 import { isExecutableFileName } from "@utils/fileUtils.ts";
 import type Keycloak from "keycloak-js";
 import type React from "react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+
+export type UploadSuccessResult = {
+  metadataChanged?: boolean;
+  firstValidExecutable?: string | null;
+  uploadedPaths?: string[];
+};
+
+function formatUploadErrorBody(body: unknown, status: number): string {
+  if (body && typeof body === "object") {
+    const record = body as Record<string, unknown>;
+    if (typeof record.reason === "string" && record.reason.trim()) {
+      return record.reason;
+    }
+    if (typeof record.message === "string" && record.message.trim()) {
+      return record.message;
+    }
+  }
+  return `HTTP ${status}`;
+}
+
+type FileUploadItemStatus = "pending" | "uploading" | "success" | "error";
+
+type FileUploadItem = {
+  id: string;
+  name: string;
+  status: FileUploadItemStatus;
+  errorMessage?: string;
+};
 
 const AppEditFileUpload: React.FC<{
   slug: string;
-  onUploadSuccess: (result: {
-    metadataChanged?: boolean;
-    firstValidExecutable?: string | null;
-  }) => void;
+  onUploadSuccess: (result: UploadSuccessResult) => void;
   keycloak?: Keycloak | undefined;
 }> = ({ slug, onUploadSuccess, keycloak }) => {
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [items, setItems] = useState<FileUploadItem[]>([]);
+  const [progress, setProgress] = useState<{ done: number; total: number }>({
+    done: 0,
+    total: 0,
+  });
+  const dragDepthRef = useRef(0);
+  const uploadingRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    assertDefined(keycloak);
-    setError(null);
-    setSuccess(null);
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setUploading(true);
-    let appMetadataChanged = false;
-    try {
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await (
-          await getFreshAuthorizedApiClient(keycloak)
-        ).writeDraftFile({
-          params: { slug, filePath: file.name },
-          body: formData,
-        });
-        if (res.status !== 204) {
-          throw new Error(`Upload failed for ${file.name}`);
+  const updateItem = useCallback(
+    (id: string, patch: Partial<FileUploadItem>) => {
+      setItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
+      );
+    },
+    []
+  );
+
+  const uploadFiles = useCallback(
+    async (fileList: FileList | File[]) => {
+      assertDefined(keycloak);
+      const files = Array.from(fileList);
+      if (files.length === 0 || uploadingRef.current) return;
+
+      uploadingRef.current = true;
+      setError(null);
+      setSuccess(null);
+      setUploading(true);
+      setProgress({ done: 0, total: files.length });
+
+      const initialItems: FileUploadItem[] = files.map((file, index) => ({
+        id: `${file.name}-${index}`,
+        name: file.name,
+        status: "pending",
+      }));
+      setItems(initialItems);
+
+      const succeeded: string[] = [];
+      const failed: Array<{ name: string; message: string }> = [];
+      let appMetadataChanged = false;
+
+      try {
+        const client = await getFreshAuthorizedApiClient(keycloak);
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          assertDefined(file);
+          const itemId = initialItems[i]?.id ?? `${file.name}-${i}`;
+
+          updateItem(itemId, { status: "uploading" });
+          setProgress({ done: i, total: files.length });
+
+          try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const res = await client.writeDraftFile({
+              params: { slug, filePath: file.name },
+              body: formData,
+            });
+            if (res.status !== 204) {
+              throw new Error(
+                `Upload failed for ${file.name}: ${formatUploadErrorBody(res.body, res.status)}`
+              );
+            }
+            if (file.name === "metadata.json") {
+              appMetadataChanged = true;
+            }
+            succeeded.push(file.name);
+            updateItem(itemId, { status: "success" });
+          } catch (err: unknown) {
+            console.error(err);
+            const message =
+              err instanceof Error
+                ? err.message
+                : `Upload failed for ${file.name}`;
+            failed.push({ name: file.name, message });
+            updateItem(itemId, { status: "error", errorMessage: message });
+          }
+
+          setProgress({ done: i + 1, total: files.length });
         }
-        if (file.name === "metadata.json") {
-          appMetadataChanged = true;
+
+        if (succeeded.length > 0) {
+          const nameSummary =
+            succeeded.length <= 3
+              ? succeeded.join(", ")
+              : `${succeeded.slice(0, 3).join(", ")} +${succeeded.length - 3} more`;
+          setSuccess(
+            succeeded.length === 1
+              ? `Uploaded ${nameSummary}.`
+              : `Uploaded ${succeeded.length} files: ${nameSummary}.`
+          );
+
+          const firstValidFile = files.find(
+            (f) => succeeded.includes(f.name) && isExecutableFileName(f.name)
+          );
+          onUploadSuccess({
+            metadataChanged: appMetadataChanged,
+            firstValidExecutable: firstValidFile ? firstValidFile.name : null,
+            uploadedPaths: succeeded,
+          });
+        }
+
+        if (failed.length > 0) {
+          setError(
+            failed.length === 1
+              ? (failed[0]?.message ?? "Upload failed.")
+              : `Upload failed for ${failed.length} files: ${failed.map((f) => f.name).join(", ")}.`
+          );
+        }
+      } catch (err: unknown) {
+        console.error(err);
+        setError(
+          err instanceof Error ? err.message : "Failed to upload file(s)."
+        );
+      } finally {
+        uploadingRef.current = false;
+        setUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
         }
       }
-      setSuccess("File(s) uploaded successfully.");
+    },
+    [keycloak, onUploadSuccess, slug, updateItem]
+  );
 
-      const firstValidFile = Array.from(files).find((f) =>
-        isExecutableFileName(f.name)
-      );
-      onUploadSuccess({
-        metadataChanged: appMetadataChanged,
-        firstValidExecutable: firstValidFile ? firstValidFile.name : null,
-      });
-    } catch (err: unknown) {
-      console.error(err);
-      setError(
-        err instanceof Error ? err.message : "Failed to upload file(s)."
-      );
-    } finally {
-      setUploading(false);
-      e.target.value = "";
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    await uploadFiles(files);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current += 1;
+    if (e.dataTransfer.types.includes("Files")) {
+      setIsDragging(true);
     }
   };
 
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current -= 1;
+    if (dragDepthRef.current <= 0) {
+      dragDepthRef.current = 0;
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragDepthRef.current = 0;
+    setIsDragging(false);
+    if (uploading) return;
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      await uploadFiles(files);
+    }
+  };
+
+  const openFilePicker = () => {
+    if (!uploading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const currentUploading = items.find((item) => item.status === "uploading");
+  const hasErrors = items.some((item) => item.status === "error");
+  const showItemList = items.length > 1 || uploading || hasErrors;
+
   return (
-    <section className="card bg-base-200 shadow-lg">
-      <div className="card-body">
-        <h2 className="card-title text-2xl mb-2">Files</h2>
-        <div className="form-control">
-          <label className="label" htmlFor="app-edit-file-upload-input">
-            <span className="label-text">Upload Files</span>
-          </label>
-          <input
-            id="app-edit-file-upload-input"
-            type="file"
-            name="file-upload"
-            data-testid="app-edit-file-upload-input"
-            className="file-input file-input-bordered w-full"
-            multiple
-            disabled={uploading}
-            onChange={handleFileChange}
-          />
-          <p className="label">
-            <span className="label-text-alt whitespace-normal break-words">
-              You can upload any file type (e.g., code, images, docs).
-              Executable file types will be selectable as "Main".
-            </span>
+    <div className="form-control">
+      {/* Drop target uses drag events; keyboard users use the browse button. */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: HTML5 file drop zone */}
+      <div
+        data-testid="app-edit-file-dropzone"
+        data-dragging={isDragging ? "true" : "false"}
+        className={`box-border rounded-box border-2 border-dashed p-6 text-center transition-colors duration-150 ring-2 ${
+          isDragging
+            ? "border-primary bg-primary/10 ring-primary/40"
+            : "border-base-content/20 bg-base-100/40 ring-transparent"
+        } ${uploading ? "opacity-70" : ""}`}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <input
+          ref={fileInputRef}
+          id="app-edit-file-upload-input"
+          type="file"
+          name="file-upload"
+          data-testid="app-edit-file-upload-input"
+          className="hidden"
+          multiple
+          disabled={uploading}
+          onChange={handleFileChange}
+        />
+
+        {/*
+          Keep layout stable while dragging (no content swap / size change),
+          and let pointer events hit the outer zone so children don't churn
+          dragenter/dragleave. Browse re-enables pointer events for clicks.
+        */}
+        <div className="pointer-events-none">
+          <p className={`font-medium ${isDragging ? "text-primary" : ""}`}>
+            {isDragging ? (
+              "Drop to upload"
+            ) : (
+              <>
+                Drag &amp; drop files here, or{" "}
+                <button
+                  type="button"
+                  className="link link-primary pointer-events-auto"
+                  disabled={uploading}
+                  onClick={openFilePicker}
+                >
+                  browse
+                </button>
+              </>
+            )}
           </p>
-          {uploading && (
-            <p className="text-xs text-success mt-2">Uploading...</p>
+          <p
+            className={`text-xs mt-2 whitespace-normal break-words ${
+              isDragging ? "opacity-0" : "opacity-60"
+            }`}
+            aria-hidden={isDragging}
+          >
+            Any file type is accepted (code, images, docs). Executable files can
+            be set as Main.
+          </p>
+
+          {uploading && progress.total > 0 && (
+            <div className="mt-4 text-left">
+              <progress
+                className="progress progress-primary w-full"
+                value={progress.done}
+                max={progress.total}
+                data-testid="app-edit-file-upload-progress"
+              />
+              <p className="text-xs opacity-70 mt-1">
+                {currentUploading
+                  ? `Uploading ${progress.done + 1} of ${progress.total}: ${currentUploading.name}`
+                  : progress.done >= progress.total
+                    ? `Uploaded ${progress.total} of ${progress.total}`
+                    : `Uploading ${progress.done} of ${progress.total}`}
+              </p>
+            </div>
           )}
-          {error && <p className="text-xs text-error mt-2">{error}</p>}
-          {success && <p className="text-xs text-success mt-2">{success}</p>}
+
+          {showItemList && items.length > 0 && (
+            <ul
+              className="mt-3 text-left text-xs space-y-1 max-h-40 overflow-y-auto"
+              data-testid="app-edit-file-upload-items"
+            >
+              {items.map((item) => (
+                <li key={item.id} className="flex items-center gap-2 font-mono">
+                  <span aria-hidden="true" className="w-4 shrink-0 text-center">
+                    {item.status === "success" && "✓"}
+                    {item.status === "uploading" && "↑"}
+                    {item.status === "pending" && "○"}
+                    {item.status === "error" && "✕"}
+                  </span>
+                  <span
+                    className={
+                      item.status === "error"
+                        ? "text-error"
+                        : item.status === "success"
+                          ? "opacity-80"
+                          : item.status === "uploading"
+                            ? "text-primary"
+                            : "opacity-50"
+                    }
+                  >
+                    {item.name}
+                    {item.status === "uploading" && " — Uploading…"}
+                    {item.status === "error" &&
+                      item.errorMessage &&
+                      ` — ${item.errorMessage}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
-    </section>
+
+      {error && (
+        <p className="text-xs text-error mt-2" role="alert">
+          {error}
+        </p>
+      )}
+      {success && !uploading && (
+        <p className="text-xs text-success mt-2" role="status">
+          {success}
+        </p>
+      )}
+    </div>
   );
 };
 
