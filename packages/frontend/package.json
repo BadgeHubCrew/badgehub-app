@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@orpc/client": "^1.14.8",
+    "@orpc/client": "^1.14.10",
     "@orpc/contract": "^1.14.8",
     "@orpc/openapi-client": "^1.14.8",
     "keycloak-js": "^26.2.4",
