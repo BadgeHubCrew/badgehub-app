@@ -13,7 +13,7 @@
   "dependencies": {
     "@orpc/client": "^1.14.8",
     "@orpc/contract": "^1.14.8",
-    "@orpc/openapi-client": "^1.14.8",
+    "@orpc/openapi-client": "^1.14.10",
     "keycloak-js": "^26.2.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
