@@ -47,10 +47,10 @@ describe("MarkdownText", () => {
       <MarkdownText>{"```ts\nconst ready = true;\n```"}</MarkdownText>
     );
 
-    // Syntax highlighting splits the code into separate tokens.
+    // Syntax highlighting gives keywords/literals their own styled spans.
     expect(screen.getByText("const")).toBeInTheDocument();
-    expect(screen.getByText("ready")).toBeInTheDocument();
     expect(screen.getByText("true")).toBeInTheDocument();
+    expect(container.querySelector("pre code span[style]")).toBeInTheDocument();
     expect(container.querySelector("pre code")).toBeInTheDocument();
   });
 
