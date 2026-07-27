@@ -138,7 +138,7 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
   it("does not show the rating control when logged out", async () => {
     renderWithoutProviders(
       <MemoryRouter>
-        <SessionContext value={{}}>
+        <SessionContext value={{ status: "anonymous" }}>
           <AppDetailPage
             apiClient={apiClientWithApps(dummyApps)}
             slug="dummy-app-1"

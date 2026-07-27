@@ -2,9 +2,9 @@ import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import { useTitle } from "@hooks/useTitle.ts";
 import { VALID_SLUG_REGEX } from "@shared/contracts/slug.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
+import { AuthGate } from "@sharedComponents/keycloakSession/AuthGate.tsx";
 import { useSession } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import PageLayout from "@sharedComponents/PageLayout.tsx";
-import { PleaseLoginMessage } from "@sharedComponents/PleaseLoginMessage.tsx";
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +16,6 @@ export interface AppCreationFormData {
   slug: string;
 }
 
-// Define the valid slug regex
-
 const initialForm: AppCreationFormData = {
   slug: "",
 };
@@ -26,7 +24,7 @@ const AppCreationPage: React.FC = () => {
   useTitle("Create project");
   const [form, setForm] = useState<AppCreationFormData>(initialForm);
   const [error, setError] = useState<string | null>(null);
-  const { user, keycloak } = useSession();
+  const { keycloak } = useSession();
   const navigate = useNavigate();
   const handleFormChange = (changes: Partial<AppCreationFormData>) => {
     setForm((prev) => ({
@@ -67,28 +65,21 @@ const AppCreationPage: React.FC = () => {
   // Check if slug is valid
   const isSlugValid = VALID_SLUG_REGEX.test(form.slug);
 
-  // Check if user is logged in
-  const userIsLoggedIn = keycloak?.authenticated && user?.id;
-
   return (
     <PageLayout data-testid="app-creation-page">
       <AppCreationBreadcrumb />
       <h1 className="text-3xl font-bold mb-6">Create a New Project</h1>
-      {!userIsLoggedIn ? (
-        <PleaseLoginMessage whatToSee="create a project" />
-      ) : (
-        <>
-          {error && (
-            <div role="alert" className="alert alert-error mb-4">
-              {error}
-            </div>
-          )}
-          <form className="space-y-8" onSubmit={handleSubmit}>
-            <AppCreationBasicInfo form={form} onChange={handleFormChange} />
-            <AppCreationActions isSlugValid={isSlugValid} />
-          </form>
-        </>
-      )}
+      <AuthGate whatToSee="create a project">
+        {error && (
+          <div role="alert" className="alert alert-error mb-4">
+            {error}
+          </div>
+        )}
+        <form className="space-y-8" onSubmit={handleSubmit}>
+          <AppCreationBasicInfo form={form} onChange={handleFormChange} />
+          <AppCreationActions isSlugValid={isSlugValid} />
+        </form>
+      </AuthGate>
     </PageLayout>
   );
 };

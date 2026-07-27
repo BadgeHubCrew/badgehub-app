@@ -10,6 +10,7 @@ const TestSessionProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const session = {
+    status: "authenticated" as const,
     user: {
       name: "Test User",
       email: "",
@@ -18,6 +19,7 @@ const TestSessionProvider: React.FC<{ children: React.ReactNode }> = ({
     },
     keycloak: {
       authenticated: true,
+      token: "test-token",
       login: vitest.fn() as unknown,
       logout: vitest.fn() as unknown,
       updateToken: vitest.fn().mockResolvedValue(true) as unknown,

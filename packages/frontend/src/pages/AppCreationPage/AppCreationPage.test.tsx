@@ -31,6 +31,7 @@ const renderLoggedOut = () =>
     <MemoryRouter>
       <SessionContext
         value={{
+          status: "anonymous",
           user: undefined,
           keycloak: { authenticated: false } as Keycloak,
         }}
