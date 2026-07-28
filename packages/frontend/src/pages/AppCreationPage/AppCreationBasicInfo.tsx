@@ -27,10 +27,9 @@ const AppCreationBasicInfo: React.FC<{
               placeholder="e.g., my_weather_station or com.example.myapp"
               value={slug}
               onChange={(e) => {
-                const value = e.target.value.replace(
-                  INVALID_SLUG_CHAR_REGEX,
-                  "_"
-                );
+                const value = e.target.value
+                  .toLowerCase()
+                  .replace(INVALID_SLUG_CHAR_REGEX, "_");
                 onChange({ slug: value });
               }}
               data-testid="app-creation-slug-input"
@@ -39,8 +38,8 @@ const AppCreationBasicInfo: React.FC<{
             />
             <p className="label">
               <span className="label-text-alt whitespace-normal break-words">
-                Lowercase letters, numbers, and underscores only. Should start
-                with a letter and contain at least 3 characters.
+                Lowercase letters, numbers, dots and underscores only. Should
+                start with a letter and contain at least 3 characters.
               </span>
             </p>
           </div>
