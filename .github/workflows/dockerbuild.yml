@@ -57,6 +57,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-24.04
+    if: ${{ false }}
     needs: build-and-push
     environment: badger-servers
     env:
