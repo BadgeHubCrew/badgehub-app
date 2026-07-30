@@ -134,7 +134,7 @@ export class BadgeHubData {
       },
       // how long to live in ms
       ttl: 60_000 * 60 * 12, // 12 hours
-      allowStale: true,
+      allowStale: false,
       // async method to use for cache.fetch(), for
       // stale-while-revalidate type of behavior
       fetchMethod: async (_key, _staleValue, { context }) => {
@@ -151,7 +151,7 @@ export class BadgeHubData {
     this.latestProjectCache = new LRUCache({
       max: 1000,
       ttl: 1000,
-      allowStale: true,
+      allowStale: false,
       fetchMethod: (_key, _staleValue, { context }) => {
         return this.badgeHubMetadata.getProject(
           context.projectSlug,
@@ -162,7 +162,7 @@ export class BadgeHubData {
     this.immutableProjectCache = new LRUCache({
       max: 1000,
       ttl: 60_000 * 60 * 12,
-      allowStale: true,
+      allowStale: false,
       fetchMethod: (_key, _staleValue, { context }) => {
         return this.badgeHubMetadata.getProject(
           context.projectSlug,

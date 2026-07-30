@@ -94,13 +94,21 @@ describe("Authenticated API Routes", () => {
         size_of_content: expect.any(Number),
       });
 
+      const publishRes = await request(app)
+        .patch(`/api/v3/projects/${dynamicTestAppId}/publish`)
+        .auth(USER1_TOKEN, { type: "bearer" });
+      expect(publishRes.statusCode).toBe(204);
+      await request(app).get(`/api/v3/projects/${dynamicTestAppId}`);
+
       const deleteRes = await request(app)
         .delete(`/api/v3/projects/${dynamicTestAppId}`)
         .auth(USER1_TOKEN, { type: "bearer" });
       expect(deleteRes.statusCode).toBe(204);
-      const getRes2 = await request(app)
-        .get(`/api/v3/projects/${dynamicTestAppId}`)
-        .auth(USER1_TOKEN, { type: "bearer" });
+      // Wait for cache to expire
+      await new Promise((r) => setTimeout(r, 1100));
+      const getRes2 = await request(app).get(
+        `/api/v3/projects/${dynamicTestAppId}`
+      );
       expect(getRes2.statusCode).toBe(404);
     });
 
