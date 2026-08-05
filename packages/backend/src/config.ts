@@ -14,7 +14,9 @@ export const POSTGRES_PASSWORD = getAndAssertEnv("POSTGRES_PASSWORD");
 export const POSTGRES_HOST = getAndAssertEnv("POSTGRES_HOST");
 export const POSTGRES_PORT = 5432;
 export const DISABLE_AUTH = process.env.DISABLE_AUTH === "true";
-export const MAX_UPLOAD_FILE_SIZE_BYTES = 32 * 1024 * 1024; // 32 MB
+
+/** Re-export for backend callers; single source of truth lives in shared. */
+export { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const FRONTEND_DIST_DIR = path.resolve(__dirname, "../../frontend/dist");

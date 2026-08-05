@@ -1,9 +1,12 @@
 import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import { isExecutableFileName } from "@utils/fileUtils.ts";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 import { useCallback, useRef, useState } from "react";
+
+const MAX_UPLOAD_FILE_SIZE_MB = MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024);
 
 export type UploadSuccessResult = {
   metadataChanged?: boolean;
@@ -95,6 +98,11 @@ const AppEditFileUpload: React.FC<{
           setProgress({ done: i, total: files.length });
 
           try {
+            if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
+              throw new Error(
+                `File too large (max ${MAX_UPLOAD_FILE_SIZE_MB} MB)`
+              );
+            }
             const formData = new FormData();
             formData.append("file", file);
             const res = await client.writeDraftFile({
@@ -279,8 +287,9 @@ const AppEditFileUpload: React.FC<{
             }`}
             aria-hidden={isDragging}
           >
-            Any file type is accepted (code, images, docs). Executable files can
-            be set as Main.
+            Any file type is accepted (code, images, docs). Max{" "}
+            {MAX_UPLOAD_FILE_SIZE_MB} MB per file. Executable files can be set
+            as Main.
           </p>
 
           {uploading && progress.total > 0 && (

@@ -1,5 +1,6 @@
 import { createExpressServer } from "@createExpressServer";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
 import type { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";
@@ -335,6 +336,21 @@ describe("Authenticated API Routes", () => {
             .auth(USER1_TOKEN, { type: "bearer" });
           expect(getRes.statusCode).toBe(404);
         }
+      });
+
+      test("POST rejects Content-Length over max upload size with 413", async () => {
+        const res = await request(app)
+          .post(`/api/v3/projects/${user1AppId}/draft/files/too-large.bin`)
+          .auth(USER1_TOKEN, { type: "bearer" })
+          .set("Content-Length", String(MAX_UPLOAD_FILE_SIZE_BYTES + 1))
+          .set("Content-Type", "multipart/form-data; boundary=----badgehub")
+          // No body: middleware must reject before reading the stream.
+          .send();
+        expect(res.statusCode).toBe(413);
+        expect(res.body).toMatchObject({
+          code: "PAYLOAD_TOO_LARGE",
+          status: 413,
+        });
       });
 
       test("POST /projects/{slug}/draft/icon converts and sets icons", async () => {

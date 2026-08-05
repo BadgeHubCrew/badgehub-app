@@ -4,6 +4,7 @@ import {
   FRONTEND_DIST_DIR,
   FRONTEND_PUBLIC_DIR,
   IS_DEV_ENVIRONMENT,
+  MAX_UPLOAD_FILE_SIZE_BYTES,
 } from "@config";
 import { OpenAPIHandler } from "@orpc/openapi/node";
 import { onError } from "@orpc/server";
@@ -122,6 +123,31 @@ export const createExpressServer = () => {
       writable: true,
       configurable: true,
     });
+    next();
+  });
+
+  // Reject oversized request bodies early (before buffering multipart into memory).
+  // Content-Length covers the whole request (multipart overhead included).
+  app.use("/api/v3", (req, res, next) => {
+    const contentLengthHeader = req.headers["content-length"];
+    if (contentLengthHeader === undefined) {
+      next();
+      return;
+    }
+    const contentLength = Number(contentLengthHeader);
+    if (
+      Number.isFinite(contentLength) &&
+      contentLength > MAX_UPLOAD_FILE_SIZE_BYTES
+    ) {
+      const maxMb = MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024);
+      res.status(413).json({
+        defined: false,
+        code: "PAYLOAD_TOO_LARGE",
+        status: 413,
+        message: `Request body exceeds the maximum allowed size of ${maxMb} MB`,
+      });
+      return;
+    }
     next();
   });
 

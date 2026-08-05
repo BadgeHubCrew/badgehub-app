@@ -1,4 +1,5 @@
 import { type OpenAPI, oc } from "@orpc/contract";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
 import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
@@ -74,6 +75,50 @@ const multipartOnly: OperationSpec = (operation) => {
   return { ...operation, requestBody: { ...body, content: multipartContent } };
 };
 
+/**
+ * oRPC's Zod→OpenAPI converter maps `z.file()` mime types but omits
+ * `.min()`/`.max()` size constraints. Inject them so Swagger documents the
+ * enforced upload limit (`maxLength` = max bytes for binary string content).
+ *
+ * @see https://orpc.dev/docs/openapi/openapi-specification#operation-metadata
+ */
+const withUploadFileMaxSize: OperationSpec = (operation) => {
+  const body = operation.requestBody;
+  if (!body || "$ref" in body) return operation;
+
+  const multipart = body.content?.["multipart/form-data"];
+  if (!multipart?.schema || "$ref" in multipart.schema) return operation;
+
+  const properties = multipart.schema.properties;
+  const fileSchema = properties?.file;
+  if (!fileSchema || "$ref" in fileSchema) return operation;
+
+  return {
+    ...operation,
+    requestBody: {
+      ...body,
+      content: {
+        ...body.content,
+        "multipart/form-data": {
+          ...multipart,
+          schema: {
+            ...multipart.schema,
+            properties: {
+              ...properties,
+              file: {
+                ...fileSchema,
+                type: "string",
+                format: "binary",
+                maxLength: MAX_UPLOAD_FILE_SIZE_BYTES,
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+};
+
 const scriptableSecurity = withSecurity([
   { bearerAuth: [] },
   { apiTokenAuth: [] },
@@ -85,7 +130,7 @@ const scriptable = oc.errors(privateErrors).route({
 
 /** Scriptable auth + multipart-only body for nested `z.file()` uploads. */
 const scriptableFileUpload = oc.errors(privateErrors).route({
-  spec: pipeSpec(scriptableSecurity, multipartOnly),
+  spec: pipeSpec(scriptableSecurity, multipartOnly, withUploadFileMaxSize),
 });
 
 const jwtOnly = oc.errors(privateErrors).route({
@@ -129,7 +174,10 @@ export const scriptablePrivateProjectContracts = {
         filePath: z.string(),
         file: z
           .file()
-          .describe("The file contents to upload (multipart field)."),
+          .max(MAX_UPLOAD_FILE_SIZE_BYTES)
+          .describe(
+            `The file contents to upload (multipart field). Maximum size: ${MAX_UPLOAD_FILE_SIZE_BYTES} bytes (${MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024)} MB).`
+          ),
       })
     )
     .output(z.void()),

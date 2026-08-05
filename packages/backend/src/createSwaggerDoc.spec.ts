@@ -1,5 +1,10 @@
 import { createSwaggerDoc } from "@createSwaggerDoc";
-import type { OperationObject, RequestBodyObject } from "openapi3-ts/oas32";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
+import type {
+  MediaTypeObject,
+  OperationObject,
+  RequestBodyObject,
+} from "openapi3-ts/oas32";
 import { describe, expect, it } from "vitest";
 
 describe("createSwaggerDoc", () => {
@@ -26,6 +31,36 @@ describe("createSwaggerDoc", () => {
       { bearerAuth: [] },
       { apiTokenAuth: [] },
     ]);
+  });
+
+  it("documents max upload size on writeDraftFile multipart file schema", async () => {
+    const swaggerDoc = await createSwaggerDoc();
+    const operation =
+      swaggerDoc.paths?.["/api/v3/projects/{slug}/draft/files/{filePath}"]
+        ?.post;
+    const multipart = (operation?.requestBody as RequestBodyObject | undefined)
+      ?.content?.["multipart/form-data"] as MediaTypeObject | undefined;
+    const bodySchema = multipart?.schema;
+    expect(bodySchema && typeof bodySchema === "object").toBe(true);
+    const properties =
+      bodySchema && typeof bodySchema === "object" && "properties" in bodySchema
+        ? bodySchema.properties
+        : undefined;
+    const fileSchema = properties?.file;
+    expect(fileSchema && typeof fileSchema === "object").toBe(true);
+
+    expect(fileSchema).toMatchObject({
+      type: "string",
+      format: "binary",
+      maxLength: MAX_UPLOAD_FILE_SIZE_BYTES,
+    });
+    expect(
+      fileSchema &&
+        typeof fileSchema === "object" &&
+        "description" in fileSchema
+        ? fileSchema.description
+        : undefined
+    ).toMatch(/432 MB/);
   });
 
   it("reuses shared domain schemas via components.schemas $ref", async () => {

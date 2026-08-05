@@ -1,3 +1,5 @@
+export const MAX_UPLOAD_FILE_SIZE_BYTES = 432 * 1024 * 1024; // 432 MB
+
 export type SharedConfig = {
   BADGE_SLUGS: [string, ...string[]];
   CATEGORY_NAMES: [string, ...string[]];
