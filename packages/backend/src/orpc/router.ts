@@ -11,6 +11,7 @@ import { privateRestContracts } from "@shared/contracts/privateRestContracts";
 import { publicRestContracts } from "@shared/contracts/publicRestContracts";
 import { getAllCategoryNames } from "@shared/domain/readModels/project/Category";
 import type { ProjectLatestRevisions } from "@shared/domain/readModels/project/ProjectRevision";
+import { detectMimeType } from "@util/mimeTypeDetection";
 import { parseAuth, requireAuth } from "./auth";
 import { assertProjectAccess, assertUserAccess } from "./authorization";
 import type { AppContext } from "./context";
@@ -276,12 +277,14 @@ export function createApiRouter(
       await assertProjectAccess(badgeHubData, input.slug, context);
       const file = input.file;
       const buffer = Buffer.from(await file.arrayBuffer());
+      // Prefer path/extension over generic client types (e.g. text/plain, octet-stream).
+      const mimetype = detectMimeType(file.type, input.filePath);
       try {
         await badgeHubData.writeDraftFile(
           input.slug,
           input.filePath,
           {
-            mimetype: file.type || "application/octet-stream",
+            mimetype,
             fileContent: buffer,
             directory: "",
             fileName: file.name,

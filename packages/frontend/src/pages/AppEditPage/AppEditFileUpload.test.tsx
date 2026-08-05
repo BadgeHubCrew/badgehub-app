@@ -1,20 +1,37 @@
-import { fireEvent, render, screen } from "@__test__";
-import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
+import { fireEvent, render, screen, waitFor } from "@__test__";
+import { getAuthorizationHeader, getFreshToken } from "@api/apiClient.ts";
+import { uploadDraftFile } from "@api/uploadDraftFile.ts";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppEditFileUpload from "./AppEditFileUpload.tsx";
 
 vi.mock("@api/apiClient.ts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@api/apiClient.ts")>();
   return {
     ...actual,
-    getFreshAuthorizedApiClient: vi.fn(),
+    getFreshToken: vi.fn().mockResolvedValue("token"),
+    getAuthorizationHeader: vi
+      .fn()
+      .mockResolvedValue({ authorization: "Bearer token" }),
   };
 });
 
+vi.mock("@api/uploadDraftFile.ts", () => ({
+  uploadDraftFile: vi.fn(),
+}));
+
 const keycloak = {
   updateToken: vi.fn().mockResolvedValue(true),
+  token: "token",
 } as unknown as import("keycloak-js").default;
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(getFreshToken).mockResolvedValue("token");
+  vi.mocked(getAuthorizationHeader).mockResolvedValue({
+    authorization: "Bearer token",
+  });
+});
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -40,10 +57,11 @@ describe("AppEditFileUpload", () => {
   it("uploads files and reports success with file names", async () => {
     const user = userEvent.setup();
     const onUploadSuccess = vi.fn();
-    const writeDraftFile = vi.fn().mockResolvedValue({ status: 204 });
-    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
-      writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
+    vi.mocked(uploadDraftFile).mockResolvedValue({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
 
     render(
       <AppEditFileUpload
@@ -63,7 +81,9 @@ describe("AppEditFileUpload", () => {
 
     await user.upload(fileInput, [executable, metadata]);
 
-    expect(writeDraftFile).toHaveBeenCalledTimes(2);
+    expect(uploadDraftFile).toHaveBeenCalledTimes(2);
+    expect(getAuthorizationHeader).toHaveBeenCalled();
+    expect(getFreshToken).toHaveBeenCalled();
     expect(onUploadSuccess).toHaveBeenCalledWith({
       metadataChanged: true,
       firstValidExecutable: "main.py",
@@ -80,13 +100,11 @@ describe("AppEditFileUpload", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
     const onUploadSuccess = vi.fn();
-    const writeDraftFile = vi.fn().mockResolvedValue({
+    vi.mocked(uploadDraftFile).mockResolvedValue({
       status: 400,
       body: { reason: "metadata.json is not valid JSON." },
+      headers: new Headers(),
     });
-    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
-      writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
     render(
       <AppEditFileUpload
@@ -111,18 +129,19 @@ describe("AppEditFileUpload", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it("shows progress while uploading multiple files", async () => {
+  it("updates the progress bar from XHR upload progress events", async () => {
     const user = userEvent.setup();
     const onUploadSuccess = vi.fn();
-    const first = deferred<{ status: number }>();
-    const writeDraftFile = vi
-      .fn()
-      .mockImplementationOnce(() => first.promise)
-      .mockResolvedValueOnce({ status: 204 });
+    const first = deferred<{
+      status: number;
+      body: undefined;
+      headers: Headers;
+    }>();
 
-    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
-      writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
+    vi.mocked(uploadDraftFile).mockImplementationOnce((options) => {
+      options.onProgress?.({ loaded: 50, total: 100 });
+      return first.promise;
+    });
 
     render(
       <AppEditFileUpload
@@ -133,24 +152,91 @@ describe("AppEditFileUpload", () => {
     );
 
     const fileInput = screen.getByTestId("app-edit-file-upload-input");
-    const fileA = new File(["a"], "a.py", { type: "text/x-python" });
-    const fileB = new File(["b"], "b.py", { type: "text/x-python" });
+    // 100-byte file so mid-upload progress is easy to assert
+    const fileA = new File([new Uint8Array(100)], "a.py", {
+      type: "text/x-python",
+    });
+
+    await user.upload(fileInput, [fileA]);
+
+    const bar = await screen.findByTestId("app-edit-file-upload-progress");
+    expect(bar).toHaveAttribute("value", "50");
+    expect(bar).toHaveAttribute("max", "100");
+    expect(
+      screen.getByText(/uploading 1 of 1: a\.py \(50%\)/i)
+    ).toBeInTheDocument();
+
+    first.resolve({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
+
+    expect(await screen.findByText(/uploaded a\.py/i)).toBeInTheDocument();
+    expect(onUploadSuccess).toHaveBeenCalled();
+  });
+
+  it("shows multi-file progress while the first upload is in flight", async () => {
+    const user = userEvent.setup();
+    const onUploadSuccess = vi.fn();
+    const first = deferred<{
+      status: number;
+      body: undefined;
+      headers: Headers;
+    }>();
+    let call = 0;
+
+    vi.mocked(uploadDraftFile).mockImplementation((options) => {
+      call += 1;
+      if (call === 1) {
+        options.onProgress?.({ loaded: 25, total: 100 });
+        return first.promise;
+      }
+      return Promise.resolve({
+        status: 204,
+        body: undefined,
+        headers: new Headers(),
+      });
+    });
+
+    render(
+      <AppEditFileUpload
+        slug="demo"
+        keycloak={keycloak}
+        onUploadSuccess={onUploadSuccess}
+      />
+    );
+
+    const fileInput = screen.getByTestId("app-edit-file-upload-input");
+    const fileA = new File([new Uint8Array(100)], "a.py", {
+      type: "text/x-python",
+    });
+    const fileB = new File([new Uint8Array(100)], "b.py", {
+      type: "text/x-python",
+    });
 
     await user.upload(fileInput, [fileA, fileB]);
 
+    const bar = await screen.findByTestId("app-edit-file-upload-progress");
+    // 25% of first 100-byte file → 25 / 200 overall
+    expect(bar).toHaveAttribute("value", "25");
+    expect(bar).toHaveAttribute("max", "200");
     expect(
-      await screen.findByText(/uploading 1 of 2: a\.py/i)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("app-edit-file-upload-progress")
+      screen.getByText(/uploading 1 of 2: a\.py \(13%\)/i)
     ).toBeInTheDocument();
 
-    first.resolve({ status: 204 });
+    first.resolve({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
 
     expect(
       await screen.findByText(/uploaded 2 files: a\.py, b\.py/i)
     ).toBeInTheDocument();
-    expect(writeDraftFile).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(uploadDraftFile).toHaveBeenCalledTimes(2);
+    });
     expect(onUploadSuccess).toHaveBeenCalled();
   });
 
@@ -176,10 +262,11 @@ describe("AppEditFileUpload", () => {
 
   it("uploads files dropped on the zone", async () => {
     const onUploadSuccess = vi.fn();
-    const writeDraftFile = vi.fn().mockResolvedValue({ status: 204 });
-    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
-      writeDraftFile,
-    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
+    vi.mocked(uploadDraftFile).mockResolvedValue({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
 
     render(
       <AppEditFileUpload
@@ -197,7 +284,7 @@ describe("AppEditFileUpload", () => {
     dropFiles(zone, [file]);
 
     expect(await screen.findByText(/uploaded main\.py/i)).toBeInTheDocument();
-    expect(writeDraftFile).toHaveBeenCalledTimes(1);
+    expect(uploadDraftFile).toHaveBeenCalledTimes(1);
     expect(onUploadSuccess).toHaveBeenCalledWith({
       metadataChanged: false,
       firstValidExecutable: "main.py",

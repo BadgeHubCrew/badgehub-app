@@ -1,4 +1,5 @@
-import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
+import { getAuthorizationHeader, getFreshToken } from "@api/apiClient.ts";
+import { uploadDraftFile } from "@api/uploadDraftFile.ts";
 import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import { isExecutableFileName } from "@utils/fileUtils.ts";
@@ -36,6 +37,22 @@ type FileUploadItem = {
   errorMessage?: string;
 };
 
+type UploadProgressState = {
+  /** Overall bytes accounted for (completed files + current file progress). */
+  loaded: number;
+  /** Sum of selected file sizes (at least 1 per file so empty files still move the bar). */
+  total: number;
+  /** 0-based index of the file currently uploading. */
+  fileIndex: number;
+  fileCount: number;
+  currentFileName: string | null;
+};
+
+function fileSizeForProgress(file: File): number {
+  // Empty files would otherwise make total=0 and freeze the bar at 0.
+  return Math.max(file.size, 1);
+}
+
 const AppEditFileUpload: React.FC<{
   slug: string;
   onUploadSuccess: (result: UploadSuccessResult) => void;
@@ -46,9 +63,12 @@ const AppEditFileUpload: React.FC<{
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [items, setItems] = useState<FileUploadItem[]>([]);
-  const [progress, setProgress] = useState<{ done: number; total: number }>({
-    done: 0,
+  const [progress, setProgress] = useState<UploadProgressState>({
+    loaded: 0,
     total: 0,
+    fileIndex: 0,
+    fileCount: 0,
+    currentFileName: null,
   });
   const dragDepthRef = useRef(0);
   const uploadingRef = useRef(false);
@@ -73,7 +93,18 @@ const AppEditFileUpload: React.FC<{
       setError(null);
       setSuccess(null);
       setUploading(true);
-      setProgress({ done: 0, total: files.length });
+
+      const totalBytes = files.reduce(
+        (sum, file) => sum + fileSizeForProgress(file),
+        0
+      );
+      setProgress({
+        loaded: 0,
+        total: totalBytes,
+        fileIndex: 0,
+        fileCount: files.length,
+        currentFileName: files[0]?.name ?? null,
+      });
 
       const initialItems: FileUploadItem[] = files.map((file, index) => ({
         id: `${file.name}-${index}`,
@@ -85,17 +116,26 @@ const AppEditFileUpload: React.FC<{
       const succeeded: string[] = [];
       const failed: Array<{ name: string; message: string }> = [];
       let appMetadataChanged = false;
+      let completedBytes = 0;
 
       try {
-        const client = await getFreshAuthorizedApiClient(keycloak);
+        // Ensure token is warm once; each request still refreshes if needed.
+        await getFreshToken(keycloak);
 
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           assertDefined(file);
           const itemId = initialItems[i]?.id ?? `${file.name}-${i}`;
+          const fileBudget = fileSizeForProgress(file);
 
           updateItem(itemId, { status: "uploading" });
-          setProgress({ done: i, total: files.length });
+          setProgress({
+            loaded: completedBytes,
+            total: totalBytes,
+            fileIndex: i,
+            fileCount: files.length,
+            currentFileName: file.name,
+          });
 
           try {
             if (file.size > MAX_UPLOAD_FILE_SIZE_BYTES) {
@@ -103,12 +143,30 @@ const AppEditFileUpload: React.FC<{
                 `File too large (max ${MAX_UPLOAD_FILE_SIZE_MB} MB)`
               );
             }
-            const formData = new FormData();
-            formData.append("file", file);
-            const res = await client.writeDraftFile({
-              params: { slug, filePath: file.name },
-              body: formData,
+
+            const { authorization } = await getAuthorizationHeader(keycloak);
+            const res = await uploadDraftFile({
+              slug,
+              filePath: file.name,
+              file,
+              authorization,
+              onProgress: ({ loaded, total }) => {
+                // Prefer real request total when XHR provides it; otherwise file size.
+                const requestTotal =
+                  total > 0 ? total : Math.max(file.size, loaded);
+                const fraction =
+                  requestTotal > 0 ? Math.min(loaded / requestTotal, 1) : 1;
+                const currentBytes = Math.round(fraction * fileBudget);
+                setProgress({
+                  loaded: completedBytes + currentBytes,
+                  total: totalBytes,
+                  fileIndex: i,
+                  fileCount: files.length,
+                  currentFileName: file.name,
+                });
+              },
             });
+
             if (res.status !== 204) {
               throw new Error(
                 `Upload failed for ${file.name}: ${formatUploadErrorBody(res.body, res.status)}`
@@ -129,7 +187,14 @@ const AppEditFileUpload: React.FC<{
             updateItem(itemId, { status: "error", errorMessage: message });
           }
 
-          setProgress({ done: i + 1, total: files.length });
+          completedBytes += fileBudget;
+          setProgress({
+            loaded: completedBytes,
+            total: totalBytes,
+            fileIndex: i,
+            fileCount: files.length,
+            currentFileName: file.name,
+          });
         }
 
         if (succeeded.length > 0) {
@@ -228,6 +293,10 @@ const AppEditFileUpload: React.FC<{
   const currentUploading = items.find((item) => item.status === "uploading");
   const hasErrors = items.some((item) => item.status === "error");
   const showItemList = items.length > 1 || uploading || hasErrors;
+  const percent =
+    progress.total > 0
+      ? Math.min(100, Math.round((progress.loaded / progress.total) * 100))
+      : 0;
 
   return (
     <div className="form-control">
@@ -296,16 +365,16 @@ const AppEditFileUpload: React.FC<{
             <div className="mt-4 text-left">
               <progress
                 className="progress progress-primary w-full"
-                value={progress.done}
+                value={progress.loaded}
                 max={progress.total}
                 data-testid="app-edit-file-upload-progress"
               />
               <p className="text-xs opacity-70 mt-1">
                 {currentUploading
-                  ? `Uploading ${progress.done + 1} of ${progress.total}: ${currentUploading.name}`
-                  : progress.done >= progress.total
-                    ? `Uploaded ${progress.total} of ${progress.total}`
-                    : `Uploading ${progress.done} of ${progress.total}`}
+                  ? `Uploading ${progress.fileIndex + 1} of ${progress.fileCount}: ${currentUploading.name} (${percent}%)`
+                  : progress.loaded >= progress.total
+                    ? `Uploaded ${progress.fileCount} of ${progress.fileCount}`
+                    : `Uploading ${progress.fileIndex + 1} of ${progress.fileCount} (${percent}%)`}
               </p>
             </div>
           )}
