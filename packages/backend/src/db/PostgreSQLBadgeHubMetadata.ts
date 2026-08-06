@@ -87,7 +87,7 @@ function dbFileToFileMetadata(
     size_of_content,
     url: fileDownloadUrl, // TODO profile files/sha endpoint and use that in the urls
     full_path,
-    size_formatted: `${(size_of_content / ONE_KILO).toFixed(2)}KB`,
+    size_formatted: `${(size_of_content / ONE_KILO).toFixed(2)} KB`,
   };
 }
 
