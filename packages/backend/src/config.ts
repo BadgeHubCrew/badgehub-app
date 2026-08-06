@@ -25,6 +25,8 @@ const sharedConfig = getSharedConfig();
 export const KEYCLOAK_CLIENT_ID =
   sharedConfig.keycloakPublic.KEYCLOAK_CLIENT_ID;
 export const BADGEHUB_API_BASE_URL = sharedConfig.BADGEHUB_API_BASE_URL;
+export const DB_BADGEHUB_API_BASE_URL =
+  process.env.DB_BADGEHUB_API_BASE_URL ?? BADGEHUB_API_BASE_URL;
 export const KEYCLOAK_BASE_URL = sharedConfig.keycloakPublic.KEYCLOAK_BASE_URL;
 export const KEYCLOAK_REALM = sharedConfig.keycloakPublic.KEYCLOAK_REALM;
 export const KEYCLOAK_REALM_ISSUER_URL = `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}`;

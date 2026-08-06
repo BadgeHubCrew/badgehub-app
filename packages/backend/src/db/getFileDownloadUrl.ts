@@ -1,4 +1,4 @@
-import { BADGEHUB_API_BASE_URL } from "@config";
+import { DB_BADGEHUB_API_BASE_URL } from "@config";
 import type { RevisionNumberOrAlias } from "@shared/domain/readModels/project/Version";
 
 type RevisionPathPart = "draft" | `rev${number}` | "latest";
@@ -12,5 +12,5 @@ export function getFileDownloadUrl(
     typeof versionRevision === "number"
       ? `rev${versionRevision}`
       : versionRevision;
-  return `${BADGEHUB_API_BASE_URL}/api/v3/projects/${project}/${revisionPathPart}/files/${encodeURIComponent(full_path)}`;
+  return `${DB_BADGEHUB_API_BASE_URL}/api/v3/projects/${project}/${revisionPathPart}/files/${encodeURIComponent(full_path)}`;
 }
