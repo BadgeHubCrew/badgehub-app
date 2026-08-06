@@ -1,5 +1,5 @@
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@config.ts";
 import { createSwaggerDoc } from "@createSwaggerDoc";
-import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
 import type {
   MediaTypeObject,
   OperationObject,
@@ -54,13 +54,6 @@ describe("createSwaggerDoc", () => {
       format: "binary",
       maxLength: MAX_UPLOAD_FILE_SIZE_BYTES,
     });
-    expect(
-      fileSchema &&
-        typeof fileSchema === "object" &&
-        "description" in fileSchema
-        ? fileSchema.description
-        : undefined
-    ).toMatch(/432 MB/);
   });
 
   it("reuses shared domain schemas via components.schemas $ref", async () => {

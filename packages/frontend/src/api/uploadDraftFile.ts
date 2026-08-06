@@ -1,5 +1,5 @@
 import type { ApiResult } from "@api/apiClient.ts";
-import { BADGHUB_API_V3_URL } from "@config.ts";
+import { BADGEHUB_API_V3_URL } from "@config.ts";
 
 export type UploadProgress = {
   /** Bytes sent so far for this request body. */
@@ -45,7 +45,7 @@ export function uploadDraftFile(
   options: UploadDraftFileOptions
 ): Promise<ApiResult> {
   const { slug, filePath, file, authorization, onProgress } = options;
-  const url = `${BADGHUB_API_V3_URL}/projects/${encodeURIComponent(slug)}/draft/files/${encodeFilePath(filePath)}`;
+  const url = `${BADGEHUB_API_V3_URL}/projects/${encodeURIComponent(slug)}/draft/files/${encodeFilePath(filePath)}`;
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();

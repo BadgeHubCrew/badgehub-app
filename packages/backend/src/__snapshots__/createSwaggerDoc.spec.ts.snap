@@ -2247,10 +2247,10 @@ Warning: if it is present, then badgehub clients on badges will not update the a
                 "properties": {
                   "file": {
                     "contentMediaType": "*/*",
-                    "description": "The file contents to upload (multipart field). Maximum size: 452984832 bytes (432 MB).",
+                    "description": "The file contents to upload (multipart field). Maximum size: 104857600 bytes (100 MB).",
                     "examples": undefined,
                     "format": "binary",
-                    "maxLength": 452984832,
+                    "maxLength": 104857600,
                     "title": undefined,
                     "type": "string",
                   },

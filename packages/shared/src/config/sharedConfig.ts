@@ -1,10 +1,9 @@
-export const MAX_UPLOAD_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB, cloudflare limit
-
 export type SharedConfig = {
   BADGE_SLUGS: [string, ...string[]];
   CATEGORY_NAMES: [string, ...string[]];
   ADMIN_CATEGORY_NAMES: [string, ...string[]];
   BADGEHUB_API_BASE_URL: string;
+  MAX_UPLOAD_FILE_SIZE_BYTES: number;
   keycloakPublic: {
     realmIssuerUrl: string;
     KEYCLOAK_BASE_URL: string;
@@ -25,6 +24,7 @@ export function getAndAssertEnv(envVarName: string) {
 }
 
 function readBFFEnv(): SharedConfig {
+  declare const process: { env: Record<string, string> };
   const KEYCLOAK_BASE_URL = getAndAssertEnv("KEYCLOAK_BASE_URL");
   const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM ?? "master";
   return {
@@ -48,6 +48,9 @@ function readBFFEnv(): SharedConfig {
       "Default",
     ]) as [string, ...string[]],
     isDevEnvironment: process.env.NODE_ENV === "development",
+    MAX_UPLOAD_FILE_SIZE_BYTES: process.env.MAX_UPLOAD_FILE_SIZE_BYTES
+      ? Number(process.env.MAX_UPLOAD_FILE_SIZE_BYTES)
+      : 100 * 1024 * 1024, // 100MB (Cloudflare limit)
   };
 }
 

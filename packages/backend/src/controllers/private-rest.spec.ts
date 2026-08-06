@@ -1,6 +1,6 @@
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@config.ts";
 import { createExpressServer } from "@createExpressServer";
 import { PostgreSQLBadgeHubMetadata } from "@db/PostgreSQLBadgeHubMetadata";
-import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
 import type { AppMetadataJSON } from "@shared/domain/readModels/project/AppMetadataJSON";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails";
 import type { ProjectSummary } from "@shared/domain/readModels/project/ProjectSummaries";

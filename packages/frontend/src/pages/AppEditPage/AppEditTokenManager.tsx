@@ -1,5 +1,5 @@
 import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
-import { BADGHUB_API_V3_URL } from "@config.ts";
+import { BADGEHUB_API_V3_URL } from "@config.ts";
 import type { ProjectApiTokenMetadata } from "@shared/domain/readModels/project/ProjectApiToken";
 import { assertDefined } from "@shared/util/assertions";
 import { ClipboardCopyIcon } from "@sharedComponents/icons/ClipboardCopyIcon.tsx";
@@ -126,7 +126,7 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
   };
   const tokenForCommand =
     newToken && showToken ? newToken : "YOUR_PROJECT_TOKEN";
-  const curlCommand = `curl -H "badgehub-api-token: ${tokenForCommand}" ${BADGHUB_API_V3_URL}/projects/${slug}/draft`;
+  const curlCommand = `curl -H "badgehub-api-token: ${tokenForCommand}" ${BADGEHUB_API_V3_URL}/projects/${slug}/draft`;
 
   const handleCopyCommand = () => {
     navigator.clipboard.writeText(curlCommand);

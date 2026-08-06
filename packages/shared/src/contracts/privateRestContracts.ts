@@ -1,5 +1,5 @@
 import { type OpenAPI, oc } from "@orpc/contract";
-import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
+import { getSharedConfig } from "@shared/config/sharedConfig";
 import { errorResponseSchema } from "@shared/contracts/errorSchemas";
 import { projectApiTokenMetadataSchema } from "@shared/domain/readModels/project/ProjectApiToken";
 import { detailedProjectSchema } from "@shared/domain/readModels/project/ProjectDetails";
@@ -9,6 +9,7 @@ import { writeAppMetadataJSONSchema } from "@shared/domain/writeModels/AppMetada
 import { createProjectPropsSchema } from "@shared/domain/writeModels/project/WriteProject";
 import { z } from "zod";
 
+const MAX_UPLOAD_FILE_SIZE_BYTES = getSharedConfig().MAX_UPLOAD_FILE_SIZE_BYTES;
 /** Stable identity so OpenAPI can $ref create/update project bodies. */
 export const createProjectBodySchema = createProjectPropsSchema
   .omit({ slug: true, idp_user_id: true })

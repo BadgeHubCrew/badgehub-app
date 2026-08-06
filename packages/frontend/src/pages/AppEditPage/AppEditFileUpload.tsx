@@ -1,13 +1,16 @@
 import { getAuthorizationHeader, getFreshToken } from "@api/apiClient.ts";
 import { uploadDraftFile } from "@api/uploadDraftFile.ts";
-import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig.ts";
+import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@config.ts";
 import { assertDefined } from "@shared/util/assertions.ts";
 import { isExecutableFileName } from "@utils/fileUtils.ts";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 import { useCallback, useRef, useState } from "react";
 
-const MAX_UPLOAD_FILE_SIZE_MB = MAX_UPLOAD_FILE_SIZE_BYTES / (1024 * 1024);
+const MAX_UPLOAD_FILE_SIZE_MB = (
+  MAX_UPLOAD_FILE_SIZE_BYTES /
+  (1024 * 1024)
+).toFixed();
 
 export type UploadSuccessResult = {
   metadataChanged?: boolean;

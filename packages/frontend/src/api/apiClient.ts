@@ -1,4 +1,4 @@
-import { BADGHUB_API_V3_URL } from "@config.ts";
+import { BADGEHUB_API_V3_URL } from "@config.ts";
 import { createORPCClient, onError } from "@orpc/client";
 import type { ContractRouterClient } from "@orpc/contract";
 import type { JsonifiedClient } from "@orpc/openapi-client";
@@ -177,7 +177,7 @@ function createLink(
   headers?: () => Record<string, string> | Promise<Record<string, string>>
 ) {
   return new OpenAPILink<ApiClientContext>(apiContracts, {
-    url: BADGHUB_API_V3_URL,
+    url: BADGEHUB_API_V3_URL,
     headers: async (options) => {
       const base = headers ? await headers() : {};
       return {

@@ -15,9 +15,6 @@ export const POSTGRES_HOST = getAndAssertEnv("POSTGRES_HOST");
 export const POSTGRES_PORT = 5432;
 export const DISABLE_AUTH = process.env.DISABLE_AUTH === "true";
 
-/** Re-export for backend callers; single source of truth lives in shared. */
-export { MAX_UPLOAD_FILE_SIZE_BYTES } from "@shared/config/sharedConfig";
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const FRONTEND_DIST_DIR = path.resolve(__dirname, "../../frontend/dist");
 export const FRONTEND_PUBLIC_DIR = path.resolve(
@@ -32,6 +29,8 @@ export const KEYCLOAK_BASE_URL = sharedConfig.keycloakPublic.KEYCLOAK_BASE_URL;
 export const KEYCLOAK_REALM = sharedConfig.keycloakPublic.KEYCLOAK_REALM;
 export const KEYCLOAK_REALM_ISSUER_URL = `${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}`;
 export const IS_DEV_ENVIRONMENT = sharedConfig.isDevEnvironment;
+export const MAX_UPLOAD_FILE_SIZE_BYTES =
+  sharedConfig.MAX_UPLOAD_FILE_SIZE_BYTES;
 
 export const KEYCLOAK_CERTS_URL = `${KEYCLOAK_REALM_ISSUER_URL}/protocol/openid-connect/certs`;
 
