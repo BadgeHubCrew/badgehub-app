@@ -27,3 +27,8 @@ services:
       MQTT_INTERVAL_SEC: ${MQTT_INTERVAL_SEC}
     networks:
       - badgehub_network
+networks:
+  badgehub_network:
+    name: badgehub_network
+    external: true
+
