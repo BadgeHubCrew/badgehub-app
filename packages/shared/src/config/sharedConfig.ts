@@ -1,4 +1,4 @@
-export const MAX_UPLOAD_FILE_SIZE_BYTES = 432 * 1024 * 1024; // 432 MB
+export const MAX_UPLOAD_FILE_SIZE_BYTES = 100 * 1024 * 1024; // 100 MB, cloudflare limit
 
 export type SharedConfig = {
   BADGE_SLUGS: [string, ...string[]];
