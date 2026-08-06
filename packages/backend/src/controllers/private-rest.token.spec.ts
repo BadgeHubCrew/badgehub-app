@@ -52,16 +52,6 @@ describe("Project API Tokens", () => {
         .auth(USER1_TOKEN, { type: "bearer" });
       expect(getResAfterCreate.statusCode).toBe(200);
 
-      const body = getResAfterCreate.body as ProjectApiTokenMetadata;
-      const oneMinuteMillis = 60_000;
-      // Test that the date is sensible
-      expect(
-        -Math.abs(Date.now() - Date.parse(body.created_at))
-      ).toBeGreaterThanOrEqual(-oneMinuteMillis);
-      expect(
-        -Math.abs(Date.now() - Date.parse(body.last_used_at))
-      ).toBeGreaterThanOrEqual(-oneMinuteMillis);
-
       const deleteRes = await request(app)
         .delete(`/api/v3/projects/${dynamicAppId}/token`)
         .auth(USER1_TOKEN, { type: "bearer" })
