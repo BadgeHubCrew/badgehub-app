@@ -9,10 +9,21 @@ import type { publicApiClient as defaultApiClient } from "@api/apiClient.ts";
 import { SessionContext } from "@sharedComponents/keycloakSession/SessionContext.tsx";
 import { act, render as renderWithoutProviders } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import AppDetailPage from "./AppDetailPage.tsx";
 
+const { installMpkWebSerial } = vi.hoisted(() => ({
+  installMpkWebSerial: vi.fn(),
+}));
+
+vi.mock("mpk-installer?module", () => ({ installMpkWebSerial }));
+
 describe("AppDetailPage", { timeout: 1000_000 }, () => {
+  beforeEach(() => {
+    installMpkWebSerial.mockReset();
+    installMpkWebSerial.mockResolvedValue(undefined);
+  });
+
   it("renders app details when found", async () => {
     const app = dummyApps[0]?.summary;
     expect(app).toBeDefined();
@@ -45,6 +56,115 @@ describe("AppDetailPage", { timeout: 1000_000 }, () => {
     if (firstBadge) {
       expect(screen.queryAllByText(firstBadge).length).toBeGreaterThan(0);
     }
+  });
+
+  it("only shows the install button for apps with an MPK file", async () => {
+    const firstApp = dummyApps[0];
+    expect(firstApp).toBeDefined();
+    if (!firstApp) {
+      throw new Error("Expected a dummy app");
+    }
+    const mpkUrl =
+      "https://example.com/api/v3/projects/dummy-app-1/rev1/files/app.mpk";
+    const appsWithMpk = [
+      {
+        ...firstApp,
+        details: {
+          ...firstApp.details,
+          version: {
+            ...firstApp.details.version,
+            files: [
+              {
+                dir: "",
+                name: "app",
+                ext: "mpk",
+                mimetype: "application/octet-stream",
+                size_of_content: 1024,
+                sha256: "a".repeat(64),
+                size_formatted: "1 KB",
+                full_path: "app.MPK",
+                url: mpkUrl,
+                created_at: firstApp.details.created_at,
+                updated_at: firstApp.details.updated_at,
+              },
+            ],
+          },
+        },
+      },
+      ...dummyApps.slice(1),
+    ];
+
+    installMpkWebSerial.mockImplementation(
+      async (
+        _url: string,
+        options?: { onProgress?: (value: unknown) => void }
+      ) => {
+        options?.onProgress?.({
+          phase: "uploading",
+          progress: 0.42,
+          totalBytes: 100,
+        });
+        return {
+          installed: true,
+          overwritten: false,
+          appId: "be.example.app",
+          location: "/apps/be.example.app",
+        };
+      }
+    );
+
+    const baseClient = apiClientWithApps(appsWithMpk);
+    const reportInstall = vi.fn().mockResolvedValue({
+      status: 204,
+      body: undefined,
+      headers: new Headers(),
+    });
+    const client = {
+      ...baseClient,
+      reportInstall,
+    } as unknown as typeof defaultApiClient;
+
+    const { user } = render(
+      <AppDetailPage apiClient={client} slug="dummy-app-1" />
+    );
+
+    const installButton = await screen.findByRole("button", {
+      name: "Install on badge",
+    });
+    await user.click(installButton);
+
+    expect(installMpkWebSerial).toHaveBeenCalledOnce();
+    expect(installMpkWebSerial).toHaveBeenCalledWith(
+      mpkUrl,
+      expect.objectContaining({
+        overwrite: true,
+        onProgress: expect.any(Function),
+      })
+    );
+    expect(screen.getByText("42%")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Installed be.example.app.")
+    ).toBeInTheDocument();
+    expect(reportInstall).toHaveBeenCalledOnce();
+    expect(reportInstall).toHaveBeenCalledWith({
+      params: { slug: "dummy-app-1", revision: 1 },
+      query: { id: expect.stringMatching(/^web-installer-/) },
+    });
+  });
+
+  it("does not show the install button when the app has no MPK file", async () => {
+    render(
+      <AppDetailPage
+        apiClient={apiClientWithApps(dummyApps)}
+        slug="dummy-app-1"
+      />
+    );
+
+    await screen.findByTestId("app-detail-page");
+
+    expect(
+      screen.queryByRole("button", { name: "Install on badge" })
+    ).not.toBeInTheDocument();
   });
 
   it("shows the project rating aggregate", async () => {

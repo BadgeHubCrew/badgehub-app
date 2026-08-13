@@ -152,7 +152,7 @@ const AppDetailPage: React.FunctionComponent<{
       )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <AppDetailHeader project={project} />
+          <AppDetailHeader project={project} apiClient={apiClient} />
           <AppRating project={project} apiClient={apiClient} />
           <AppDescription project={project} />
           <AppCodePreview project={project} />

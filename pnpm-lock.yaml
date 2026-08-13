@@ -190,6 +190,9 @@ importers:
       keycloak-js:
         specifier: ^26.2.4
         version: 26.2.4
+      mpk-installer:
+        specifier: 0.2.0
+        version: 0.2.0
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -2422,6 +2425,9 @@ packages:
   mongodb-uri@0.9.7:
     resolution: {integrity: sha512-s6BdnqNoEYfViPJgkH85X5Nw5NpzxN8hoflKLweNa7vBxt2V7kaS06d74pAtqDxde8fn4r9h4dNdLiFGoNV0KA==}
     engines: {node: '>= 0.6.0'}
+
+  mpk-installer@0.2.0:
+    resolution: {integrity: sha512-GGGTECnzB6em45RsECkWPlIDljsrpc2rHIocA+XIgiOSg8Bl+/Gbw/rnHtkWjZswSACZhT3BqOz1Y5FKQ/5pfA==}
 
   mqtt-packet@9.0.2:
     resolution: {integrity: sha512-MvIY0B8/qjq7bKxdN1eD+nrljoeaai+qjLJgfRn3TiMuz0pamsIWY2bFODPZMSNmabsLANXsLl4EMoWvlaTZWA==}
@@ -5232,6 +5238,10 @@ snapshots:
   moment@2.30.1: {}
 
   mongodb-uri@0.9.7: {}
+
+  mpk-installer@0.2.0:
+    dependencies:
+      fflate: 0.8.3
 
   mqtt-packet@9.0.2:
     dependencies:

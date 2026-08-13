@@ -1,12 +1,18 @@
+import type { ApiClient } from "@api/apiClient.ts";
 import { getDevelopmentStatus } from "@shared/domain/readModels/project/AppMetadataJSON.ts";
 import type { ProjectDetails } from "@shared/domain/readModels/project/ProjectDetails.ts";
 import GitLink from "@sharedComponents/GitLink.tsx";
 import type React from "react";
+import AppInstallButton from "./AppInstallButton.tsx";
 
-const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
-  project,
-}) => {
+const AppDetailHeader: React.FC<{
+  apiClient: ApiClient;
+  project: ProjectDetails;
+}> = ({ apiClient, project }) => {
   const appMetadata = project.version.app_metadata;
+  const mpkFile = project.version.files.find((file) =>
+    file.full_path.toLowerCase().endsWith(".mpk")
+  );
   return (
     <section className="card bg-base-200 shadow-lg">
       <div className="card-body p-6">
@@ -31,7 +37,15 @@ const AppDetailHeader: React.FC<{ project: ProjectDetails }> = ({
                 : "—"}
             </p>
           </div>
-          <div className="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0 flex items-center">
+          <div className="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0 flex flex-wrap items-start gap-3">
+            {mpkFile && (
+              <AppInstallButton
+                apiClient={apiClient}
+                mpkUrl={mpkFile.url}
+                revision={project.version.revision}
+                slug={project.slug}
+              />
+            )}
             <GitLink url={appMetadata.git_url} showText={true} />
           </div>
         </div>
