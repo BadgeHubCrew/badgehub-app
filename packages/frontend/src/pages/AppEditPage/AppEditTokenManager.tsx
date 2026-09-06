@@ -9,10 +9,13 @@ import { EyeOffIcon } from "@sharedComponents/icons/EyeOffIcon.tsx";
 import type Keycloak from "keycloak-js";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import AppEditOwnershipTransfer from "./AppEditOwnershipTransfer.tsx";
 
 interface AppEditTokenManagerProps {
   slug: string;
   keycloak: Keycloak;
+  onTransferOwner: (newOwnerId: string) => Promise<boolean> | boolean;
+  projectOwnerId: string;
 }
 
 /**
@@ -22,6 +25,8 @@ interface AppEditTokenManagerProps {
 const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
   slug,
   keycloak,
+  onTransferOwner,
+  projectOwnerId,
 }) => {
   const [tokenMetadata, setTokenMetadata] =
     useState<ProjectApiTokenMetadata | null>(null);
@@ -263,6 +268,10 @@ const AppEditTokenManager: React.FC<AppEditTokenManagerProps> = ({
               </button>
             </div>
           )}
+          <AppEditOwnershipTransfer
+            onTransferOwner={onTransferOwner}
+            projectOwnerId={projectOwnerId}
+          />
         </div>
       </div>
     </section>

@@ -27,6 +27,14 @@ const AppEditStateView: React.FC<{
           </>
         ) : error === "not_found" ? (
           <div className="text-error">App not found.</div>
+        ) : error === "authorization" ? (
+          <>
+            <div className="text-warning text-xl mb-4">Access denied</div>
+            <div className="opacity-70">
+              You are logged in, but you are not authorized to edit this
+              project.
+            </div>
+          </>
         ) : (
           <div className="text-error">
             Failed to load project. Please try again.

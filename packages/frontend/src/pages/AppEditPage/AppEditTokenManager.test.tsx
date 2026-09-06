@@ -1,4 +1,4 @@
-import { render, screen } from "@__test__";
+import { render, screen, within } from "@__test__";
 import { getFreshAuthorizedApiClient } from "@api/apiClient.ts";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -29,7 +29,14 @@ describe("AppEditTokenManager", () => {
       getProjectApiTokenMetadata: vi.fn().mockResolvedValue({ status: 404 }),
     } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
-    render(<AppEditTokenManager slug="demo" keycloak={keycloak} />);
+    render(
+      <AppEditTokenManager
+        slug="demo"
+        keycloak={keycloak}
+        onTransferOwner={vi.fn()}
+        projectOwnerId="owner-id"
+      />
+    );
 
     expect(await screen.findByText(/no active api token/i)).toBeInTheDocument();
   });
@@ -47,12 +54,61 @@ describe("AppEditTokenManager", () => {
       }),
     } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
 
-    render(<AppEditTokenManager slug="demo" keycloak={keycloak} />);
+    render(
+      <AppEditTokenManager
+        slug="demo"
+        keycloak={keycloak}
+        onTransferOwner={vi.fn()}
+        projectOwnerId="owner-id"
+      />
+    );
 
     await user.click(await screen.findByText(/generate new token/i));
 
     expect(
       await screen.findByDisplayValue("new-token-value")
     ).toBeInTheDocument();
+  });
+
+  it("puts ownership transfer beneath the API token controls", async () => {
+    const user = userEvent.setup();
+    const onTransferOwner = vi.fn().mockResolvedValue(true);
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
+      ...baseClient,
+      getProjectApiTokenMetadata: vi.fn().mockResolvedValue({ status: 404 }),
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
+
+    render(
+      <AppEditTokenManager
+        slug="demo"
+        keycloak={keycloak}
+        onTransferOwner={onTransferOwner}
+        projectOwnerId="owner-id"
+      />
+    );
+
+    const tokenHeading = await screen.findByRole("heading", {
+      name: "API Token",
+    });
+    const transferHeading = screen.getByRole("heading", {
+      name: "Transfer ownership",
+    });
+    expect(
+      tokenHeading.compareDocumentPosition(transferHeading) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+
+    await user.type(
+      screen.getByRole("textbox", { name: /new owner/i }),
+      "new-owner-id"
+    );
+    await user.click(screen.getByRole("button", { name: /^transfer$/i }));
+    const dialog = screen.getByRole("dialog", {
+      name: "Transfer this project?",
+    });
+    await user.click(
+      within(dialog).getByRole("button", { name: "Transfer project" })
+    );
+    expect(onTransferOwner).toHaveBeenCalledWith("new-owner-id");
   });
 });

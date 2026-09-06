@@ -89,8 +89,6 @@ const AppEditForm: React.FC<{
         >
           <AppEditActions
             onClickDeleteApplication={onDeleteApplication}
-            onTransferOwner={onTransferOwner}
-            projectOwnerId={project.idp_user_id}
             workInProgress={
               appMetadata.development_status === "work_in_progress"
             }
@@ -126,7 +124,12 @@ const AppEditForm: React.FC<{
             showFileList={false}
           />
         </form>
-        <AppEditTokenManager slug={slug} keycloak={keycloak} />
+        <AppEditTokenManager
+          slug={slug}
+          keycloak={keycloak}
+          onTransferOwner={onTransferOwner}
+          projectOwnerId={project.idp_user_id}
+        />
       </div>
     </>
   );

@@ -14,7 +14,15 @@ vi.mock("@api/apiClient.ts", async (importOriginal) => {
 });
 
 vi.mock("./AppEditTokenManager.tsx", () => ({
-  default: () => <div data-testid="app-edit-token-manager" />,
+  default: ({
+    onTransferOwner,
+  }: {
+    onTransferOwner: (newOwnerId: string) => Promise<boolean>;
+  }) => (
+    <button type="button" onClick={() => void onTransferOwner("new-owner-id")}>
+      Trigger ownership transfer
+    </button>
+  ),
 }));
 
 describe("AppEditPage", () => {
@@ -36,7 +44,9 @@ describe("AppEditPage", () => {
     expect(
       await screen.findByText(/Editing dummy-app-1\/rev1/i)
     ).toBeInTheDocument();
-    expect(screen.getByTestId("app-edit-token-manager")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Trigger ownership transfer" })
+    ).toBeInTheDocument();
   });
 
   it("shows authentication required when the draft request is unauthorized", async () => {
@@ -55,6 +65,29 @@ describe("AppEditPage", () => {
     expect(
       await screen.findByText(/authentication required/i)
     ).toBeInTheDocument();
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("shows access denied without a login button when the logged-in user is forbidden", async () => {
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    vi.mocked(getFreshAuthorizedApiClient).mockResolvedValue({
+      getDraftProject: vi.fn().mockResolvedValue({
+        status: 403,
+        body: { reason: "Forbidden" },
+      }),
+    } as unknown as Awaited<ReturnType<typeof getFreshAuthorizedApiClient>>);
+
+    render(<AppEditPage slug="another-users-project" />);
+
+    expect(await screen.findByText(/access denied/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/logged in, but you are not authorized/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /log in/i })
+    ).not.toBeInTheDocument();
     consoleErrorSpy.mockRestore();
   });
 
@@ -230,17 +263,13 @@ describe("AppEditPage", () => {
 
     render(<AppEditPage slug="dummy-app-1" />);
 
-    await user.type(
-      await screen.findByRole("textbox", { name: /new owner/i }),
-      "new-owner-id"
+    await user.click(
+      await screen.findByRole("button", { name: "Trigger ownership transfer" })
     );
-    await user.click(screen.getByRole("button", { name: /^transfer$/i }));
-    await user.click(screen.getByRole("button", { name: "Transfer project" }));
 
     expect(transferProjectOwner).toHaveBeenCalledWith({
       params: { slug: "dummy-app-1" },
       body: { newOwnerId: "new-owner-id" },
     });
-    expect(await screen.findByText("new-owner-id")).toBeInTheDocument();
   });
 });
