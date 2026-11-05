@@ -1,4 +1,4 @@
-FROM node:24.13.1-bookworm-slim
+FROM node:26.13.0-bookworm-slim
 
 # First install dependencies without any source code affecting the docker cache
 WORKDIR /home/node/app
@@ -16,7 +16,7 @@ COPY . .
 RUN pnpm run build
 
 # Setup env and dirs for running the application
-WORKDIR packages/backend
+WORKDIR packages/backendf
 RUN mkdir -p /home/node/.pm2 logs pids && chown -R node:node /home/node/.pm2 logs pids
 USER node
 EXPOSE 8081
